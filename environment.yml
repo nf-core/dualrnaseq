@@ -4,12 +4,29 @@ name: nf-core-dualrnaseq-1.0dev
 channels:
   - conda-forge
   - bioconda
+  - anaconda
   - defaults
 dependencies:
   - conda-forge::python=3.7.3
   - conda-forge::markdown=3.1.1
   - conda-forge::pymdown-extensions=6.0
   - conda-forge::pygments=2.5.2
-  # TODO nf-core: Add required software dependencies here
-  - bioconda::fastqc=0.11.8
-  - bioconda::multiqc=1.7
+
+
+  - bioconda::fastqc=0.11.9
+  - bioconda::multiqc=1.8
+  - star 2.7.3a
+  - samtools 1.7
+
+  - pip
+  - pip:
+    - biopython==1.76
+    - numpy==1.18.2
+    - pandas==1.0.2
+    - htseq==0.11.3
+    - pysam==0.15.4
+    - cutadapt==2.8
+    - multiqc==1.8
+    - matplotlib==3.1.1
+    - seaborn==0.10.0
+
