@@ -21,8 +21,8 @@ jobs:
           sudo mv nextflow /usr/local/bin/
       - name: Pull docker image
         run: |
-          docker pull dualrnaseq/dualrnaseq:dev
-          docker tag dualrnaseq/dualrnaseq:dev dualrnaseq/dualrnaseq:dev
+          docker pull nfcore/dualrnaseq:dev
+          docker tag nfcore/dualrnaseq:dev nfcore/dualrnaseq:dev
       - name: Run pipeline with test data
         run: |
           # TODO nf-core: You can customise CI pipeline run tests as required
