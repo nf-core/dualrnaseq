@@ -201,10 +201,12 @@ process get_software_versions {
 process fastqc {
     tag "$name"
     label 'process_medium'
+    label 'main_env'
     publishDir "${params.outdir}/fastqc", mode: 'copy',
         saveAs: { filename ->
                       filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
                 }
+    storeDir "${params.outdir}/fastqc"
 
     input:
     set val(name), file(reads) from ch_read_files_fastqc
@@ -218,11 +220,14 @@ process fastqc {
     """
 }
 
+
 /*
  * STEP 2 - MultiQC
  */
+/*
 process multiqc {
     publishDir "${params.outdir}/MultiQC", mode: 'copy'
+    storeDir "${params.outdir}/MultiQC"
 
     input:
     file (multiqc_config) from ch_multiqc_config
@@ -246,10 +251,13 @@ process multiqc {
     multiqc -f $rtitle $rfilename $custom_config_file .
     """
 }
+*/
 
 /*
  * STEP 3 - Output Description HTML
  */
+
+/*
 process output_documentation {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
@@ -264,6 +272,10 @@ process output_documentation {
     markdown_to_html.py $output_docs -o results_description.html
     """
 }
+
+*/
+
+
 
 /*
  * Completion e-mail notification
