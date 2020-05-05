@@ -10,6 +10,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
 * [FastQC](#fastqc) - read quality control
+* [cutadapt](#cutadapt) - adapter trimming
+* [salmon](#salmon-selective_alignment) - selective alignment and quantification 
+* [STAR](#STAR) - alignment-based mapping
+* [HTSeq](#HTSeq) - quantification 
 * [MultiQC](#multiqc) - aggregate report, describing results of the whole pipeline
 
 ## FastQC

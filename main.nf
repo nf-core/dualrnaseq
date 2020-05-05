@@ -32,6 +32,11 @@ def helpMessage() {
     References                        If not specified in the configuration file or you wish to overwrite any of the references
       --fasta [file]                  Path to fasta reference
 
+    Trimming:
+      --skipTrimming                Skip trimming step
+
+
+
     Other options:
       --outdir [file]                 The output directory where the results will be saved
       --email [email]                 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
@@ -64,13 +69,14 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
 // TODO nf-core: Add any reference files that are needed
 // Configurable reference genomes
 //
-// NOTE - THIS IS NOT USED IN THIS PIPELINE, EXAMPLE ONLY
-// If you want to use the channel below in a process, define the following:
-//   input:
-//   file fasta from ch_fasta
-//
+
 params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
 if (params.fasta) { ch_fasta = file(params.fasta, checkIfExists: true) }
+
+
+
+
+
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
@@ -94,6 +100,10 @@ ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: t
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
 ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
+
+
+
+
 /*
  * Create a channel for input read files
  */
@@ -103,26 +113,49 @@ if (params.readPaths) {
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; ch_read_files_trimming }
+            .into { ch_read_files_fastqc; trimming_reads }
     } else {
         Channel
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; ch_read_files_trimming }
+            .into { ch_read_files_fastqc; trimming_reads }
     }
 } else {
     Channel
         .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
-        .into { ch_read_files_fastqc; ch_read_files_trimming }
+        .into { ch_read_files_fastqc; trimming_reads }
 }
+
+
+if (!params.skipTrimming){
+	if(params.single_end){
+		Channel
+		    .value( params.a )
+		    .set { adapter_sequence_3 }
+	} else {
+		Channel
+		    .from (params.a, params.A)
+		    .collect()
+		    .set { adapter_sequence_3 }
+	}
+	Channel
+	 .value(params.quality_cutoff)
+	 .set { quality_cutoff}
+}
+
 
 // Header log info
 log.info nfcoreHeader()
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
+
+
+
+
+
 // TODO nf-core: Report custom parameters here
 summary['Reads']            = params.reads
 summary['Fasta Ref']        = params.fasta
@@ -170,6 +203,15 @@ Channel.from(summary.collect{ [it.key, it.value] })
     """.stripIndent() }
     .set { ch_workflow_summary }
 
+
+
+
+
+
+
+
+
+
 /*
  * Parse software version numbers
  */
@@ -186,14 +228,20 @@ process get_software_versions {
 
     script:
     // TODO nf-core: Get all tools to print their version number here
+//    cutadapt --version > v_cutadapt.txt
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
     fastqc --version > v_fastqc.txt
+
     multiqc --version > v_multiqc.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
+
+
+
+
 
 /*
  * STEP 1 - FastQC
@@ -218,6 +266,57 @@ process fastqc {
     """
     fastqc --quiet --threads $task.cpus $reads
     """
+}
+
+/*
+ *  STEP 2 - Trimming
+ */
+
+if (!params.skipTrimming) {
+	process trimming {
+	    tag "$name_reads"
+	    publishDir "${params.outdir}/trimming", mode: 'copy'
+	    storeDir "${params.outdir}/trimming"
+
+	    label 'main_env'
+	    label 'process_high'
+
+	    input:
+	    set val(name), file(reads) from trimming_reads
+	    val adapter_seq_3 from adapter_sequence_3
+	    val q_value from quality_cutoff
+
+	    output:
+	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon
+
+	    script:
+	if (params.single_end){
+	    name_reads = reads.toString().replaceAll(/:/,"_")
+	    name_reads = name_reads.replaceAll(/-/,"_")
+	    name_out = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+	    name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+	    """
+	    cutadapt -j ${task.cpus} -q $q_value -a $adapter_seq_3 -m 1 -o ${name_out} $reads 
+	    """
+	} else{
+	    name_reads = name.replaceAll(/:/,"_")
+	    name_reads = name_reads.replaceAll(/-/,"_")
+	    name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+	    name_1 = reads[0][0].toString().replaceAll(/:/,"_")
+	    name_1 = name_1.replaceAll(/-/,"_")
+	    name_1 = name_1.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+	    name_2 = reads[1][0].toString().replaceAll(/:/,"_")
+	    name_2 = name_2.replaceAll(/-/,"_")
+	    name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
+	    """
+	    cutadapt -j ${task.cpus} -q $q_value -a ${adapter_seq_3[0]} -A ${adapter_seq_3[1]} -o ${name_1} -p ${name_2} -m 1 ${reads[0]} ${reads[1]}
+	    """
+	}
+	}
+}else{
+   trimming_reads
+       .set {dd}
+//       .into {trimming_results, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon}
 }
 
 

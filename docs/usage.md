@@ -12,8 +12,15 @@
   * [`--reads`](#--reads)
   * [`--single_end`](#--single_end)
 * [Reference genomes](#reference-genomes)
-  * [`--genome` (using iGenomes)](#--genome-using-igenomes)
-  * [`--fasta`](#--fasta)
+  * [`--genome_host` (using iGenomes)](#--genome_host-using-igenomes)
+  * [`--genome_pathogen` (using iGenomes)](#--genome_pathogen-using-igenomes)
+  * [`--fasta_host`](#--fasta_host)
+  * [`--fasta_pathogen`](#--fasta_pathogen)
+  * [`--gff_host`](#--gff_host)
+  * [`--gff_host_tRNA`](#--gff_host_tRNA)
+  * [`--gff_pathogen`](#--gff_pathogen)
+  * [`--transcriptome_host`](#--transcriptome_host)
+  * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
   * [`--igenomes_ignore`](#--igenomes_ignore)
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
@@ -38,6 +45,7 @@
   * [`--plaintext_email`](#--plaintext_email)
   * [`--monochrome_logs`](#--monochrome_logs)
   * [`--multiqc_config`](#--multiqc_config)
+
 
 ## Introduction
 
@@ -69,6 +77,10 @@ results         # Finished results (configurable, see below)
 .nextflow_log   # Log file from Nextflow
 # Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
+More information about running the pipeline can be found in the `docs/` directory:
+
+- [Output and how to interpret the results](output.md) - change !!!!!!!!!!!!!!!!!!!!!!!!!!
+- [Extra Documentation on annotation](annotation.md) - change !!!!!!!!!!!!!!!!!!!!
 
 ### Updating the pipeline
 
@@ -146,25 +158,21 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
 ## Reference genomes
+The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gene expression. Thus, the pipeline requires to provide references for each of the organisms ([genome_host](#--genome_host-(using-iGenomes)) and [genome_pathogen](#--genome_pathogen-(using-iGenomes))).
 
 The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
+  
+### `--genome_host` (using iGenomes)
+There are 3 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome_host` flag.
 
-### `--genome` (using iGenomes)
-
-There are 31 different species supported in the iGenomes references. To run the pipeline, you must specify which to use with the `--genome` flag.
-
-You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common genomes that are supported are:
+You can find the keys to specify the genomes in the [iGenomes config file](../conf/igenomes.config). Common host genomes that are supported are:
 
 * Human
-  * `--genome GRCh37`
+  * `--genome_host GRCh38`
 * Mouse
-  * `--genome GRCm38`
-* _Drosophila_
-  * `--genome BDGP6`
-* _S. cerevisiae_
-  * `--genome 'R64-1-1'`
+  * `--genome_host GRCm38`
 
-> There are numerous others - check the config file for more.
+<!--  > There are numerous others - check the config file for more.-->
 
 Note that you can use the same configuration setup to save sets of reference files for your own use, even if they are not part of the iGenomes resource. See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions on where to save such a file.
 
@@ -175,22 +183,98 @@ The syntax for this reference configuration is as follows:
 ```nextflow
 params {
   genomes {
-    'GRCh37' {
-      fasta   = '<path to the genome fasta file>' // Used if no star index given
+    'GRCh38' {
+      fasta_host  = '<path to the genome fasta file>'
+      gff_host = '<path to the genome gff annotation file>'
+      gff_host_tRNA = '<path to the tRNA gff annotation fasta file>'
+      transcriptome_host = '<path to the tRNA gff annotation fasta file>'
     }
-    // Any number of additional genomes, key is used with --genome
   }
+// Any number of additional genomes, key is used with --genome
 }
-```
 
+```
+### `--genome_pathogen` (using iGenomes)
+To run the pipeline with pathogen references defined in iGenomes, you must specify which iGenomes keys to use with the `--genome_pathogen` flag.
+
+You can fing the iGenomes keys in [iGenomes config file](../conf/igenomes.config). Common pahogen genome that is supported is:
+
+* _Salmonella_ Typhimurium
+  * `--genome_pathogen SL1344`
+
+If your genome of interest is not provided with iGenomes you can create your own configuration file and save it as conf/genomes.config.
+
+The syntax for this reference configuration is as follows:
+
+<!-- TODO nf-core: Update reference genome example according to what is needed -->
+
+```nextflow
+params {
+  genomes {
+    'SL1344' {
+      fasta_pathogen  = '<path to the genome fasta file>'
+      gff_pathogen = '<path to the genome gff annotation file>'
+      transcriptome_pathogen = '<path to the genome gff annotation file>'
+    }
+  }
+// Any number of additional genomes, key is used with --genome
+}
+
+```
 <!-- TODO nf-core: Describe reference path flags -->
 
-### `--fasta`
+### `--fasta_host`
 
-If you prefer, you can specify the full path to your reference genome when you run the pipeline:
+If you prefer, you can specify the full path to your host genome fasta file when you run the pipeline:
 
 ```bash
---fasta '[path to Fasta reference]'
+--fasta_host '[path to genome fasta reference of host]'
+```
+
+### `--fasta_pathogen`
+
+If you prefer, you can specify the full path to your pathogen genome fasta file when you run the pipeline:
+
+```bash
+--fasta_pathogen '[path to genome fasta reference of pathogen]'
+```
+
+### `--gff_host`
+
+If you prefer, you can specify the full path to genome annotation file of your host in the gff3 format:
+
+```bash
+--gff_host '[path to host genome gff file]'
+```
+### `--gff_host_tRNA`
+
+If you prefer, you can specify the full path to tRNA annotations of your host in the gff3 format::
+
+```bash
+--gff_host_tRNA '[path to host tRNA gff file]'
+```
+
+### `--gff_pathogen`
+
+If you prefer, you can specify the full path to genome annotations of your pathogen in the gff3 format:
+
+```bash
+--gff_pathogen '[path to pathogen genome gff file]'
+```
+### `--transcriptome_host`
+
+If you prefer, you can specify the full path to your host transcriptome fasta file:
+
+```bash
+--transcriptome_host '[path to host ranscriptome fasta file]'
+```
+
+### `--transcriptome_pathogen`
+
+If you prefer, you can specify the full path to your pathogen transcriptome fasta file:
+
+```bash
+--transcriptome_pathogen '[path to transcriptome fasta file of pathogen]'
 ```
 
 ### `--igenomes_ignore`
