@@ -33,8 +33,8 @@ def helpMessage() {
       --fasta [file]                  Path to fasta reference
 
     Trimming:
-      --a                           adapter sequence for single-end reads or first reads of paired-end data
-      --A                           adapter sequence for second reads of paired-end data
+      --a [str]                           adapter sequence for single-end reads or first reads of paired-end data
+      --A [str]                           adapter sequence for second reads of paired-end data
       --quality-cutoff              cutoff to remove low-quality ends of reads. A single cutoff value is used to trim the 3’ end of reads. If two comma-separated cutoffs defined, the first value reprerents 5’ cutoff, and the second value defines 3’ cutoff.
       --skipTrimming                Skip trimming step
 
@@ -68,13 +68,23 @@ if (params.genomes && params.genome && !params.genomes.containsKey(params.genome
     exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
 }
 
-// TODO nf-core: Add any reference files that are needed
-// Configurable reference genomes
-//
 
-params.fasta = params.genome ? params.genomes[ params.genome ].fasta ?: false : false
-if (params.fasta) { ch_fasta = file(params.fasta, checkIfExists: true) }
+// reference genomes
 
+params.fasta_host = params.genome_host ? params.genomes[ params.genome_host ].fasta_host ?: false : false
+if (params.fasta_host) { ch_fasta_host = file(params.fasta_host, checkIfExists: true) }
+
+params.fasta_pathogen = params.genome_pathogen ? params.genomes[ params.genome_pathogen ].fasta_pathogen ?: false : false
+if (params.fasta_pathogen) { ch_fasta_pathogen = file(params.fasta_pathogen, checkIfExists: true) }
+
+params.gff_host_tRNA = params.genome_host ? params.genomes[ params.genome_host ].gff_host_tRNA ?: false : false
+if (params.gff_host_tRNA) { ch_gff_host_tRNA = file(params.gff_host_tRNA, checkIfExists: true) }
+
+params.gff_host_genome = params.genome_host ? params.genomes[ params.genome_host ].gff_host ?: false : false
+if (params.gff_host_genome) { ch_gff_host_genome = file(params.gff_host_genome, checkIfExists: true) }
+
+params.gff_pathogen = params.genome_pathogen ? params.genomes[ params.genome_pathogen ].gff_pathogen ?: false : false
+if (params.gff_pathogen) { ch_gff_pathogen = file(params.gff_pathogen, checkIfExists: true) }
 
 
 
@@ -115,19 +125,78 @@ if (params.readPaths) {
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; trimming_reads }
+            .into { ch_read_files_fastqc; trimming_reads; raw_read_count }
     } else {
         Channel
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; trimming_reads }
+            .into { ch_read_files_fastqc; trimming_reads; raw_read_count }
     }
 } else {
     Channel
         .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
-        .into { ch_read_files_fastqc; trimming_reads }
+        .into { ch_read_files_fastqc; trimming_reads; raw_read_count}
+}
+
+
+
+
+
+Channel
+    .value( ch_fasta_pathogen)
+    .collect()
+    .into { genome_fasta_pathogen_to_combine; genome_fasta_pathogen_ref_names}
+
+Channel
+    .value( ch_fasta_host )
+    .into { genome_fasta_host_to_combine; genome_fasta_host_ref_names}
+
+
+
+if(params.gff_host_tRNA){
+	Channel
+	    .value(ch_gff_host_tRNA)
+	    .set {change_attrubute_gff_host_tRNA_salmon_alignment}
+
+	Channel
+	    .value(ch_gff_host_genome)
+	    .set { combine_gff_host_genome_star_salmon}
+}else{
+	Channel
+	    .value(ch_gff_host_genome)
+	    .into { gff_host_genome_salmon_alignment}
+}
+
+Channel
+    .value(ch_gff_pathogen)
+    .set {gff_feature_quant_pathogen_salmon_alignment}
+
+
+
+
+if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+	Channel
+	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
+	    .set {host_gff_attribute_salmon_alignment}
+
+	Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_host)
+	    .collect()
+	    .set { gene_feature_gff_host_salmon_alignment }
+
+
+	Channel
+	    .value(params.gene_attribute_gff_to_create_transcriptome_pathogen)
+	    .set {pathogen_gff_attribute_salmon_alignment}
+
+
+	Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
+	    .collect()
+	    .set {gene_feature_to_quantify_pathogen_salmon_alignment}
+
 }
 
 
@@ -148,6 +217,8 @@ if (!params.skipTrimming){
 }
 
 
+
+
 // Header log info
 log.info nfcoreHeader()
 def summary = [:]
@@ -160,7 +231,11 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 
 // TODO nf-core: Report custom parameters here
 summary['Reads']            = params.reads
-summary['Fasta Ref']        = params.fasta
+summary['Host fasta Ref']        = params.fasta_host
+summary['Pathogen fasta Ref']        = params.fasta_pathogen
+summary['Host tRNA gff Ref']        = params.gff_host_tRNA
+summary['Host genome gff Ref']        = params.gff_host_genome
+summary['Pathogen genome gff Ref']        = params.gff_pathogen
 summary['Data Type']        = params.single_end ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -238,6 +313,230 @@ process get_software_versions {
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
+
+
+
+/*
+ *  create chimeric reference files
+ */
+
+
+	/*
+	 * chimeric genome fasta file
+	 */
+
+if(params.run_star | params.run_salmon_alignment_based_mode) {
+
+	/*
+	 * combine pathogen and host genome fasta files
+	 */
+
+	process combine_pathogen_host_fasta_genome {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+	 
+	    input:
+	    file(host_fa) from genome_fasta_host_to_combine
+	    file(pathogen_fa) from genome_fasta_pathogen_to_combine 
+
+	    output:
+	    file "host_pathogen.fasta" into host_pathogen_fasta_index
+
+	    script:
+	    """
+	    cat $pathogen_fa $host_fa > host_pathogen.fasta
+	    """
+	}
+
+}
+
+
+
+	/*
+	 * chimeric gff file
+	 */
+
+if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+	if(params.gff_host_tRNA){
+		process replace_attribute_host_tRNA_gff_star_salmon {
+		    publishDir "${params.outdir}/references", mode: 'copy'
+		    storeDir "${params.outdir}/references"
+
+		    label 'process_high'
+
+		    input:
+		    file(gff) from change_attrubute_gff_host_tRNA_salmon_alignment
+		    val(host_attribute) from host_gff_attribute_salmon_alignment
+
+		    output:
+		    file "${outfile_name}" into combine_host_gffs
+
+		    script:
+		    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_Parent_attribute.gff3")
+		    """
+		    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} Parent $host_attribute
+		    """
+		}
+
+		process combine_host_genome_tRNA_gff_star_salmon {
+		    publishDir "${params.outdir}/references", mode: 'copy'
+		    storeDir "${params.outdir}/references"
+		    
+		    label 'process_high'
+
+		    input:
+		    file(host_gff_genome) from combine_gff_host_genome_star_salmon
+		    file(host_gff_tRNA) from combine_host_gffs
+
+		    output:
+		    file "${outfile_name}" into gff_host_genome_salmon_alignment
+
+		    script:
+		    outfile_name = host_gff_genome[0].toString().replaceAll(/.gff3|.gff/,"_with_tRNA_STAR_salmon.gff3")
+		    """
+		    cat $host_gff_genome $host_gff_tRNA > ${outfile_name}
+		    """
+		}
+	}
+
+	process replace_gene_feature_gff_host_salmon {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from gff_host_genome_salmon_alignment
+	    val(features) from gene_feature_gff_host_salmon_alignment
+
+	    output:
+	    file "${outfile_name}" into combine_gff_host_salmon_alignment
+	    file "${outfile_name}" into extract_annotations_host_gff_salmon
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature_salmon_alignment.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
+	    """
+	}
+
+
+	process replace_attribute_pathogen_gff_star_salmon {
+
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from gff_feature_quant_pathogen_salmon_alignment
+	    val(pathogen_attribute) from pathogen_gff_attribute_salmon_alignment
+
+	    output:
+	    file "${outfile_name}" into to_replace_gff_feature_salmon_alignment
+	    file "${outfile_name}" into extract_annotations_pathogen_gff_salmon
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_new_attribute.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} Parent $pathogen_attribute
+	    """
+	}
+}
+
+if(params.run_salmon_alignment_based_mode){
+	process replace_gene_feature_gff_pathogen_salmon {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from to_replace_gff_feature_salmon_alignment
+	    val(features) from gene_feature_to_quantify_pathogen_salmon_alignment
+
+	    output:
+	    file "${outfile_name}" into combine_gff_pathogen_salmon_alignment
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature_salmon_alignment.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
+	    """
+	}
+
+	process combine_pathogen_host_gff_files_salmon {
+	    publishDir "${params.outdir}/references", mode: 'copy' 
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+	 
+	    input:
+	    file(host_gff) from combine_gff_host_salmon_alignment
+	    file(pathogen_gff_genome) from combine_gff_pathogen_salmon_alignment
+
+	    output:
+	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_salmon_alignment_gff
+
+	    script:
+	    """
+	    cat $pathogen_gff_genome $host_gff > host_pathogen_star_alignment_mode.gff
+	    """
+	}
+
+}
+
+
+
+
+	/*
+	* extract reference names from genome fasta files
+	 */
+
+	process extract_reference_names_host {
+	    publishDir "${params.outdir}/references", mode: 'copy' 
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(host_fa) from genome_fasta_host_ref_names
+
+	    output:
+	    file "reference_host_names.txt" into reference_host_names_uniquelymapped 
+	    file "reference_host_names.txt" into reference_host_names_crossmapped_find
+	    file "reference_host_names.txt" into reference_host_names_multimapped
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_host_names.txt $host_fa
+	    """
+	}
+
+
+	process extract_reference_names_pathogen {
+	    publishDir "${params.outdir}/references", mode: 'copy' 
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(pathogen_fa) from genome_fasta_pathogen_ref_names
+
+	    output:
+	    file "reference_pathogen_names.txt" into reference_pathogen_names_uniquelymapped
+	    file "reference_pathogen_names.txt" into reference_pathogen_crossmapped_find
+	    file "reference_pathogen_names.txt" into reference_pathogen_names_multimapped
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_pathogen_names.txt $pathogen_fa
+	    """
+	}
+
+
 
 
 
@@ -347,6 +646,90 @@ if (!params.skipTrimming) {
    trimming_results_to_qc
          .set{raw_reads_fastqc_trim}
 }
+
+
+
+if(params.mapping_statistics) {
+
+	/*
+	* count total number of raw reads
+	*/
+
+
+	raw_read_count
+		.map { tag, file -> file }
+		.set {raw_read_count_file}
+
+
+	process count_total_reads {
+	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
+	    storeDir "${params.outdir}/mapping_statistics"
+
+	    label 'process_high'
+
+	    input:
+	    file(fastq) from raw_read_count_file.collect()
+
+	    output:
+	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
+	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.csv
+	    """
+	}
+
+
+
+	/*
+	* count total number of reads after trimming
+	*/
+
+
+	process count_total_trimmed_reads {
+	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
+	    storeDir "${params.outdir}/mapping_statistics"
+
+	    label 'process_high'
+
+	    input:
+	    file(fastq) from count_reads.collect()
+
+	    output:
+	    file "total_trimmed_reads_fastq.csv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
+	    """
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

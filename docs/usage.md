@@ -22,6 +22,20 @@
   * [`--transcriptome_host`](#--transcriptome_host)
   * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
   * [`--igenomes_ignore`](#--igenomes_ignore)
+* [Adapter trimming](#Adapter-trimming)
+    * [`--a`](#--a)
+    * [`--A`](#--A)
+    * [`--quality-cutoff`](#--quality-cutoff)
+    * [`--skipTrimming`](#--skipTrimming)
+* [Read mapping and quantification](#Read-mapping-and-quantification)
+  * [STAR - alignment-based genome mapping](#STAR---alignment-based-genome-mapping)
+    * [`--a`](#--a)
+  * [HTSeq - quantification of uniquely-mapped reads](#HTSeq---quantification-of-uniquely-mapped-reads)
+  * [HTSeq - quantification of multi-mapped reads](#HTSeq---quantification-of-multi-mapped-reads)
+  * [Salmon - Selective-Alignment and quantification](#Salmon---Selective-Alignment-and-quantification)
+  * [Salmon - quantification in alignment-based mode](#Salmon---quantification-in-alignment-based-mode)
+* [Maping statistics](#Maping-statistics)
+
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
@@ -248,6 +262,7 @@ If you prefer, you can specify the full path to genome annotation file of your h
 ```
 ### `--gff_host_tRNA`
 
+If you wish you can specify tRNA host annotations. 
 If you prefer, you can specify the full path to tRNA annotations of your host in the gff3 format::
 
 ```bash
@@ -280,6 +295,125 @@ If you prefer, you can specify the full path to your pathogen transcriptome fast
 ### `--igenomes_ignore`
 
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
+
+
+### Chimeric transcriptome
+
+### Chimeric gff file
+
+### `--gene_attribute_gff_to_create_transcriptome_host`
+default- "transcript_id" 
+
+### `--gene_feature_gff_to_create_transcriptome_host` 
+
+def ["exon", "tRNA"] in chimeric gff file into quant
+
+### `gene_attribute_gff_to_create_transcriptome_pathogen`
+def "locus_tag" into parent
+
+### `gene_feature_gff_to_create_transcriptome_pathogen` 
+
+= ["gene","sRNA","tRNA","rRNA"] into quant
+
+## Adapter trimming
+
+To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
+To learn more on cutadapt and its parameters check the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
+
+By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq) 
+
+### `--a`
+For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. See [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types) 
+
+```bash
+--a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA
+```
+### `--A`
+For paired-end data, the adapter sequence for the second reads can be defined by `--A`. See [`trimming paired-end reads.`](https://cutadapt.readthedocs.io/en/stable/guide.html#trimming-paired-end-reads)
+
+```bash
+--A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+```
+### `--quality-cutoff`
+Cutadapt can also remove low-quality ends of the reads. By default, the 3’ end of each read is trimmed using cutoff 10. You can change this threshold defining the `--quality-cutoff` flag. See [`quality trimming.`](https://cutadapt.readthedocs.io/en/stable/guide.html#quality-trimming)
+
+```bash
+--quality-cutoff 10
+```
+If you specify two comma-separated cutoffs, the first value represents 5’ cutoff, and the second one 3’ cutoff.
+```bash
+--quality-cutoff 10,15
+```
+### `--skipTrimming`
+If you don't want to trim your reads, please specify the following flag:
+```bash
+--skipTrimming
+```
+or set the parameter to true in your config file. 
+
+## Read mapping and quantification
+
+### STAR - alignment-based genome mapping
+
+### `--run_star`
+
+To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
+
+
+### HTSeq - quantification of uniquely-mapped reads
+
+### HTSeq - quantification of multi-mapped reads
+
+### Salmon - Selective-Alignment and quantification
+
+### `--run_salmon_selective_alignment`
+
+If host and pathogen transcriptomes are not provided with [`--transcriptome_host`](#--transcriptome_host) and [`--transcriptome_pathogen`](#--transcriptome_pathogen) flags, the pipeline can create transcriptomes based on genomic fasta files and gff annotation files. 
+
+To create chimeric transriptome, it changes gene attributes to `--gene_attribute_gff_to_create_transcriptome_host` in gff tRNA and bacterial gff file. 
+into quant
+
+default- "transcript_id", changes into Parent attribute 
+
+`--gene_feature_gff_to_create_transcriptome_host` = ["exon", "tRNA"] in chimeric gff file
+into quant
+
+
+`--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
+`--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
+
+### Salmon - quantification in alignment-based mode
+
+### `--run_salmon_alignment_based_mode`
+
+The pipeline utilizes STAR to create transcriptome alignment. .....
+To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
+
+If host and pathogen transcriptomes are not provided with [`--transcriptome_host`](#--transcriptome_host) and [`--transcriptome_pathogen`](#--transcriptome_pathogen) flags, the pipeline can create transcriptomes based on genomic fasta files and gff annotation files. 
+For this, gff files and genomic fasta files are required. 
+
+To create chimeric transriptome, it changes gene attributes to `--gene_attribute_gff_to_create_transcriptome_host` in gff tRNA and bacterial gff file. 
+into quant
+
+default- "transcript_id", changes into Parent attribute 
+
+`--gene_feature_gff_to_create_transcriptome_host` = ["exon", "tRNA"] in chimeric gff file
+into quant
+
+
+`--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
+
+`--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
+
+
+
+In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
+
+## Maping statistics
+### `--mapping_stats`  
+def. true
+
+calc. count_total_reads , count_total_trimmed_reads
 
 ## Job resources
 
