@@ -241,8 +241,6 @@ process get_software_versions {
 
 
 
-
-
 /*
  * STEP 1 - FastQC
  */
@@ -264,7 +262,7 @@ process fastqc {
 
     script:
     """
-    fastqc --quiet --threads $task.cpus $reads
+    fastqc --quiet --threads $task.cpus --noextract $reads
     """
 }
 
@@ -315,8 +313,39 @@ if (!params.skipTrimming) {
 	}
 }else{
    trimming_reads
-       .set {dd}
-//       .into {trimming_results, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon}
+       .set {trimming_results_to_qc}
+//       .into {trimming_results, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
+}
+
+
+
+/*
+ * STEP 3 -FastQC after trimming 
+ */
+
+if (!params.skipTrimming) {
+	process fastqc_after_trimming {
+	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
+	    storeDir "${params.outdir}/fastqc_after_trimming"
+
+	    label 'main_env'
+	    label 'process_medium'
+
+	    input:
+	    set val(name),file(reads) from trimming_results_to_qc
+
+	    output:
+	    file "${sample_name}{_1,_2,}_trimmed_fastqc.{zip,html}" into raw_reads_fastqc_trim
+
+	    script:
+	    sample_name = name.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
+	    """
+	    fastqc --threads ${task.cpus} --quiet --noextract $reads
+	    """
+	}
+}else{
+   trimming_results_to_qc
+         .set{raw_reads_fastqc_trim}
 }
 
 
