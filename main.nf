@@ -33,8 +33,10 @@ def helpMessage() {
       --fasta [file]                  Path to fasta reference
 
     Trimming:
+      --a                           adapter sequence for single-end reads or first reads of paired-end data
+      --A                           adapter sequence for second reads of paired-end data
+      --quality-cutoff              cutoff to remove low-quality ends of reads. A single cutoff value is used to trim the 3’ end of reads. If two comma-separated cutoffs defined, the first value reprerents 5’ cutoff, and the second value defines 3’ cutoff.
       --skipTrimming                Skip trimming step
-
 
 
     Other options:
@@ -209,9 +211,6 @@ Channel.from(summary.collect{ [it.key, it.value] })
 
 
 
-
-
-
 /*
  * Parse software version numbers
  */
@@ -228,10 +227,11 @@ process get_software_versions {
 
     script:
     // TODO nf-core: Get all tools to print their version number here
-//    cutadapt --version > v_cutadapt.txt
+
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
+    echo cutadapt --version > v_cutadapt.txt
     fastqc --version > v_fastqc.txt
 
     multiqc --version > v_multiqc.txt
