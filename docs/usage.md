@@ -276,9 +276,16 @@ If you prefer, you can specify the full path to genome annotations of your patho
 ```bash
 --gff_pathogen '[path to pathogen genome gff file]'
 ```
+
+### `--read_transcriptome_fasta_host_from_file`
+
+### `--read_transcriptome_fasta_pathogen_from_file`
+
+
 ### `--transcriptome_host`
 
 If you prefer, you can specify the full path to your host transcriptome fasta file:
+`--read_transcriptome_fasta_host_from_file`, def. false
 
 ```bash
 --transcriptome_host '[path to host ranscriptome fasta file]'
@@ -286,6 +293,7 @@ If you prefer, you can specify the full path to your host transcriptome fasta fi
 
 ### `--transcriptome_pathogen`
 
+`--read_transcriptome_fasta_pathogen_from_file`, def. false
 If you prefer, you can specify the full path to your pathogen transcriptome fasta file:
 
 ```bash
@@ -382,6 +390,18 @@ into quant
 `--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
 `--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
 
+
+`--read_transcriptome_fasta_host_from_file` - `--transcriptome_host` 
+`--gff_host_tRNA`:
+gene_feature_gff_to_create_transcriptome_host
+gene_attribute_gff_to_create_transcriptome_host
+gff_host_genome
+fasta_host
+
+`--read_transcriptome_fasta_pathogen_from_file` -  `--transcriptome_pathogen`
+gene_attribute_gff_to_create_transcriptome_pathogen#
+gene_feature_gff_to_create_transcriptome_pathogen
+
 ### Salmon - quantification in alignment-based mode
 
 ### `--run_salmon_alignment_based_mode`
@@ -406,6 +426,18 @@ into quant
 `--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
 
 
+`--read_transcriptome_fasta_host_from_file` - `--transcriptome_host` 
+`--gff_host_tRNA`:
+gene_feature_gff_to_create_transcriptome_host
+gene_attribute_gff_to_create_transcriptome_host
+gff_host_genome
+fasta_host
+
+`--read_transcriptome_fasta_pathogen_from_file` -  `--transcriptome_pathogen`
+gff_pathogen
+fasta_pathogen
+gene_attribute_gff_to_create_transcriptome_pathogen#
+gene_feature_gff_to_create_transcriptome_pathogen
 
 In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
 
