@@ -402,6 +402,30 @@ fasta_host
 gene_attribute_gff_to_create_transcriptome_pathogen#
 gene_feature_gff_to_create_transcriptome_pathogen
 
+
+### `--kmer_length`
+
+def 31
+
+### `--libtype`
+
+### `-- writeUnmappedNames`
+
+def true
+
+### `--softclipOverhangs`
+def = true
+
+### `--incompatPrior_value`
+def 0.0
+
+### `--dumpEq`
+def true
+
+### `--writeMappings`
+
+def false
+
 ### Salmon - quantification in alignment-based mode
 
 ### `--run_salmon_alignment_based_mode`
@@ -442,10 +466,18 @@ gene_feature_gff_to_create_transcriptome_pathogen
 In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
 
 ## Maping statistics
-### `--mapping_stats`  
+### `--mapping_statistics`  
 def. true
 
-calc. count_total_reads , count_total_trimmed_reads
+calc. count_total_reads , count_total_trimmed_reads, scatterplots
+
+salmon - extract_processed_reads , unmapped
+
+plot_salmon_mapping_stats_host_pathogen,
+RNA class statistics - host, RNA_classes_to_replace.csv , def "data/RNA_classes_to_replace.csv" host
+combined, each sample
+
+
 
 ## Job resources
 

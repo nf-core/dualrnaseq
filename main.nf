@@ -99,6 +99,23 @@ if(params.read_transcriptome_fasta_pathogen_from_file){
 
 
 
+ // parameters
+
+if (params.run_salmon_selective_alignment){
+	if (!params.libtype){
+    exit 1, "Salmon: Please specify --libtype"
+} else if (params.single_end & (params.libtype != 'U' && params.libtype != 'SR' && params.libtype != 'SF')) {
+	    exit 1, "Salmon: Invalid library type --libtype ${params.libtype}! Library types available for single-end reads are:'U', 'SR', 'SF'."
+} else if (!params.single_end & (params.libtype != 'IU' && params.libtype != 'ISR' && params.libtype != 'ISF' && params.libtype != 'MU' && params.libtype != 'MSR' && params.libtype != 'MSF' && params.libtype != 'OU' && params.libtype != 'OSR' && params.libtype != 'OSF' )) {
+	    exit 1, "Salmon: Invalid library type --libtype ${params.libtype}! Library types available for paired-end reads are: 'IU', 'ISR', 'ISF', 'MU', 'MSR', 'MSF','OU', 'OSR', 'OSF'."
+} 
+
+
+if(params.mapping_statistics) {
+	if (params.RNA_classes_to_replace_host) { ch_RNA_classes = file(params.RNA_classes_to_replace_host, checkIfExists: true) }
+	params.RNA_classes_to_replace_host
+}
+
 
 // Has the run name been specified by the user?
 //  this has the bonus effect of catching both -name and --name
@@ -199,32 +216,6 @@ Channel
 
 
 
-
-
-if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
-	Channel
-	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
-	    .into {host_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_host_salmon}
-
-	Channel
-	    .value(params.gene_feature_gff_to_create_transcriptome_host)
-	    .collect()
-	    .into { gene_feature_gff_host_salmon_alignment; gene_feature_gff_to_create_transcriptome_host_salmon}
-
-
-	Channel
-	    .value(params.gene_attribute_gff_to_create_transcriptome_pathogen)
-	    .into {pathogen_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_pathogen_salmon}
-
-
-	Channel
-	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
-	    .collect()
-	    .into {gene_feature_to_quantify_pathogen_salmon_alignment; gene_feature_to_extract_annotations_pathogen; gene_feature_gff_to_create_transcriptome_pathogen_salmon}
-
-}
-
-
 if (!params.skipTrimming){
 	if(params.single_end){
 		Channel
@@ -240,6 +231,56 @@ if (!params.skipTrimming){
 	 .value(params.quality_cutoff)
 	 .set { quality_cutoff}
 }
+
+
+
+if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+	Channel
+	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
+	    .into {host_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_host_salmon; host_atr_collect_data_salmon; combine_annot_quant_pathogen; combine_annot_quant_host; atr_scatter_plot_pathogen; atr_scatter_plot_host; attribute_quant_stats_salmon; host_annotations_RNA_class_stats_pathogen; attribute_host_RNA_class_stats}
+
+	Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_host)
+	    .collect()
+	    .into { gene_feature_gff_host_salmon_alignment; gene_feature_gff_to_create_transcriptome_host_salmon}
+
+	Channel
+	    .value(params.gene_attribute_gff_to_create_transcriptome_pathogen)
+	    .into {pathogen_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_pathogen_salmon}
+
+	Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
+	    .collect()
+	    .into {gene_feature_to_quantify_pathogen_salmon_alignment; gene_feature_to_extract_annotations_pathogen; gene_feature_gff_to_create_transcriptome_pathogen_salmon}
+
+}
+
+
+if (params.run_salmon_selective_alignment){
+
+	Channel
+	    .value(params.kmer_length)
+	    .set {kmer_length_salmon_index}
+
+
+	Channel
+	    .value(params.libtype)
+	    .set {libtype_salmon}
+
+}
+
+
+
+if(params.mapping_statistics) {
+Channel
+    .value(ch_RNA_classes)
+    .into { RNA_classes_to_replace; RNA_classes_to_replace_alignment}
+}
+
+
+
+
+
 
 
 
@@ -350,31 +391,32 @@ process get_software_versions {
  * chimeric genome fasta file
  */
 
-if(params.run_star | params.run_salmon_alignment_based_mode) {
 
-	/*
-	 * combine pathogen and host genome fasta files
-	 */
 
-	process combine_pathogen_host_fasta_genome {
-	    tag "combine_genome_fasta_files"
-	    publishDir "${params.outdir}/references", mode: 'copy'
-	    storeDir "${params.outdir}/references"
+/*
+ * combine pathogen and host genome fasta files
+ */
 
-	    label 'process_high'
-	 
-	    input:
-	    file(host_fa) from genome_fasta_host_to_combine
-	    file(pathogen_fa) from genome_fasta_pathogen_to_combine 
+process combine_pathogen_host_fasta_genome {
+    tag "combine_genome_fasta_files"
+    publishDir "${params.outdir}/references", mode: 'copy'
+    storeDir "${params.outdir}/references"
 
-	    output:
-	    file "host_pathogen.fasta" into host_pathogen_fasta_index
+    label 'process_high'
 
-	    script:
-	    """
-	    cat $pathogen_fa $host_fa > host_pathogen.fasta
-	    """
-	}
+    input:
+    file(host_fa) from genome_fasta_host_to_combine
+    file(pathogen_fa) from genome_fasta_pathogen_to_combine 
+
+    output:
+    file "host_pathogen.fasta" into host_pathogen_fasta_index
+    file "host_pathogen.fasta" into genome_fasta_file_host_pathogen_to_decoy_transcriptome
+
+    script:
+    """
+    cat $pathogen_fa $host_fa > host_pathogen.fasta
+    """
+}
 
 }
 
@@ -920,7 +962,556 @@ if(params.mapping_statistics) {
 
 
 
+if(params.run_salmon_selective_alignment) {
 
+
+	/*
+	 * create genome as decoy sequence 
+	 */
+
+	process create_decoy_transcriptome_file {
+	    tag "create_decoy"
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
+	    file(host_pathogen_transcriptome_fasta) from transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
+
+            output:
+            file "gentrome.fasta" into salmon_index_gentrome
+            file "decoys.txt" into salmon_index_decoys
+
+	    shell:
+	    '''
+	    grep ">" !{host_pathogen_genome_fasta} | cut -d " " -f 1 > decoys.txt
+	    sed -i -e 's/>//g' decoys.txt
+	    cat !{host_pathogen_transcriptome_fasta} !{host_pathogen_genome_fasta} > gentrome.fasta
+	    '''
+	}
+
+
+
+	/*
+	 * salmon - build an index
+	 */
+
+	process salmon_index {
+	    tag "salmon_index"
+            storeDir "${params.outdir}/salmon"
+
+            label 'salmon_env'
+            label 'process_high'
+
+	    input:
+	    file(gentrome) from salmon_index_gentrome
+	    file(decoys) from salmon_index_decoys
+	    val(kmer_length) from kmer_length_salmon_index
+
+	    output:
+	    file "transcripts_index" into salmon_index
+
+	    script:
+	    """
+	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus}
+	    """
+	}
+
+
+
+	/*
+	 * salmon - quantification
+	 */
+
+
+	process salmon_quantification {
+//	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "${sample}"
+
+            label 'salmon_env'
+            label 'process_high'
+
+	    input:
+	    file(index) from salmon_index.collect()
+	    set val(sample), file(reads) from trimming_results_to_salmon
+	    val(libtype) from libtype_salmon
+
+	    output:
+	    set val(sample_name), file("${sample_name}") into split_table
+	    file("${sample_name}") into salmon_files_to_combine
+	    file("${sample_name}") into multiqc_salmon_quant
+	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts
+ 
+	    script:
+	UnmappedNames = params.writeUnmappedNames ? "--writeUnmappedNames" : ''
+	softclip = params.softclipOverhangs ? "--softclipOverhangs" : ''
+	incompatPrior_value = params.incompatPrior_value
+	dumpEq = params.dumpEq ? "--dumpEq" : ''
+if (params.single_end){
+	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
+	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
+	    """
+	    salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior_value $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
+	    """
+} else{
+	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
+	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
+	    """
+	    salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior_value $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
+	    """
+}
+}
+
+
+	/*
+	 * salmon - split quantification tables into host and pathogen results
+	 */
+
+
+	process split_table_salmon_each {
+            publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
+            storeDir "${params.outdir}/salmon/${sample_name}"
+            tag "split_quantification ${sample}"
+
+            label 'main_env'
+            label 'process_high'
+
+            input:
+            set val(sample_name), file ("salmon/*") from split_table
+            file transcriptome_pathogen from transcriptome_pathogen_to_split_q_table_salmon
+            file transcriptome_host from transcriptome_host_to_split_q_table_salmon
+
+            output:
+            set val(sample_name), file("host_quant.sf")
+            set val(sample_name), file("pathogen_quant.sf")
+
+            shell:
+            '''
+            grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > pathogen_quantification_without_headers.sf
+            awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - pathogen_quantification_without_headers.sf > pathogen_quant.sf
+
+            grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > host_quantification_salmon_without_headers.sf
+            awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - host_quantification_salmon_without_headers.sf > host_quant.sf
+            '''
+        }
+
+
+
+	/*
+	 * salmon - combine quantification results
+	 */
+
+
+	process combine_quantification_tables_salmon {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "combine_quantification_salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input: 
+		    file input_quantification from salmon_files_to_combine.collect()
+		    val gene_attribute from host_atr_collect_data_salmon
+
+		    output:
+		    file "combined_quant.csv" into split_table_salmon 
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a $gene_attribute -org both
+		    """
+		}
+
+
+
+	/*
+	 * salmon - split quantification tables into host and pathogen results
+	 */
+
+
+	process split_quantification_tables_salmon {
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+            tag "split_quantification_table_salmon"
+
+            label 'main_env'
+            label 'process_high'
+
+            input:
+            file quant_table from split_table_salmon
+            file transcriptome_pathogen from transcriptome_pathogen_to_split_table_salmon
+            file transcriptome_host from transcriptome_host_to_split_table_salmon
+
+            output:
+            file 'host_quantification_salmon.csv' into host_quantification_mapping_stats_salmon 
+            file 'pathogen_quantification_salmon.csv' into pathogen_quantification_mapping_stats_salmon
+            file 'host_quantification_salmon.csv' into host_quantification_RNA_stats_salmon 
+            file 'pathogen_quantification_salmon.csv' into pathogen_quantification_RNA_stats_salmon
+            file 'host_quantification_salmon.csv' into quant_host_add_annotations 
+            file 'pathogen_quantification_salmon.csv' into quant_pathogen_add_annotations
+            file 'host_quantification_salmon.csv' into quant_scatter_plot_host
+            file 'pathogen_quantification_salmon.csv' into quant_scatter_plot_pathogen
+
+            shell:
+            '''
+            grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > pathogen_quantification_without_headers.csv
+            awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_without_headers.csv > pathogen_quantification_salmon.csv
+
+            grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > host_quantification_salmon_without_headers.csv
+            awk 'NR==1 {print; exit}' !{quant_table} | cat - host_quantification_salmon_without_headers.csv > host_quantification_salmon.csv
+            '''
+        }
+
+
+
+	/*
+	 * salmon - 'combine annotations extracted from gff with quantification tables
+	 */
+
+	process combine_annotations_quant_pathogen {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "combine_annotations_quant_pathogen_salmon"
+
+		    label 'main_env'
+   		    label 'process_high'
+		   
+	            input: 
+		    file quantification_table from quant_pathogen_add_annotations
+		    file annotation_table from annotation_pathogen_combine_quant
+		    val attribute from combine_annot_quant_pathogen
+
+		    output:
+		    file "pathogen_combined_quant_annotations.csv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen -q_tool salmon 
+		    """
+		}
+
+
+
+	process combine_annotations_quant_host_salmon {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "combine_annotations_quant_host_salmon"
+
+		    label 'main_env'
+   		    label 'process_high'
+		   
+	            input: 
+		    file quantification_table from quant_host_add_annotations
+		    file annotation_table from annotation_host_combine_quant
+		    val attribute from combine_annot_quant_host
+
+		    output:
+		    file "host_combined_quant_annotations.csv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host -q_tool salmon 
+		    """
+		}
+
+
+
+	if(params.mapping_statistics) {
+		/*
+		 * salmon - 'quantification_stats'
+		 */
+
+		process scatter_plot_pathogen {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
+		    tag "scatter_plot_salmon_pathogen"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from quant_scatter_plot_pathogen
+		    val attribute from atr_scatter_plot_pathogen
+
+		    output:
+		    file ('*.pdf')
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org pathogen
+		    """
+		}
+
+
+
+		process scatter_plot_host {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
+		    tag "scatter_plot_salmon_host"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from quant_scatter_plot_host
+		    val attribute from atr_scatter_plot_host
+
+		    output:
+		    file ('*.pdf') 
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org host
+		    """
+		}
+
+
+		process extract_processed_reads {
+			    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/salmon"
+			    tag "extract_processed_reads"
+
+			    label 'main_env'
+	   		    label 'process_high'
+			   
+			    input: 
+			    set val(sample_name), file ("salmon/*") from collect_processed_read_counts
+
+			    output:
+			    file "${sample_name}.txt" into collect_results
+
+			    script:
+			    """
+			    $workflow.projectDir/bin/extract_processed_reads_salmon.sh salmon/*/aux_info/meta_info.json $sample_name
+			    """
+			}
+
+
+		process collect_processed_reads {
+			    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/salmon"
+			    tag "collect_processed_reads"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file process_reads from collect_results.collect()
+
+			    output:
+			    file "processed_reads_salmon.csv" into mapping_stats_total_reads
+
+			    script:
+			    """
+			    cat $process_reads > processed_reads_salmon.csv
+			    """
+			}
+
+
+		process salmon_quantification_stats {
+		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon"
+		    tag "quantification_statistics salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table_host from host_quantification_mapping_stats_salmon
+		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
+		    val attribute from attribute_quant_stats_salmon
+		    file total_processed_reads from mapping_stats_total_reads
+		    file total_raw_reads from collect_total_reads_raw_salmon
+
+		    output:
+		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
+		    """
+		}
+
+
+		process plot_salmon_mapping_stats_host_pathogen {
+		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file(stats) from salmon_mapped_stats_to_plot
+
+		    output:
+		    file "mapping_stats_*"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
+		    """
+		}
+
+
+
+		/*
+		 * salmon - RNA class statistics
+		 */
+
+
+		process RNA_class_statistics_salmon_pathogen {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
+		    tag "RNA class stistics"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from pathogen_quantification_RNA_stats_salmon
+		    val attribute from host_annotations_RNA_class_stats_pathogen
+		    file gene_annotations from pathogen_annotations_RNA_class_stats
+
+		    output:
+		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen
+		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen_combined
+		    file "pathogen_RNA_classes_sum_counts.csv"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen
+		    """
+		}
+
+
+		/*
+		 * salmon - RNA class statistics
+		 */
+
+
+		process RNA_class_statistics_salmon_host {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
+		    tag "RNA class stistics"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from host_quantification_RNA_stats_salmon
+		    val attribute from attribute_host_RNA_class_stats
+		    file gene_annotations from host_annotations_RNA_class_stats
+		    file rna_classes_to_replace from RNA_classes_to_replace
+
+		    output:
+		    file "host_RNA_classes_percentage.csv" into plot_RNA_stats_host
+		    file "host_RNA_classes_percentage.csv" into plot_RNA_stats_host_combined
+		    file "host_RNA_classes_sum_counts.csv"
+		    file "host_gene_types_groups_*"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host
+		    """
+		}
+
+
+
+		process plot_RNA_class_salmon_pathogen_each {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
+		    tag "plot RNA class stistics each"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file stats_table from plot_RNA_stats_pathogen
+
+		    output:
+		    file "*.pdf"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_RNA_class_stats_each.py -i $stats_table
+		    """
+		}
+
+		process plot_RNA_class_salmon_host_each {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
+		    tag "plot RNA class stistics each"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file stats_table from plot_RNA_stats_host
+
+		    output:
+		    file "*.pdf"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_RNA_class_stats_each.py -i $stats_table
+		    """
+		}
+
+
+		process plot_RNA_class_salmon_pathogen_combined {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
+		    tag "plot RNA class stistics combined"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file stats_table from plot_RNA_stats_pathogen_combined
+
+		    output:
+		    file "RNA_class_stats_combined_pathogen.pdf"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org pathogen
+		    """
+		}
+
+
+		process plot_RNA_class_salmon_host_combined {
+		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
+		    tag "plot RNA class stistics combined"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file stats_table from plot_RNA_stats_host_combined
+
+		    output:
+		    file "RNA_class_stats_combined_host.pdf"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
+		    """
+		}
+
+
+
+
+}
+
+
+
+}
 
 
 
