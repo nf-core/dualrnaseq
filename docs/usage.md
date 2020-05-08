@@ -365,6 +365,8 @@ or set the parameter to true in your config file.
 
 ### `--run_star`
 
+STAR - build an index - uses host genome gff and chimeric fasta file
+
 To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
 
 
@@ -463,7 +465,80 @@ fasta_pathogen
 gene_attribute_gff_to_create_transcriptome_pathogen#
 gene_feature_gff_to_create_transcriptome_pathogen
 
+sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent
+
+
+STAR for Salmon:
+chimeric transcriptome, chimeric gff
+
+BAM Unsorted, 
+quantMode TranscriptomeSAM - output SAM/BAM alignments to transcriptome into a separate file
+
+### `--outSAMunmapped`
+
+def Within - output unmapped reads within the main SAM file (i.e.
+Aligned.out.sam), None - no output, 
+
+paired-reads 2nd word: KeepPairs
+record unmapped mate for each alignment, and, in case of unsorted
+output, keep it adjacent to its mapped mate. Only affects
+multi-mapping reads.
+
+### `--outSAMattributes'
+ def  "Standard"
+
+
+### `--quantTranscriptomeBan`
+
+def Singleend - to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software
+
+
+### `--outFilterMultimapNmax`
+default: 20  int: maximum number of loci the read is allowed to map to.
+(ENCODE standard options for long RNA-seq pipeline)
+
+
+### `--params.outFilterType`
+def "BySJout" - keep only those reads that contain junctions that passed filtering into
+SJ.out.tab (ENCODE standard options for long RNA-seq pipeline, reduces the number of ”spurious” junctions)
+
+### `--alignSJoverhangMin`
+minimum overhang for unannotated junctions
+def 8 (ENCODE standard options for long RNA-seq pipeline)
+
+### `--alignSJDBoverhangMin`
+minimum overhang for annotated junctions 
+def 1 (ENCODE standard options for long RNA-seq pipeline)
+
+### `--params.outFilterMismatchNmax`
+def 999 (ENCODE standard options for long RNA-seq pipeline)
+maximum number of mismatches per pair, large number switches off this filter
+
+### `--outFilterMismatchNoverReadLmax`
+def = 0.04 (ENCODE standard options for long RNA-seq pipeline)
+max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.04*200=8 for the paired read
+
+### `--params.alignIntronMin`
+
+def = 20 (ENCODE standard options for long RNA-seq pipeline)
+minimum intron length
+
+### `--alignIntronMax`
+def = 1000000 (ENCODE standard options for long RNA-seq pipeline)
+maximum intron length
+
+### `--alignMatesGapMax`
+def 1000000 (ENCODE standard options for long RNA-seq pipeline)
+    maximum genomic distance between mates
+
+
+Salmon alignment based mode - chimeric transcriptome + transcriptome Bam file
+
+incompatPrior_value = 0.0
+libtype
+
 In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
+
 
 ## Maping statistics
 ### `--mapping_statistics`  
