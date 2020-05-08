@@ -19,6 +19,8 @@
   * [`--gff_host`](#--gff_host)
   * [`--gff_host_tRNA`](#--gff_host_tRNA)
   * [`--gff_pathogen`](#--gff_pathogen)
+  * [`--read_transcriptome_fasta_host_from_file`](#--read_transcriptome_fasta_host_from_file)
+  * [`--read_transcriptome_fasta_pathogen_from_file`](#--read_transcriptome_fasta_pathogen_from_file)
   * [`--transcriptome_host`](#--transcriptome_host)
   * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
   * [`--igenomes_ignore`](#--igenomes_ignore)
@@ -28,12 +30,32 @@
     * [`--quality-cutoff`](#--quality-cutoff)
     * [`--skipTrimming`](#--skipTrimming)
 * [Read mapping and quantification](#Read-mapping-and-quantification)
+  * [Salmon - Selective-Alignment](#Salmon---Selective-Alignment)
+    * [`--run_salmon_selective_alignment`](#--run_salmon_selective_alignment)
+    * [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host)
+    * [`--gene_feature_gff_to_create_transcriptome_pathogen`](#--gene_feature_gff_to_create_transcriptome_pathogen)
+    * [`--gene_attribute_gff_to_create_transcriptome_host`](#--gene_attribute_gff_to_create_transcriptome_host)
+    * [`--gene_attribute_gff_to_create_transcriptome_pathogen`](#--gene_attribute_gff_to_create_transcriptome_pathogen)
+    * [`--kmer_length`](#--kmer_length)
+    * [`--libtype`](#--libtype)
+    * [`--writeUnmappedNames`](#--writeUnmappedNames)
+    * [`--softclipOverhangs`](#--softclipOverhangs)
+    * [`--incompatPrior`](#--incompatPrior)
+    * [`--dumpEq`](#--dumpEq)
+    * [`--writeMappings`](#--writeMappings)
   * [STAR - alignment-based genome mapping](#STAR---alignment-based-genome-mapping)
     * [`--a`](#--a)
-  * [HTSeq - quantification of uniquely-mapped reads](#HTSeq---quantification-of-uniquely-mapped-reads)
-  * [HTSeq - quantification of multi-mapped reads](#HTSeq---quantification-of-multi-mapped-reads)
-  * [Salmon - Selective-Alignment and quantification](#Salmon---Selective-Alignment-and-quantification)
+  * [HTSeq - counting of uniquely-mapped reads](#HTSeq---counting-of-uniquely-mapped-reads)
+  * [HTSeq - counting of multi-mapped reads](#HTSeq---counting-of-multi-mapped-reads)
+
+
+
+
   * [Salmon - quantification in alignment-based mode](#Salmon---quantification-in-alignment-based-mode)
+ 
+
+
+
 * [Maping statistics](#Maping-statistics)
 
 * [Job resources](#job-resources)
@@ -192,8 +214,6 @@ Note that you can use the same configuration setup to save sets of reference fil
 
 The syntax for this reference configuration is as follows:
 
-<!-- TODO nf-core: Update reference genome example according to what is needed -->
-
 ```nextflow
 params {
   genomes {
@@ -204,10 +224,15 @@ params {
       transcriptome_host = '<path to the tRNA gff annotation fasta file>'
     }
   }
-// Any number of additional genomes, key is used with --genome
+// Any number of additional genomes, key is used with --genome_host
 }
-
 ```
+The transcriptome fasta file is created by default in the pipeline using provided fasta files and gff file. You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file. 
+If you want to use transcriptome defined in [iGenomes config file](../conf/igenomes.config) or
+your conf/genomes.config file, please specify the [`--read_transcriptome_fasta_host_from_file`](###--read_transcriptome_fasta_host_from_file`) flag. 
+
+If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to create host gff file.
+
 ### `--genome_pathogen` (using iGenomes)
 To run the pipeline with pathogen references defined in iGenomes, you must specify which iGenomes keys to use with the `--genome_pathogen` flag.
 
@@ -220,8 +245,6 @@ If your genome of interest is not provided with iGenomes you can create your own
 
 The syntax for this reference configuration is as follows:
 
-<!-- TODO nf-core: Update reference genome example according to what is needed -->
-
 ```nextflow
 params {
   genomes {
@@ -231,11 +254,13 @@ params {
       transcriptome_pathogen = '<path to the genome gff annotation file>'
     }
   }
-// Any number of additional genomes, key is used with --genome
+// Any number of additional genomes, key is used with --genome_pathogen
 }
-
 ```
-<!-- TODO nf-core: Describe reference path flags -->
+The transcriptome fasta file is created by default in the pipeline using provided genomic fasta and gff file. You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file.
+
+If you want to use transcriptome defined in [iGenomes config file](../conf/igenomes.config) or
+your conf/genomes.config file, please specify the [`--read_transcriptome_fasta_pathogen_from_file`](###--read_transcriptome_fasta_pathogen_from_file`) flag. 
 
 ### `--fasta_host`
 
@@ -262,8 +287,8 @@ If you prefer, you can specify the full path to genome annotation file of your h
 ```
 ### `--gff_host_tRNA`
 
-If you wish you can specify tRNA host annotations. 
-If you prefer, you can specify the full path to tRNA annotations of your host in the gff3 format::
+Using tRNA annotation is not required, however it is recommended. 
+If you prefer, you can specify the full path to tRNA annotations of your host in the gff3 format:
 
 ```bash
 --gff_host_tRNA '[path to host tRNA gff file]'
@@ -278,23 +303,33 @@ If you prefer, you can specify the full path to genome annotations of your patho
 ```
 
 ### `--read_transcriptome_fasta_host_from_file`
+If you prefer to use host transcriptome file defined in either [`--genome_host` (using iGenomes)](#--genome_host-using-igenomes) or [`--transcriptome_host`](#--transcriptome_host), please, specify the `--read_transcriptome_fasta_host_from_file` flag.
+
+```bash
+--read_transcriptome_fasta_host_from_file
+```
+By default, this flag is set to false and the pipeline creates a transcriptome based on provided fasta files and gff files. 
 
 ### `--read_transcriptome_fasta_pathogen_from_file`
+If you prefer to use pathogen transcriptome file defined in either [`--genome_pathogen` (using iGenomes)](#--genome_pathogen-using-igenomes) or [`--transcriptome_pathogen`](#--transcriptome_pathogen), please, specify the `--read_transcriptome_fasta_pathogen_from_file` flag.
 
+```bash
+--read_transcriptome_fasta_pathogen_from_file
+```
+
+By default, this flag is set to false and the pipeline creates a transcriptome based on provided fasta files and gff files. 
 
 ### `--transcriptome_host`
-
-If you prefer, you can specify the full path to your host transcriptome fasta file:
-`--read_transcriptome_fasta_host_from_file`, def. false
+If you specify the full path to your host transcriptome fasta file with `--transcriptome_host` and set [`--read_transcriptome_fasta_host_from_file`](###--read_transcriptome_fasta_host_from_file`) flag
+the pipeline reads the transcriptome from the file. 
 
 ```bash
 --transcriptome_host '[path to host ranscriptome fasta file]'
 ```
 
 ### `--transcriptome_pathogen`
-
-`--read_transcriptome_fasta_pathogen_from_file`, def. false
-If you prefer, you can specify the full path to your pathogen transcriptome fasta file:
+If you specify the full path to your host transcriptome fasta file with `--transcriptome_pathogen` and set [`--read_transcriptome_fasta_pathogen_from_file`](###--read_transcriptome_fasta_pathogen_from_file`) flag
+the pipeline reads the transcriptome from the file. 
 
 ```bash
 --transcriptome_pathogen '[path to transcriptome fasta file of pathogen]'
@@ -305,26 +340,7 @@ If you prefer, you can specify the full path to your pathogen transcriptome fast
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 
-### Chimeric transcriptome
-
-### Chimeric gff file
-
-### `--gene_attribute_gff_to_create_transcriptome_host`
-default- "transcript_id" 
-
-### `--gene_feature_gff_to_create_transcriptome_host` 
-
-def ["exon", "tRNA"] in chimeric gff file into quant
-
-### `gene_attribute_gff_to_create_transcriptome_pathogen`
-def "locus_tag" into parent
-
-### `gene_feature_gff_to_create_transcriptome_pathogen` 
-
-= ["gene","sRNA","tRNA","rRNA"] into quant
-
 ## Adapter trimming
-
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
 To learn more on cutadapt and its parameters check the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
 
@@ -359,9 +375,117 @@ If you don't want to trim your reads, please specify the following flag:
 ```
 or set the parameter to true in your config file. 
 
-## Read mapping and quantification
+# Read mapping and quantification
 
-### STAR - alignment-based genome mapping
+The nf-core/dualrnaseq provides several strategies to map and quantify your Dual RNA-seq data. The first approach involves [`Salmon with Selective alignment`](#Salmon---Selective-Alignment) which performs mapping using Selective alignment algorith and quantifies the reads. The second strategy utilizes alignment-based mapping executed with [`STAR`](#STAR---alignment-based-genome-mapping). To count aligned reads, the pipeline uses HTSeq in two modes, counting of [`uniquely-mapped reads`](#HTSeq---counting-of-uniquely-mapped-reads) and [`multi-mapped reads`](#HTSeq---counting-of-multi-mapped-reads). The last approach involves [`Salmon with alignment-based mode`](#Salmon---quantification-in-alignment-based-mode). 
+
+## Salmon - Selective-Alignment
+
+Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts. The nf-core/dualrnaseq pipeline creates a chimeric transcriptome of host and pathogen using fasta and gff files defined with [`--genome_host`](#--genome_host-(using-iGenomes)) and [`--genome_pathogen`](#--genome_pathogen-(using-iGenomes)). You can also specify a pathway to each file separatly using [`--fasta_host`](#--fasta_host),[`--fasta_pathogen`](#--fasta_pathogen), [`--gff_host`](#--gff_host), [`--gff_host_tRNA`](#--gff_host_tRNA), and [`--gff_pathogen`](#--gff_pathogen). The pipeline extracts coordinates of gene feautures, defined with [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host) and  [`gene_feature_gff_to_create_transcriptome_pathogen`](#gene_feature_gff_to_create_transcriptome_pathogen) from the host and pathogen gff annotation files, respectively.     
+If you prefer to use your own transcriptomes, please define the following flags: [`--read_transcriptome_fasta_host_from_file`](#--read_transcriptome_fasta_host_from_file), [`--read_transcriptome_fasta_pathogen_from_file`](#--read_transcriptome_fasta_pathogen_from_file), [`--transcriptome_host`](#--transcriptome_host), and [`--transcriptome_pathogen`](#--transcriptome_pathogen). 
+Since Salmon is a transctiptome-based mapping method, to avoid spurious mapping of reads that origanate from unannotated locus with sequece similar to an annotatated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both pathogen and host entire genomes. Thus, it is required to provide 
+host and pathogen genome fasta files either specifying [`--genome_host`](#--genome_host-(using-iGenomes)) and [`--genome_pathogen`](#--genome_pathogen-(using-iGenomes)) or [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen).
+
+Salmon has introduced an improvement to the alignment-free mapping approach, Selective-Alignment. In contrast to quasi-mapping, in selective-alignment mode the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match which increases the accuracy of the tool. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html) 
+
+
+### `--run_salmon_selective_alignment`
+
+To run Salmon with Selective alignment, please specify the following flag:
+
+```bash
+--run_salmon_selective_alignment
+```
+
+### `--gene_feature_gff_to_create_transcriptome_host` 
+The pipeline uses gene features from the 3rd column of the host gff file to extract the coordinates of transcripts to be quantified. To specify them, please set up the `--gene_feature_gff_to_create_transcriptome_host` flag.
+
+```bash
+--gene_feature_gff_to_create_transcriptome_host exon tRNA
+```
+By default, the pipeline uses `exon` from the [`--gff_host`](#--gff_host) file and `tRNA` from the [`--gff_host_tRNA`](#--gff_host_tRNA) file. 
+
+### `--gene_feature_gff_to_create_transcriptome_pathogen` 
+The pipeline uses gene features from the 3rd column of the pathogen gff file to extract the coordinates of transcripts to be quantified. To specify them, please set up the `--gene_feature_gff_to_create_transcriptome_pathogen` flag.
+```bash
+--gene_feature_gff_to_create_transcriptome_pathogen 
+```
+By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the [`--gff_pathogen`](#--gff_pathogen) file. 
+
+### `--gene_attribute_gff_to_create_transcriptome_host`
+This flag defines a gene attribute of the 9th column of the host gff file which is used to extract the transcript names. 
+
+```bash
+--gene_attribute_gff_to_create_transcriptome_host transcript_id
+```
+By default, the pipeline extracts `transcript_id` from the [`--gff_host`](#--gff_host) file. 
+
+### `gene_attribute_gff_to_create_transcriptome_pathogen`
+This flag defines a gene attribute of the 9th column of the pathogen gff file which is used to extract the transcript names. 
+
+```bash
+--gene_attribute_gff_to_create_transcriptome_pathogen locus_tag
+```
+By default, the pipeline extracts `locus_tag` from the [`--gff_pathogen`](#--gff_pathogen) file. 
+
+### `--kmer_length`
+
+To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)) set the `--kmer_length` flag. 
+
+```bash
+--kmer_length 21
+```
+By default, the size of k-mers in the nf-core/dualrnaseq pipeline is set up to 21. 
+
+### `--libtype`
+
+To define the type of sequencing library of your data, specify the following flag:
+
+```bash
+--libtype SF
+```
+To learn more on library types available in Salmon, please read [_`What’s this LIBTYPE?`_](https://salmon.readthedocs.io/en/latest/salmon.html#what-s-this-libtype)
+
+### `-- writeUnmappedNames`
+
+By default the pipeline saves names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to false.
+
+```bash
+--writeUnmappedNames true
+```
+
+### `--softclipOverhangs`
+
+By default, the pipeline allows for soft-clipping. 
+
+```bash
+--softclipOverhangs true
+```
+_"Allow soft-clipping of reads that overhang the beginning or ends of the transcript. In this case, the overhaning section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_. 
+If it is set to `false`, the end-to-end alignment of the entire read is forced, so that the occurance of overhanings may affect the alignment score.
+
+### `--incompatPrior`
+
+By default, the nf-core/dualrnaseq pipeline set the `--incompatPrior` to 0.0, to ensure that only mappings or alignments that are compatible with the library type are considered by Salmon. You can find more information on this parameter in [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#incompatprior) 
+
+```bash
+--incompatPrior
+```
+### `--dumpEq`
+By default, to save the equivalence classes and their counts this option is set to `true`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq). 
+
+```bash
+--dumpEq true
+```
+### `--writeMappings`
+
+If set to true, the pipeline will create a `mapping.sam` file with mapping information. To learn more on this option, please look at the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings) 
+
+```bash
+--writeMappings false
+```
+
+## STAR - alignment-based genome mapping
 
 ### `--run_star`
 
@@ -370,65 +494,12 @@ STAR - build an index - uses host genome gff and chimeric fasta file
 To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
 
 
-### HTSeq - quantification of uniquely-mapped reads
+## HTSeq - counting of uniquely-mapped reads
 
-### HTSeq - quantification of multi-mapped reads
-
-### Salmon - Selective-Alignment and quantification
-
-### `--run_salmon_selective_alignment`
-
-If host and pathogen transcriptomes are not provided with [`--transcriptome_host`](#--transcriptome_host) and [`--transcriptome_pathogen`](#--transcriptome_pathogen) flags, the pipeline can create transcriptomes based on genomic fasta files and gff annotation files. 
-
-To create chimeric transriptome, it changes gene attributes to `--gene_attribute_gff_to_create_transcriptome_host` in gff tRNA and bacterial gff file. 
-into quant
-
-default- "transcript_id", changes into Parent attribute 
-
-`--gene_feature_gff_to_create_transcriptome_host` = ["exon", "tRNA"] in chimeric gff file
-into quant
+## HTSeq - counting of multi-mapped reads
 
 
-`--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
-`--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
-
-
-`--read_transcriptome_fasta_host_from_file` - `--transcriptome_host` 
-`--gff_host_tRNA`:
-gene_feature_gff_to_create_transcriptome_host
-gene_attribute_gff_to_create_transcriptome_host
-gff_host_genome
-fasta_host
-
-`--read_transcriptome_fasta_pathogen_from_file` -  `--transcriptome_pathogen`
-gene_attribute_gff_to_create_transcriptome_pathogen#
-gene_feature_gff_to_create_transcriptome_pathogen
-
-
-### `--kmer_length`
-
-def 31
-
-### `--libtype`
-
-### `-- writeUnmappedNames`
-
-def true
-
-### `--softclipOverhangs`
-def = true
-
-### `--incompatPrior_value`
-def 0.0
-
-### `--dumpEq`
-def true
-
-### `--writeMappings`
-
-def false
-
-### Salmon - quantification in alignment-based mode
+## Salmon - quantification in alignment-based mode
 
 ### `--run_salmon_alignment_based_mode`
 
@@ -446,13 +517,12 @@ default- "transcript_id", changes into Parent attribute
 `--gene_feature_gff_to_create_transcriptome_host` = ["exon", "tRNA"] in chimeric gff file
 into quant
 
-
 `--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
 
 `--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
 
-
 `--read_transcriptome_fasta_host_from_file` - `--transcriptome_host` 
+
 `--gff_host_tRNA`:
 gene_feature_gff_to_create_transcriptome_host
 gene_attribute_gff_to_create_transcriptome_host

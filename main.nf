@@ -1043,19 +1043,19 @@ if(params.run_salmon_selective_alignment) {
 	    script:
 	UnmappedNames = params.writeUnmappedNames ? "--writeUnmappedNames" : ''
 	softclip = params.softclipOverhangs ? "--softclipOverhangs" : ''
-	incompatPrior_value = params.incompatPrior_value
+	incompatPrior = params.incompatPrior
 	dumpEq = params.dumpEq ? "--dumpEq" : ''
 if (params.single_end){
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 	    """
-	    salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior_value $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
+	    salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
 	    """
 } else{
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 	    """
-	    salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior_value $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
+	    salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
 	    """
 }
 }
@@ -1613,10 +1613,10 @@ if (params.run_salmon_alignment_based_mode){
 	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts_alignment_based
 
 	    script:
-	    incompatPrior_value = params.incompatPrior_value
+	    incompatPrior = params.incompatPrior
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    """
-	    salmon quant -p ${task.cpus} -t $transcriptome -l $libtype -a $bam_file --incompatPrior $incompatPrior_value -o $sample_name
+	    salmon quant -p ${task.cpus} -t $transcriptome -l $libtype -a $bam_file --incompatPrior $incompatPrior -o $sample_name
 	    """
 	}
 
