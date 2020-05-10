@@ -189,11 +189,11 @@ if(params.gff_host_tRNA){
 
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { combine_gff_host_genome_star_salmon;gff_host_create_transcriptome; genome_gff_host}
+	    .into { combine_gff_host_genome_star_salmon;gff_host_create_transcriptome}
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome; genome_gff_host}
+	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome}
 }
 
 Channel
@@ -504,6 +504,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file "${outfile_name}" into to_replace_gff_feature_salmon_alignment
 	    file "${outfile_name}" into extract_annotations_pathogen_gff_salmon
 
+
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_Parent_attribute.gff3")
 	    """
@@ -546,6 +547,8 @@ if(params.run_salmon_alignment_based_mode){
 	    file(pathogen_gff_genome) from combine_gff_pathogen_salmon_alignment
 
 	    output:
+	    file "host_pathogen_star_alignment_mode.gff" into genome_gff_star_index
+	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_alignment_gff
 	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_salmon_alignment_gff
 
 	    script:
@@ -856,8 +859,7 @@ if (!params.skipTrimming) {
 	}
 }else{
    trimming_reads
-       .set {trimming_results_to_qc}
-//       .into {trimming_results, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
+      .into {trimming_results_to_qc, trimming_results, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
 }
 
 
@@ -1525,7 +1527,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 
 		input:
 		file(fasta) from host_pathogen_fasta_index
-		file(gff) from genome_gff_host
+		file(gff) from genome_gff_star_index
 
 		output:
 		file "index/*" into star_index_transcriptome_alignment
@@ -1534,7 +1536,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 		script:
 		"""
 		mkdir index
-		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon exon --sjdbGTFtagExonParentTranscript Parent
+		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent 
 		"""
 	}
 
@@ -1586,7 +1588,7 @@ if (params.run_salmon_alignment_based_mode){
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --quantMode TranscriptomeSAM -quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    }
 	}
@@ -2029,14 +2031,61 @@ if (params.run_salmon_alignment_based_mode){
 
 
 
+if(params.run_star) {
 
+	/*
+	 * STAR - align the reads
+	 */
 
+	process ALIGNMENTstar {
+	    tag "$prefix"
+            publishDir "${params.outdir}/STAR", mode: 'copy'
+	    storeDir "${params.outdir}/STAR" 
 
+            label 'main_env'
+            label 'process_high'
+	
+	    input:
+	    set val(sample_name),file(reads) from  trimming_results
+	    file(gff) from gff_host_pathogen_star_salmon_alignment_gff.collect()
+	    file(index) from star_index_genome_alignment.collect()
 
+	    output:
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p
+	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
+	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
+	    file "${sample_name}/*" into multiqc_star_alignment
 
-
-
-
+	    script:
+	outSAMunmapped = params.outSAMunmapped
+	outSAMattributes = params.outSAMattributes
+	outFilterMultimapNmax = params.outFilterMultimapNmax
+	outFilterType = params.outFilterType
+	alignSJoverhangMin = params.alignSJoverhangMin
+	alignSJDBoverhangMin = params.alignSJDBoverhangMin
+	outFilterMismatchNmax = params.outFilterMismatchNmax
+	outFilterMismatchNoverReadLmax = params.outFilterMismatchNoverReadLmax
+	alignIntronMin = params.alignIntronMin
+	alignIntronMax = params.alignIntronMax
+	alignMatesGapMax = params.alignMatesGapMax
+	outWigType = params.outWigType
+	outWigStrand = params.outWigStrand
+	    if (params.single_end){
+	    """
+	    mkdir $sample_name
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    """
+	    } else {
+	    """
+	    mkdir $sample_name
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    """
+	    }
+	}
 
 
 }

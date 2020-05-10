@@ -44,20 +44,26 @@
     * [`--dumpEq`](#--dumpEq)
     * [`--writeMappings`](#--writeMappings)
   * [STAR - alignment-based genome mapping](#STAR---alignment-based-genome-mapping)
-    * [`--a`](#--a)
+    * [`--run_star`](#--run_star)
+    * [`--outSAMunmapped`](#--outSAMunmapped)
+    * [`--outSAMattributes`](#--outSAMattributes)
+    * [`--outFilterMultimapNmax`](#--outFilterMultimapNmax)
+    * [`--outFilterType`](#--outFilterType)
+    * [`--alignSJoverhangMin`](#--alignSJoverhangMin)
+    * [`--alignSJDBoverhangMin`](#--alignSJDBoverhangMin)
+    * [`--outFilterMismatchNmax`](#--outFilterMismatchNmax)
+    * [`--outFilterMismatchNoverReadLmax`](#--outFilterMismatchNoverReadLmax)
+    * [`--alignIntronMin`](#--alignIntronMin)
+    * [`--alignIntronMax`](#--alignIntronMax)
+    * [`--alignMatesGapMax`](#--alignMatesGapMax)
+    * [`--outWigType`](#--outWigType)
+    * [`--outWigStrand`](#--outWigStrand)
   * [HTSeq - counting of uniquely-mapped reads](#HTSeq---counting-of-uniquely-mapped-reads)
   * [HTSeq - counting of multi-mapped reads](#HTSeq---counting-of-multi-mapped-reads)
-
-
-
-
   * [Salmon - quantification in alignment-based mode](#Salmon---quantification-in-alignment-based-mode)
- 
-
-
-
+    * [`--run_salmon_alignment_based_mode`](#--run_salmon_alignment_based_mode)
+    * [`--quantTranscriptomeBan`](#--quantTranscriptomeBan)
 * [Maping statistics](#Maping-statistics)
-
 * [Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
@@ -487,128 +493,173 @@ If set to true, the pipeline will create a `mapping.sam` file with mapping infor
 
 ## STAR - alignment-based genome mapping
 
+STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates an index of a chimeric genome. Therefore, the paths to host and pathogen genomes must be provided either through [`--genome_host`](#--genome_host-(using-iGenomes)) and [`--genome_pathogen`](#--genome_pathogen-(using-iGenomes)) or directly using [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen). To identify and correctly map spliced alignments across splice junctions, in the nf-core/dualrnaseq pipeline, STAR utilizes gene annotation provided in gff format using [`--genome_host`](#--genome_host-(using-iGenomes)) and [`--genome_pathogen`](#--genome_pathogen-(using-iGenomes)) or [`--gff_host`](#--gff_host), [`--gff_host_tRNA`](#--gff_host_tRNA), and [`--gff_pathogen`](#--gff_pathogen). 
+
+It genenerates BAM file sorted By coordinates. 
+
 ### `--run_star`
+To run STAR in the nf-core/dualrnaseq pipeline, please specify the `--run_star` flag.
 
-STAR - build an index - uses host genome gff and chimeric fasta file
-
-To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
-
-
-## HTSeq - counting of uniquely-mapped reads
-
-## HTSeq - counting of multi-mapped reads
-
-
-## Salmon - quantification in alignment-based mode
-
-### `--run_salmon_alignment_based_mode`
-
-The pipeline utilizes STAR to create transcriptome alignment. .....
-To run STAR you must specify [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) which provide paths to host and pathogen genome fasta files. 
-
-If host and pathogen transcriptomes are not provided with [`--transcriptome_host`](#--transcriptome_host) and [`--transcriptome_pathogen`](#--transcriptome_pathogen) flags, the pipeline can create transcriptomes based on genomic fasta files and gff annotation files. 
-For this, gff files and genomic fasta files are required. 
-
-To create chimeric transriptome, it changes gene attributes to `--gene_attribute_gff_to_create_transcriptome_host` in gff tRNA and bacterial gff file. 
-into quant
-
-default- "transcript_id", changes into Parent attribute 
-
-`--gene_feature_gff_to_create_transcriptome_host` = ["exon", "tRNA"] in chimeric gff file
-into quant
-
-`--gene_attribute_gff_to_create_transcriptome_pathogen` def "locus_tag" into parent
-
-`--gene_feature_gff_to_create_transcriptome_pathogen`= ["gene","sRNA","tRNA","rRNA"] into quant
-
-`--read_transcriptome_fasta_host_from_file` - `--transcriptome_host` 
-
-`--gff_host_tRNA`:
-gene_feature_gff_to_create_transcriptome_host
-gene_attribute_gff_to_create_transcriptome_host
-gff_host_genome
-fasta_host
-
-`--read_transcriptome_fasta_pathogen_from_file` -  `--transcriptome_pathogen`
-gff_pathogen
-fasta_pathogen
-gene_attribute_gff_to_create_transcriptome_pathogen#
-gene_feature_gff_to_create_transcriptome_pathogen
-
-sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent
-
-
-STAR for Salmon:
-chimeric transcriptome, chimeric gff
-
-BAM Unsorted, 
-quantMode TranscriptomeSAM - output SAM/BAM alignments to transcriptome into a separate file
-
+```bash
+--run_star
+```
 ### `--outSAMunmapped`
 
-def Within - output unmapped reads within the main SAM file (i.e.
-Aligned.out.sam), None - no output, 
+By default, the pipeline saves unmapped reads within the main BAM file. If you want to switch off this option, set the `--outSAMunmapped` flag to `None`. 
 
+See `--outSAMunmapped` parameter in [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+
+```bash
+--outSAMunmapped Within
+```
+To save unmapped reads within the main BAM file, please set the `--outSAMunmapped` flag to `Within`. 
+By default, this flag is set to `None` in the pipeline. For paired-end reads. or? test...
 paired-reads 2nd word: KeepPairs
 record unmapped mate for each alignment, and, in case of unsorted
 output, keep it adjacent to its mapped mate. Only affects
 multi-mapping reads.
 
-### `--outSAMattributes'
- def  "Standard"
+### `--outSAMattributes`
+To specify the SAM attributes, please use the `--outSAMattributes` flag. To check the possible parameters, you can read more on the `--outSAMattributes` flag in [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
+By default, the pipeline uses `Standard` option to keep NH HI AS nM SAM attributes. 
 
-### `--quantTranscriptomeBan`
-
-def Singleend - to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software
-
+```bash
+--outSAMattributes Standard
+```
 
 ### `--outFilterMultimapNmax`
-default: 20  int: maximum number of loci the read is allowed to map to.
-(ENCODE standard options for long RNA-seq pipeline)
+To specify the maximum number of loci the reads is allowed to map to, please use the following flag:
 
+```bash
+--outFilterMultimapNmax 20
+```
+By default, the option is set to 20 in the pipeline (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)   
 
-### `--params.outFilterType`
-def "BySJout" - keep only those reads that contain junctions that passed filtering into
-SJ.out.tab (ENCODE standard options for long RNA-seq pipeline, reduces the number of ”spurious” junctions)
+### `--outFilterType`
+
+By default, the pipeline keeps reads that contain junctions that passed filtering into
+SJ.out.tab. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline) 
+
+```bash
+--outFilterType BySJout
+```
+You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
 ### `--alignSJoverhangMin`
-minimum overhang for unannotated junctions
-def 8 (ENCODE standard options for long RNA-seq pipeline)
+To change a number of minimum overhang for unannotated junctions, please set the `--alignSJoverhangMin` flag to a desired number. By default, the pipeline uses 8. (ENCODE standard options for long RNA-seq pipeline) 
 
+```bash
+--alignSJoverhangMin 8
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 ### `--alignSJDBoverhangMin`
-minimum overhang for annotated junctions 
-def 1 (ENCODE standard options for long RNA-seq pipeline)
 
-### `--params.outFilterMismatchNmax`
-def 999 (ENCODE standard options for long RNA-seq pipeline)
-maximum number of mismatches per pair, large number switches off this filter
+To set a number of minimum overhang for annotated junctions different than 1 (default option), please specify the --alignSJDBoverhangMin flag. 
+
+```bash
+--alignSJDBoverhangMin 1
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+
+### `--outFilterMismatchNmax`
+
+To define a threshold for a number of mismatches to be allowed, set the `--outFilterMismatchNmax` flag. By default, the pipeline uses a large number to switch off this filter. (ENCODE standard options for long RNA-seq pipeline) 
+
+```bash
+--outFilterMismatchNmax 999
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
 ### `--outFilterMismatchNoverReadLmax`
-def = 0.04 (ENCODE standard options for long RNA-seq pipeline)
-max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.04*200=8 for the paired read
 
-### `--params.alignIntronMin`
+Using `--outFilterMismatchNoverReadLmax` flag you can define a threshold for a ratio of mismatches to *read* length. The alignment will be considered if the ratio is less than or equal to this value. By default, this option is set to 0.04 in the pipeline. For 2x100b, max number of mismatches is 0.04*200=8 for paired-end reads. (ENCODE standard options for long RNA-seq pipeline)
 
-def = 20 (ENCODE standard options for long RNA-seq pipeline)
-minimum intron length
+```bash
+--outFilterMismatchNoverReadLmax 0.04
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+
+### `--alignIntronMin`
+
+By default, the nf-core dualrnaseq pipeline uses 20 as a minimum intron length. If genomic gap is smaller than this value, it is considered as a deletion. 
+(ENCODE standard options for long RNA-seq pipeline)
+
+```bash
+--alignIntronMin 20
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
 ### `--alignIntronMax`
-def = 1000000 (ENCODE standard options for long RNA-seq pipeline)
-maximum intron length
+
+The maximum intron length is set to 1000000 in the pipeline (ENCODE standard options for long RNA-seq pipeline). To change this value, please define the desired value for the following flag:
+
+```bash
+--alignIntronMax 1000000
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
 ### `--alignMatesGapMax`
-def 1000000 (ENCODE standard options for long RNA-seq pipeline)
-    maximum genomic distance between mates
+To set the maximum genomic distance between mates, please use the `--alignMatesGapMax` flag. By default, this option is set to 1000000 in the pipeline. (ENCODE standard options for long RNA-seq pipeline)
 
+```bash
+--alignMatesGapMax 1000000
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
 
-Salmon alignment based mode - chimeric transcriptome + transcriptome Bam file
+### `--outWigType`
+To generate one of the signal outputs, e.g. "wiggle", "bedGraph", please specify the type of the signal output with the `--outWigType` flag. To find all avaiable types of the singl output, please check the [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf). 
 
-incompatPrior_value = 0.0
-libtype
+By default, the pipeline does not generate any of these files.
+
+```bash
+--outWigType None
+```
+### `--outWigStrand`
+To define strandedness of wiggle/bedGraph output, please set the `--outWigStrand` to `Stranded` (default) of `Unstranded`. 
+
+```bash
+--outWigStrand Stranded
+```
+See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+
+## HTSeq - counting of uniquely-mapped reads
+
 
 In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
 
+## HTSeq - counting of multi-mapped reads
+
+## Salmon - quantification in alignment-based mode
+
+In [`alignment-based mode`](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performes quantification utilizing an alignment BAM file. In the nf-core/dualrnaseq pipeline the alignment file is generated with STAR. The first step involves indexing of a chimeric genome, creaded from the host and pathogen genome fasta files. 
+In the next step, STAR performs an alignment, but on purpose of the Salmon, it generates alignments translated into transcript coordinates. To learn more on this behavior, please check _`Output in transcript coordinates`_ in [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+
+To run Salmon in alignment-based mode you must specify the following reference files: [`--fasta_host`](#--fasta_host) and [`--fasta_pathogen`](#--fasta_pathogen) as well as [`--gff_host`](#--gff_host), [`--gff_host_tRNA`](#--gff_host_tRNA) (optional), and [`--gff_pathogen`](#--gff_pathogen). You can also define those files in the the config file and then use [`--genome_host`](#--genome_host-(using-iGenomes)) and [`--genome_pathogen`](#--genome_pathogen-(using-iGenomes)) flags. 
+
+You can change the default STAR behaviour defined in the pipeline through the following STAR flags: [`--outSAMunmapped`](#--outSAMunmapped), [`--outSAMattributes`](#--outSAMattributes), [`--outFilterMultimapNmax`](#--outFilterMultimapNmax), [`--outFilterType`](#--outFilterType), [`--alignSJoverhangMin`](#--alignSJoverhangMin), [`--alignSJDBoverhangMin`](#--alignSJDBoverhangMin), [`--outFilterMismatchNmax`](#--outFilterMismatchNmax), [`--outFilterMismatchNoverReadLmax`](#--outFilterMismatchNoverReadLmax), [`--alignIntronMin`](#--alignIntronMin), [`--alignIntronMax`](#--alignIntronMax), and [`--alignMatesGapMax`](#--alignMatesGapMax).  
+
+It genenerates unsorted BAM file. 
+
+Salmon performs quantification for a reference transcriptome and it is recommended to allow the pipeline to create a transcriptome using the provided genome fasta files and annotation gff files. Keep [`--read_transcriptome_fasta_host_from_file`](#--read_transcriptome_fasta_host_from_file) and [`--read_transcriptome_fasta_pathogen_from_file`](#--read_transcriptome_fasta_pathogen_from_file) flags set to false. 
+
+To create the chimeric gff file used by STAR, and the chimeric transcriptome used by Salmon, please define the following flags: [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host), [`--gene_feature_gff_to_create_transcriptome_pathogen`](#--gene_feature_gff_to_create_transcriptome_pathogen), [`--gene_attribute_gff_to_create_transcriptome_host`](#--gene_attribute_gff_to_create_transcriptome_host), [`--gene_attribute_gff_to_create_transcriptome_pathogen`](#--gene_attribute_gff_to_create_transcriptome_pathogen)    
+
+
+To quantify the alignments, please specify the [`--libtype`](#--libtype) and [`--incompatPrior`](#--incompatPrior) Salmon flags. 
+
+### `--run_salmon_alignment_based_mode`
+To run Salmon in alignment-based mode, please specify the following flag:
+
+```bash
+--run_salmon_alignment_based_mode
+```
+### `--quantTranscriptomeBan`
+The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments allowing, by default, for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend` for `--quantTranscriptomeBan` flag. See _`--quantTranscriptomeBan`_ in [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+ 
+```bash
+--quantTranscriptomeBan Singleend
+```
 
 ## Maping statistics
 ### `--mapping_statistics`  
