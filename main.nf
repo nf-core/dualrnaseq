@@ -185,20 +185,20 @@ Channel
 if(params.gff_host_tRNA){
 	Channel
 	    .value(ch_gff_host_tRNA)
-	    .into {change_attrubute_gff_host_tRNA_salmon_alignment;gff_host_create_transcriptome_tRNA}
+	    .into {change_attrubute_gff_host_tRNA_salmon_alignment;gff_host_create_transcriptome_tRNA; combine_gff_host_tRNA_htseq}
 
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { combine_gff_host_genome_star_salmon;gff_host_create_transcriptome}
+	    .into { combine_gff_host_genome_star_salmon;gff_host_create_transcriptome; combine_gff_host_genome_htseq}
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome}
+	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome; gff_host_genome_htseq}
 }
 
 Channel
     .value(ch_gff_pathogen)
-    .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome}
+    .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome; gff_feature_quant_pathogen_htseq}
 
 
 if(params.read_transcriptome_fasta_host_from_file){
@@ -267,6 +267,28 @@ if (params.run_salmon_selective_alignment){
 	    .value(params.libtype)
 	    .into {libtype_salmon; libtype_salmon_alignment_mode}
 
+}
+
+
+if(params.run_htseq_unique_mapping | params.run_htseq_multi_mapping){
+
+	Channel
+	    .value(params.gene_feature_gff_to_quantify_host)
+	    .collect()
+	    .into {gene_feature_to_quantify_host; gene_feature_to_extract_annotations_host_htseq}
+
+	Channel
+	    .value(params.gene_feature_gff_to_quantify_pathogen)
+	    .collect()
+	    .into {gene_feature_to_quantify_pathogen; gene_feature_to_extract_annotations_pathongen_htseq}
+
+	Channel
+	    .value(params.pathogen_gff_attribute)
+	    .into { pathogen_gff_attribute; pathogen_gff_attribute_to_extract_annotations_htseq}
+
+	Channel
+	    .value(params.host_gff_attribute)
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_split_tab; host_gff_attribute_to_extract_annotations_htseq}
 }
 
 
@@ -420,6 +442,140 @@ process combine_pathogen_host_fasta_genome {
 /*
  * chimeric gff file
  */
+
+if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
+
+	/*
+	 * combine host genome and tRNA gff files
+	 */
+
+	if(params.gff_host_tRNA){
+		process combine_host_genome_tRNA_gff_files_htseq {
+		    publishDir "${params.outdir}/references", mode: 'copy'
+		    storeDir "${params.outdir}/references"
+		    tag "combine_host_genome_tRNA_gff_files_htseq"
+		    
+		    label 'process_high'
+
+		    input:
+		    file(host_gff_genome) from combine_gff_host_genome_htseq
+		    file(host_gff_tRNA) from combine_gff_host_tRNA_htseq
+
+		    output:
+		    file "${outfile_name}" into gff_host_genome_htseq
+		    file "${outfile_name}" into split_tab_host_genome_gff_htseq
+		    file "${outfile_name}" into split_tab_host_genome_gff_htseq_m_m
+		    file "${outfile_name}" into extract_annotations_host_gff_htseq
+
+		    script:
+		    outfile_name = host_gff_genome[0].toString().replaceAll(/.gff3|.gff/,"_with_tRNA.gff3")
+		    """
+		    cat $host_gff_genome $host_gff_tRNA > ${outfile_name}
+		    """
+		}
+	}
+
+
+	process replace_gene_feature_gff_host_htseq {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+	    tag "replace_gene_feature_gff_host_htseq"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from gff_host_genome_htseq
+	    val(features) from gene_feature_to_quantify_host
+
+	    output:
+	    file "${outfile_name}" into combine_gff_host 
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
+	    """
+	}
+
+
+
+	process replace_gene_feature_gff_pathogen_htseq {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+	    tag "replace_gene_feature_gff_pathogen_htseq"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from gff_feature_quant_pathogen_htseq
+	    val(features) from gene_feature_to_quantify_pathogen
+
+	    output:
+	    file "${outfile_name}" into to_replace_gff_attribute
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
+	    """
+	}
+
+
+	process replace_attribute_pathogen_gff_htseq {
+
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+	    tag "replace_attribute_pathogen_gff_htseq"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from to_replace_gff_attribute
+	    val(host_attribute) from host_gff_attribute_to_pathogen
+	    val(pathogen_attribute) from pathogen_gff_attribute
+
+	    output:
+	    file "${outfile_name}" into combine_gff_pathogen
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_new_attribute.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} $host_attribute $pathogen_attribute
+	    """
+	}
+
+
+	/*
+	 * combine pathogen and host genome gff files
+	 */
+
+	process combine_pathogen_host_gff_files_htseq {
+	    publishDir "${params.outdir}/references", mode: 'copy' 
+	    storeDir "${params.outdir}/references"
+	    tag "combine_pathogen_host_gff_files_htseq"
+
+	    label 'process_high'
+	 
+	    input:
+	    file(host_gff) from combine_gff_host
+	    file(pathogen_gff_genome) from combine_gff_pathogen
+
+	    output:
+	    file "host_pathogen_htseq.gff" into quantification_gff_u_m
+//	    file "host_pathogen_htseq.gff" into quantification_gtf_u_m
+	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_htseq_alignment_gff
+
+	    script:
+	    """
+	    cat $pathogen_gff_genome $host_gff > host_pathogen_htseq.gff
+	    """
+	}
+
+
+
+}
+
+
 
 if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 	if(params.gff_host_tRNA){
@@ -831,7 +987,7 @@ if (!params.skipTrimming) {
 	    val q_value from quality_cutoff
 
 	    output:
-	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon
+	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon
 
 	    script:
 	if (params.single_end){
@@ -859,7 +1015,7 @@ if (!params.skipTrimming) {
 	}
 }else{
    trimming_reads
-      .into {trimming_results_to_qc, trimming_results, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
+      .into {trimming_results_to_qc, trimming_results_star_htseq, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
 }
 
 
@@ -2046,19 +2202,19 @@ if(params.run_star) {
             label 'process_high'
 	
 	    input:
-	    set val(sample_name),file(reads) from  trimming_results
-	    file(gff) from gff_host_pathogen_star_salmon_alignment_gff.collect()
+	    set val(sample_name),file(reads) from  trimming_results_star_htseq
+	    file(gff) from gff_host_pathogen_star_htseq_alignment_gff.collect()
 	    file(index) from star_index_genome_alignment.collect()
 
 	    output:
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p
-	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
+//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p
+//	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
-	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
-	    file "${sample_name}/*" into multiqc_star_alignment
+//	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
+//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
+//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
+//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
+//	    file "${sample_name}/*" into multiqc_star_alignment
 
 	    script:
 	outSAMunmapped = params.outSAMunmapped
@@ -2087,13 +2243,54 @@ if(params.run_star) {
 	    }
 	}
 
-
+}
 }
 
 
 
-}
+/*
+* htseq
+*/
 
+
+if(params.htseq_unique_mapping){
+
+
+	/*
+	 * HTseq - quantification -unique mapping
+	 */
+
+	process HTseq_unique_mapping {
+	    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+	    tag "$sample_name"
+
+            label 'main_env'
+            label 'process_high'
+
+	    input:
+	    file(gff) from quantification_gff_u_m.collect()
+	    set val(sample_name), file(st) from star_aligned_u_m
+	    val(host_attribute) from host_gff_attribute_htseq
+
+	    output:
+//	    file ("$name_file2") into htseq_files_u_m
+//	    file ("$name_file2") into htseq_files_to_combine
+//	    file ("$name_file2") into multiqc_htseq_unique
+
+	    script:
+	    name_file2 = sample_name + "_count_u_m"
+	    host_attr = host_attribute
+	    """
+	    htseq-count -t quant -f bam -r pos $st $gff -i $host_attr > $name_file2
+	    sed -i '1{h;s/.*/ '"$sample_name"'/;G}' "$name_file2"
+	    """
+	}
+
+
+
+
+}
 
 
 
