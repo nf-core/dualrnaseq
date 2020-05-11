@@ -109,6 +109,7 @@ if (params.run_salmon_selective_alignment){
 } else if (!params.single_end & (params.libtype != 'IU' && params.libtype != 'ISR' && params.libtype != 'ISF' && params.libtype != 'MU' && params.libtype != 'MSR' && params.libtype != 'MSF' && params.libtype != 'OU' && params.libtype != 'OSR' && params.libtype != 'OSF' )) {
 	    exit 1, "Salmon: Invalid library type --libtype ${params.libtype}! Library types available for paired-end reads are: 'IU', 'ISR', 'ISF', 'MU', 'MSR', 'MSF','OU', 'OSR', 'OSF'."
 } 
+}
 
 
 if(params.mapping_statistics) {
@@ -193,12 +194,12 @@ if(params.gff_host_tRNA){
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome; gff_host_genome_htseq}
+	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
 }
 
 Channel
     .value(ch_gff_pathogen)
-    .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome; gff_feature_quant_pathogen_htseq}
+    .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome; gff_feature_quant_pathogen_htseq; extract_annotations_pathogen_gff_htseq}
 
 
 if(params.read_transcriptome_fasta_host_from_file){
@@ -270,7 +271,7 @@ if (params.run_salmon_selective_alignment){
 }
 
 
-if(params.run_htseq_unique_mapping | params.run_htseq_multi_mapping){
+if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped){
 
 	Channel
 	    .value(params.gene_feature_gff_to_quantify_host)
@@ -288,7 +289,7 @@ if(params.run_htseq_unique_mapping | params.run_htseq_multi_mapping){
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_split_tab; host_gff_attribute_to_extract_annotations_htseq}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq}
 }
 
 
@@ -298,10 +299,6 @@ Channel
     .value(ch_RNA_classes)
     .into { RNA_classes_to_replace; RNA_classes_to_replace_alignment}
 }
-
-
-
-
 
 
 
@@ -435,7 +432,7 @@ process combine_pathogen_host_fasta_genome {
     """
 }
 
-}
+
 
 
 
@@ -464,7 +461,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
 		    output:
 		    file "${outfile_name}" into gff_host_genome_htseq
 		    file "${outfile_name}" into split_tab_host_genome_gff_htseq
-		    file "${outfile_name}" into split_tab_host_genome_gff_htseq_m_m
+//		    file "${outfile_name}" into split_tab_host_genome_gff_htseq_m_m
 		    file "${outfile_name}" into extract_annotations_host_gff_htseq
 
 		    script:
@@ -572,6 +569,62 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
 	}
 
 
+	/*
+	* extract annotations from gff files - for RNA class statistics + to merge with quantification results
+	*/
+
+	process extract_annotations_pathogen_htseq {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+	    tag "extract_annotations_pathogen_htseq"
+
+	    label 'main_env'
+	    label 'process_high'
+
+	    input:
+	    file gff from extract_annotations_pathogen_gff_htseq
+	    val(features) from gene_feature_to_extract_annotations_pathongen_htseq
+	    val(pathogen_attribute) from pathogen_gff_attribute_to_extract_annotations_htseq
+
+	    output:
+//	    file "${outfile_name}*_htseq.csv" into pathogen_annotations_RNA_class_stats_htseq
+//	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_combine_quant_htseq
+	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_split_quant_htseq
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"")
+	    """
+	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f $features -a $pathogen_attribute -org pathogen -q_tool htseq -o ${outfile_name}
+	    """
+
+	}
+
+
+	process extract_annotations_host_htseq {
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+	    tag "extract_annotations_host_htseq"
+
+	    label 'main_env'
+	    label 'process_high'
+
+	    input:
+	    file gff from extract_annotations_host_gff_htseq
+	    val(features) from gene_feature_to_extract_annotations_host_htseq
+	    val(host_attribute) from host_gff_attribute_to_extract_annotations_htseq
+
+	    output:
+//	    file "${outfile_name}*_htseq.csv" into host_annotations_RNA_class_stats_htseq
+//	    file "${outfile_name}*_htseq.csv" into annotation_host_combine_quant_htseq
+	    file "${outfile_name}*_htseq.csv" into annotation_host_split_quant_htseq
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"")
+	    """
+	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f $features -a $host_attribute -org host -q_tool htseq -o ${outfile_name}
+	    """
+	}
+
 
 }
 
@@ -669,6 +722,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	}
 }
 
+
 if(params.run_salmon_alignment_based_mode){
 	process replace_gene_feature_gff_pathogen_salmon {
 	    tag "replace_gene_feature_gff_pathogen"
@@ -725,7 +779,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 
 	/*
-	* extract annotations from gff file - for RNA class statistics + merged with quantification results
+	* extract annotations from gff file - for RNA class statistics + to merge with quantification results
 	*/
 
 
@@ -1015,7 +1069,7 @@ if (!params.skipTrimming) {
 	}
 }else{
    trimming_reads
-      .into {trimming_results_to_qc, trimming_results_star_htseq, trimming_results_to_salmon, count_reads, trimming_results_star_salmon}
+      .into {trimming_results_to_qc; trimming_results_star_htseq; trimming_results_to_salmon; count_reads; trimming_results_star_salmon}
 }
 
 
@@ -2185,6 +2239,9 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
+}
+
+}
 
 
 if(params.run_star) {
@@ -2244,7 +2301,6 @@ if(params.run_star) {
 	}
 
 }
-}
 
 
 
@@ -2253,7 +2309,7 @@ if(params.run_star) {
 */
 
 
-if(params.htseq_unique_mapping){
+if(params.run_htseq_uniquely_mapped){
 
 
 	/*
@@ -2275,7 +2331,7 @@ if(params.htseq_unique_mapping){
 
 	    output:
 //	    file ("$name_file2") into htseq_files_u_m
-//	    file ("$name_file2") into htseq_files_to_combine
+	    file ("$name_file2") into htseq_files_to_combine
 //	    file ("$name_file2") into multiqc_htseq_unique
 
 	    script:
@@ -2288,6 +2344,87 @@ if(params.htseq_unique_mapping){
 	}
 
 
+
+	/*
+	 * htseq - combine quantification results
+	 */
+
+	htseq_files_to_combine
+	    .collect()
+	    .set { htseq_result_quantification }
+
+	process combine_quantification_tables_htseq_uniquely_mapped {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "combine_quantification_htseq_uniquely_mapped"
+
+                    label 'process_high'
+
+		    input: 
+		    file input_quantification from htseq_result_quantification
+		    val(host_attribute) from host_gff_attribute_htseq_combine
+
+		    output:
+		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_host
+		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_pathogen
+		    file "alignment_stats_uniquely_mapped.csv"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute -p uniquely_mapped
+		    """
+		}
+ 
+
+	/*
+	 * htseq - split quantification tables into host and pathogen results
+	 */
+
+
+	process split_quantification_tables_htseq_uniquely_mapped_host {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "split_quantification_htseq_uniquely_mapped_host"
+
+                    label 'process_high'
+
+		    input:
+		    file quant_table from split_table_htseq_host
+		    file host_annotations from annotation_host_split_quant_htseq
+
+		    output:
+		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
+		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
+
+		    shell:
+		    '''
+		    awk -F"\t" '!(NR<=1) {print $1}' !{host_annotations}| awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table} > host_quantification_uniquely_mapped_htseq_without_headers.csv
+		    awk 'NR==1 {print; exit}' !{quant_table} | cat - host_quantification_uniquely_mapped_htseq_without_headers.csv > host_quantification_uniquely_mapped_htseq.csv
+		    '''
+		}
+
+
+	process split_quantification_tables_htseq_uniquely_mapped_pathogen {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "split_quantification_htseq_uniquely_mapped_pathogen"
+
+                    label 'main_env'
+
+		    input:
+		    file quant_table from split_table_htseq_pathogen
+		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
+
+		    output:
+		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
+		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
+
+		    shell:
+		    '''
+		    awk -F"\t" '!(NR<=1) {print $1}' !{pathogen_annotations}| awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table} > pathogen_quantification_uniquely_mapped_htseq_without_headers.csv
+		    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_uniquely_mapped_htseq_without_headers.csv > pathogen_quantification_uniquely_mapped_htseq.csv
+		    '''
+		}
 
 
 }
@@ -2312,13 +2449,17 @@ if(params.htseq_unique_mapping){
 
 
 
-	/*
-	* extract reference names from genome fasta files
-	 */
 
-	process extract_reference_names_host {
+
+
+	/*
+	* extract reference names from genome fasta files - for RNA class statistics + to merge with quantification results
+	*/
+
+	process extract_reference_names_host_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy' 
 	    storeDir "${params.outdir}/references"
+	    tag "extract_reference_names_host_htseq"
 
 	    label 'process_high'
 
@@ -2337,9 +2478,10 @@ if(params.htseq_unique_mapping){
 	}
 
 
-	process extract_reference_names_pathogen {
+	process extract_reference_names_pathogen_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy' 
 	    storeDir "${params.outdir}/references"
+	    tag "combine_pathogen_host_gff_files_htseq"
 
 	    label 'process_high'
 
@@ -2356,26 +2498,6 @@ if(params.htseq_unique_mapping){
 	    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_pathogen_names.txt $pathogen_fa
 	    """
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
