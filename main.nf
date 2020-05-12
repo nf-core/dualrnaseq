@@ -288,7 +288,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped){
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute}
 }
 
 
@@ -587,7 +587,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
 
 	    output:
 	    file "${outfile_name}*_htseq.csv" into pathogen_annotations_RNA_class_stats_htseq
-//	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_combine_quant_htseq
+	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_combine_quant_htseq_u_m
 	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_split_quant_htseq
 
 	    script:
@@ -626,6 +626,67 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
 
 
 }
+
+
+
+
+
+if(params.run_star) {
+
+	if(params.mapping_statistics) {
+		/*
+		* extract reference names from genome fasta files - mapping stats
+		*/
+
+		process extract_reference_names_host_star {
+		    publishDir "${params.outdir}/references", mode: 'copy' 
+		    storeDir "${params.outdir}/references"
+		    tag "extract_reference_names_host_star"
+
+		    label 'process_high'
+
+		    input:
+		    file(host_fa) from genome_fasta_host_ref_names
+
+		    output:
+		    file "reference_host_names.txt" into reference_host_names_uniquelymapped 
+		    file "reference_host_names.txt" into reference_host_names_crossmapped_find
+		    file "reference_host_names.txt" into reference_host_names_multimapped
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_host_names.txt $host_fa
+		    """
+		}
+
+
+		process extract_reference_names_pathogen_star {
+		    publishDir "${params.outdir}/references", mode: 'copy' 
+		    storeDir "${params.outdir}/references"
+		    tag "extract_reference_names_pathogen_star"
+
+		    label 'process_high'
+
+		    input:
+		    file(pathogen_fa) from genome_fasta_pathogen_ref_names
+
+		    output:
+		    file "reference_pathogen_names.txt" into reference_pathogen_names_uniquelymapped
+		    file "reference_pathogen_names.txt" into reference_pathogen_crossmapped_find
+		    file "reference_pathogen_names.txt" into reference_pathogen_names_multimapped
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_pathogen_names.txt $pathogen_fa
+		    """
+		}
+	}
+}
+
+
+
+
+
 
 
 
@@ -1398,7 +1459,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen -q_tool salmon 
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
 		    """
 		}
 
@@ -1422,7 +1483,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host -q_tool salmon 
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
 		    """
 		}
 
@@ -1938,7 +1999,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen -q_tool salmon 
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
 	    """
 	}
 
@@ -1961,7 +2022,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host -q_tool salmon 
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
 	    """
 	}
 
@@ -2269,9 +2330,9 @@ if(params.run_star) {
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
-//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
-//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
-//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
 //	    file "${sample_name}/*" into multiqc_star_alignment
 
 	    script:
@@ -2301,6 +2362,158 @@ if(params.run_star) {
 	    }
 	}
 
+
+
+	if(params.run_htseq_multi_mapped | params.mapping_statistics) {
+		/*
+		 * find_cross_mapped_reads 
+		*/
+
+		process find_crossmapped_reads {
+		    tag "$sample_name"
+		    publishDir "${params.outdir}/STAR/multimapped_reads", mode: 'copy'
+		    storeDir "${params.outdir}/STAR/multimapped_reads"
+		    
+                    label 'main_env'
+                    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(alignment) from alignment_crossmapped_find
+		    file(host_reference) from reference_host_names_crossmapped_find.collect()
+		    file(pathogen_reference) from reference_pathogen_crossmapped_find.collect()
+
+		    output:
+		    file "${cross_mapped_reads}" into remove_crossmapped_reads
+		    file "${cross_mapped_reads}" into count_crossmapped_reads
+
+		    shell:
+		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
+		    '''
+		    samtools view -F 4 -h !{alignment} | fgrep -vw NH:i:1 | !{workflow.projectDir}/bin/extract_crossmapped_reads.py -h_ref !{host_reference} -p_ref !{pathogen_reference} -o !{cross_mapped_reads}
+		    '''
+		}
+
+
+		/*
+		 * remove_cross_mapped_reads
+		 */
+
+		process remove_crossmapped_reads {
+		    tag "$sample_name"
+		    publishDir "${params.outdir}/STAR/multimapped_reads", mode: 'copy'
+		    storeDir "${params.outdir}/STAR/multimapped_reads"
+
+                    label 'main_env'
+                    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(alignment) from alignment_crossmapped_extract
+		    file(cross_mapped_reads) from remove_crossmapped_reads
+
+		    output:
+		    file "${bam_file_without_crossmapped}" into alignment_multi_mapping_stats
+//		    file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
+
+		    shell:
+		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
+		    '''
+		    samtools view -@ !{task.cpus} -h !{alignment} | fgrep -vf !{cross_mapped_reads} | samtools view -@ !{task.cpus} -bS -o !{bam_file_without_crossmapped} -
+		    '''
+		}
+	}
+
+
+	if(params.mapping_statistics) {
+
+		/*
+		 * uniquly mapped reads - statistics
+		 */
+
+
+		process unique_mapping_stats_STAR {
+		    tag "$name"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats
+		    file(host_reference_names) from reference_host_names_uniquelymapped.collect()
+		    file(pathogen_reference_names) from reference_pathogen_names_uniquelymapped.collect()
+
+		    output:
+		    file "${out_file_name}" into unique_stats_to_plot
+		   
+		    shell: 
+		    name = alignment[0].toString()
+		    out_file_name = name.replaceFirst(/Aligned.sortedByCoord.out.bam/, "uniquly_mapped_reads_statistics.txt")
+		    '''
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} host `wc -l`" > host_uniquly_mapped_reads_sum.txt
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > pathogen_uniquly_mapped_reads_sum.txt
+		    cat host_uniquly_mapped_reads_sum.txt pathogen_uniquly_mapped_reads_sum.txt >> !{out_file_name}
+		    '''
+		}
+
+		/*
+		 * count_cross_mapped_reads 
+		*/
+
+		process count_crossmapped_reads {
+		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+
+		    label 'process_high'
+
+		    input:
+		    file(cross_mapped_reads) from count_crossmapped_reads.collect()
+
+		    output:
+                    file "cross_mapped_reads_sum.txt"
+                    file "cross_mapped_reads_sum2.txt"
+		    
+		    shell:
+		    '''
+		    wc -l !{cross_mapped_reads} >> cross_mapped_reads_sum.txt
+		    head -n -1 cross_mapped_reads_sum.txt > cross_mapped_reads_sum2.txt
+		    '''
+		}
+
+
+		/*
+		 * multi mapped reads - statistics (uniquely_mapped + multi_mapped - cross_mapped reads )
+		 */
+
+		process multi_mapping_stats {
+		    tag "$name2"
+		    storeDir "${params.outdir}/mapping_statistics"
+
+                    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file(alignment) from alignment_multi_mapping_stats
+		    file(host_reference_names) from reference_host_names_multimapped.collect()
+		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
+
+		    output:
+		    file "${out_file_name}" into multi_mapped_stats_to_plot
+
+		    shell: 
+		    name = alignment[0].toString()
+		    name2 = name.replaceFirst(/_no_crossmapped.bam/, "") 
+		    out_file_name = name.replaceFirst(/no_crossmapped.bam/, "multi_mapped_reads_statistics.txt")
+		    '''
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1| echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w HI:i:1 | echo "!{name2} pathogen `wc -l`" > pathogen_multi_mapped_reads_sum.txt
+		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt >> !{out_file_name}
+		    '''
+		}
+
+
+}
 }
 
 
@@ -2421,6 +2634,7 @@ if(params.run_htseq_uniquely_mapped){
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_htseq_quantification_RNA_stats
+		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_pathogen_add_annotations_htseq_u_m
 
 		    shell:
 		    '''
@@ -2428,6 +2642,51 @@ if(params.run_htseq_uniquely_mapped){
 		    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_uniquely_mapped_htseq_without_headers.csv > pathogen_quantification_uniquely_mapped_htseq.csv
 		    '''
 		}
+
+
+		process combine_annotations_quant_pathogen_uniquely_mapped_host {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "combine_annotations_quant_pathogen"
+		    label 'main_env'
+		    label 'process_high'
+		   
+		    input: 
+		    file quantification_table from quant_pathogen_add_annotations_htseq_u_m
+		    file annotation_table from annotation_pathogen_combine_quant_htseq_u_m
+		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
+
+		    output:
+		    file "pathogen_combined_quant_annotations.csv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
+		    """
+		}
+
+
+	process combine_annotations_quant_host_uniquely_mapped_host {
+	    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+	    tag "combine_annotations_quant_host_salmon"
+
+	    label 'main_env'
+	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_host_add_annotations_salmon_alignment_based
+	    file annotation_table from annotation_host_combine_quant_salmon_alignment_based
+	    val attribute from combine_annot_quant_host_salmon_alignment_based
+
+	    output:
+	    file "host_combined_quant_annotations.csv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
+	    """
+	}
 
 
 	if(params.mapping_statistics) {
@@ -2643,54 +2902,6 @@ if(params.run_htseq_uniquely_mapped){
 
 
 
-
-
-	/*
-	* extract reference names from genome fasta files - for RNA class statistics + to merge with quantification results
-	*/
-
-	process extract_reference_names_host_htseq {
-	    publishDir "${params.outdir}/references", mode: 'copy' 
-	    storeDir "${params.outdir}/references"
-	    tag "extract_reference_names_host_htseq"
-
-	    label 'process_high'
-
-	    input:
-	    file(host_fa) from genome_fasta_host_ref_names
-
-	    output:
-	    file "reference_host_names.txt" into reference_host_names_uniquelymapped 
-	    file "reference_host_names.txt" into reference_host_names_crossmapped_find
-	    file "reference_host_names.txt" into reference_host_names_multimapped
-
-	    script:
-	    """
-	    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_host_names.txt $host_fa
-	    """
-	}
-
-
-	process extract_reference_names_pathogen_htseq {
-	    publishDir "${params.outdir}/references", mode: 'copy' 
-	    storeDir "${params.outdir}/references"
-	    tag "combine_pathogen_host_gff_files_htseq"
-
-	    label 'process_high'
-
-	    input:
-	    file(pathogen_fa) from genome_fasta_pathogen_ref_names
-
-	    output:
-	    file "reference_pathogen_names.txt" into reference_pathogen_names_uniquelymapped
-	    file "reference_pathogen_names.txt" into reference_pathogen_crossmapped_find
-	    file "reference_pathogen_names.txt" into reference_pathogen_names_multimapped
-
-	    script:
-	    """
-	    $workflow.projectDir/bin/extract_reference_names_from_fasta_files.sh reference_pathogen_names.txt $pathogen_fa
-	    """
-	}
 
 
 
