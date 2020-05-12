@@ -289,7 +289,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped){
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq}
 }
 
 
@@ -1042,7 +1042,8 @@ if (!params.skipTrimming) {
 	    val q_value from quality_cutoff
 
 	    output:
-	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, count_reads, trimming_results_star_salmon
+	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, trimming_results_star_salmon
+	    file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into count_reads
 
 	    script:
 	if (params.single_end){
@@ -1132,6 +1133,7 @@ if(params.mapping_statistics) {
 	    output:
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
+	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
 
 	    script:
 	    """
@@ -2395,7 +2397,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    output:
 //		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
-//		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
+		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
 
 		    shell:
 		    '''
@@ -2418,7 +2420,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    output:
 //		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
-//		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
+		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
 
 		    shell:
 		    '''
@@ -2426,31 +2428,6 @@ if(params.run_htseq_uniquely_mapped){
 		    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_uniquely_mapped_htseq_without_headers.csv > pathogen_quantification_uniquely_mapped_htseq.csv
 		    '''
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
