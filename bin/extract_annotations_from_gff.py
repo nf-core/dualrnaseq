@@ -44,7 +44,7 @@ def extract_gene_types_host(gff,gene_feature,feature):
                       # else:
                       ID_gene_pos_host = [pos.split(' ') for pos in d1 if pos.startswith('gene_id')][0][0].split("=")[1]
                       gene_name_host = [pos.split(' ') for pos in d1 if pos.startswith('gene_name')][0][0].split("=")[1]
-                      gene_type_host.append({'transcript_id' :ID_pos_host, 'transcript_name':transcript_name_host, 'gene_ID':ID_gene_pos_host,'gene_name':gene_name_host, 'gene_type':g_type, })                    
+                      gene_type_host.append({'transcript_id' :ID_pos_host, 'transcript_name':transcript_name_host, 'gene_id':ID_gene_pos_host,'gene_name':gene_name_host, 'gene_type':g_type, })                    
     return gene_type_host
 
 
@@ -112,7 +112,7 @@ elif args.organism == 'host':
     #there are duplicates for exons
     gene_types_unique = pd.DataFrame(gene_types).drop_duplicates().to_dict('records')
     gene_annotations_pathogen_df = pd.DataFrame.from_dict(gene_types_unique)
-    gene_annotations_pathogen_df.to_csv(args.output + '_' + args.gene_attribute + '_' + args.quantifier + ".csv",index=False, sep = '\t')
+    gene_annotations_pathogen_df.to_csv(args.output + '_annotations_' + args.quantifier + ".csv",index=False, sep = '\t')
     
 
     

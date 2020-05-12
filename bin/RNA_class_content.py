@@ -57,9 +57,12 @@ def sum_counts_for_each_RNA_class(gene_RNAtype_counts, set_RNA_classes):
     return(RNA_classes_sum_counts_df)    
 
         
-        
-def RNA_classes_for_each_sample_htseq(quantification_table_path,gene_types,set_RNA_classes,feature,organism, profile, gene_attribute):
-    quantification_table = pd.read_csv(quantification_table_path, sep = '\t',index_col=0,dtype={gene_attribute:str})
+                                                                          
+def RNA_classes_for_each_sample_htseq(quantification_table_path,gene_types,set_RNA_classes,organism, profile, gene_attribute):
+    col_names = pd.read_csv(quantification_table_path, sep = '\t', nrows=0).columns
+    types_dict = {gene_attribute: str}
+    types_dict.update({col: float for col in col_names if col not in types_dict})  
+    quantification_table = pd.read_csv(quantification_table_path, sep = '\t',index_col=0,dtype=types_dict)
     df_percentage_RNA_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
     df_RNA_classes_sum_counts_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
     for sample_name in quantification_table:
@@ -78,8 +81,8 @@ def RNA_classes_for_each_sample_htseq(quantification_table_path,gene_types,set_R
         df_percentage_RNA_all_samples = pd.concat([df_percentage_RNA_all_samples, percentage_RNA_class.T],sort=True)
     df_percentage_RNA_all_samples = df_percentage_RNA_all_samples.dropna()
     df_RNA_classes_sum_counts_all_samples = df_RNA_classes_sum_counts_all_samples.dropna()
-    df_RNA_classes_sum_counts_all_samples.to_csv(organism + "/RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
-    df_percentage_RNA_all_samples.to_csv(organism + "/RNA_classes_percentage_ " + profile + ".csv", sep = '\t')  
+    df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
+    df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage_" + profile + ".csv", sep = '\t')  
         
     
       

@@ -31,7 +31,6 @@ def mapping_stats_htseq(quantification_table_path,gene_attribute,organism):
     quantification_table = pd.read_csv(quantification_table_path, sep = '\t',index_col=0,dtype=types_dict)
     quant_sum = {}
     for sample_name in quantification_table:
-        print(quantification_table[sample_name])
         quant_sum.update({sample_name:sum(quantification_table[sample_name])})
     total_counts_pd = pd.DataFrame.from_dict(quant_sum,orient='index')
     total_counts_pd.columns = [organism]
@@ -84,18 +83,16 @@ elif args.tool == 'htseq':
     combined_total_mapped_reads['total_mapped_reads'] = combined_total_mapped_reads.sum(axis=1)
 
     #read total number of processed reads 
-  #  processed_reads_salmon = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
-    
+    processed_reads = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
     #read total number of raw reads
     total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
     #new_index2 = [sample.split('.fastq')[0] for sample in total_reads.index]
     #total_reads.index = new_index2
 
 
-    results_df = pd.concat([combined_total_mapped_reads, total_reads], axis=1)
+    results_df = pd.concat([combined_total_mapped_reads, processed_reads, total_reads], axis=1)
     #unmapped reads
-   # results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
-   # results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads']
+    results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
+    results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads']
 
     results_df.to_csv(args.output_dir, sep='\t')
-    #combined_total_mapped_reads.to_csv(args.output_dir, sep='\t')
