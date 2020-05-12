@@ -1119,7 +1119,7 @@ if(params.mapping_statistics) {
 
 
 	process count_total_reads {
-	    tag "${fastq}"
+	    tag "count_total_reads"
 	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
 	    storeDir "${params.outdir}/mapping_statistics"
 
@@ -1760,7 +1760,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 if (params.run_salmon_alignment_based_mode){
 
 	process ALIGNMENTstar_for_salmon {
-	    tag "$prefix"
+	    tag "$sample_name"
 	    publishDir "${params.outdir}/STAR_for_salmon", mode: 'copy'
 	    storeDir "${params.outdir}/STAR_for_salmon" 
 
@@ -2251,7 +2251,7 @@ if(params.run_star) {
 	 */
 
 	process ALIGNMENTstar {
-	    tag "$prefix"
+	    tag "${sample_name}"
             publishDir "${params.outdir}/STAR", mode: 'copy'
 	    storeDir "${params.outdir}/STAR" 
 
