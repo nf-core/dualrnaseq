@@ -4,6 +4,8 @@ for i in "$@"
 do
 lines=$(zcat -f $i| wc -l)
 count=$(($lines / 4))
-echo -n -e "$i\t$count\n"
+
+name=$(echo "$i" | tr \: _)
+echo -n -e "$name\t$count\n"
 done
 
