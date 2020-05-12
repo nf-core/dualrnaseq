@@ -2452,7 +2452,6 @@ if(params.run_htseq_uniquely_mapped){
 
 
 
-	}
 
 
 }
