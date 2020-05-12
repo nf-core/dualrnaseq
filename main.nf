@@ -1146,7 +1146,7 @@ if(params.mapping_statistics) {
 
 
 	process count_total_trimmed_reads {
-	    tag "${fastq}"
+	    tag "count_total_trimmed_reads"
 	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
 	    storeDir "${params.outdir}/mapping_statistics"
 
@@ -1432,7 +1432,7 @@ if (params.single_end){
 		 * salmon - 'quantification_stats'
 		 */
 
-		process scatter_plot_pathogen {
+		process scatter_plot_pathogen_salmon {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
 		    tag "scatter_plot_salmon_pathogen"
@@ -1455,7 +1455,7 @@ if (params.single_end){
 
 
 
-		process scatter_plot_host {
+		process scatter_plot_host_salmon {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
 		    tag "scatter_plot_salmon_host"
@@ -2011,7 +2011,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org host
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org host 
 		    """
 		}
 
@@ -2393,8 +2393,8 @@ if(params.run_htseq_uniquely_mapped){
 		    file host_annotations from annotation_host_split_quant_htseq
 
 		    output:
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
+//		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
+//		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
 
 		    shell:
 		    '''
@@ -2416,8 +2416,8 @@ if(params.run_htseq_uniquely_mapped){
 		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
 
 		    output:
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
+//		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
+//		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
 
 		    shell:
 		    '''
@@ -2425,6 +2425,33 @@ if(params.run_htseq_uniquely_mapped){
 		    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_uniquely_mapped_htseq_without_headers.csv > pathogen_quantification_uniquely_mapped_htseq.csv
 		    '''
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	}
 
 
 }
