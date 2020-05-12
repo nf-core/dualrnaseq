@@ -374,6 +374,7 @@ Channel.from(summary.collect{ [it.key, it.value] })
 /*
  * Parse software version numbers
  */
+/*
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
         saveAs: { filename ->
@@ -399,7 +400,7 @@ process get_software_versions {
     """
 }
 
-
+*/
 
 /*
  *  create chimeric reference files
