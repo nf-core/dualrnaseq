@@ -2263,7 +2263,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		process plot_RNA_class_salmon_pathogen_combined_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_basedn/RNA_classes_pathogen"
+		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen"
 		    tag "plot RNA class stistics combined"
 
 		    label 'main_env'
@@ -2433,8 +2433,8 @@ if(params.run_star) {
 
 		process unique_mapping_stats_STAR {
 		    tag "$name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
 		    label 'main_env'
 		    label 'process_high'
@@ -2463,8 +2463,8 @@ if(params.run_star) {
 
 		process count_crossmapped_reads {
 		    tag "$name2"
-		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
 		    label 'process_high'
 
@@ -2489,7 +2489,7 @@ if(params.run_star) {
 
 		process multi_mapping_stats {
 		    tag "$name2"
-		    storeDir "${params.outdir}/mapping_statistics"
+		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
                     label 'main_env'
 		    label 'process_high'
