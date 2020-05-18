@@ -1285,7 +1285,7 @@ if(params.run_salmon_selective_alignment) {
 
 	    script:
 	    """
-	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus}
+	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} --keepDuplicates
 	    """
 	}
 
