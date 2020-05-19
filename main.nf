@@ -373,6 +373,7 @@ Channel.from(summary.collect{ [it.key, it.value] })
 /*
  * Parse software version numbers
  */
+/*
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
         saveAs: { filename ->
@@ -398,7 +399,7 @@ process get_software_versions {
     """
 }
 
-
+*/
 
 /*
  *  create chimeric reference files
@@ -1283,7 +1284,7 @@ if(params.run_salmon_selective_alignment) {
 
 	    script:
 	    """
-	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus}
+	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} --keepDuplicates
 	    """
 	}
 
