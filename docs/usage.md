@@ -24,6 +24,8 @@
   * [`--transcriptome_host`](#--transcriptome_host)
   * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
   * [`--igenomes_ignore`](#--igenomes_ignore)
+* [Fastqc](#Fastqc)
+    * [`-skipFastqc`](#--skipFastqc)
 * [Adapter trimming](#Adapter-trimming)
     * [`--a`](#--a)
     * [`--A`](#--A)
@@ -346,6 +348,17 @@ the pipeline reads the transcriptome from the file.
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 
+## Fastqc
+
+### `--skipFastqc`
+If you don't want to run Fastqc, please specify the following flag:
+
+```bash
+--skipFastqc
+```
+or set the parameter to true in your config file. 
+
+
 ## Adapter trimming
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
 To learn more on cutadapt and its parameters check the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
@@ -625,10 +638,30 @@ See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek
 
 ## HTSeq - counting of uniquely-mapped reads
 
+run_star = true
 
+### `--run_htseq_uniquely_mapped`
+
+
+  gene_feature_gff_to_quantify_host = ["exon","tRNA"]
+  gene_feature_gff_to_quantify_pathogen = ["gene", "sRNA", "tRNA", "rRNA"]
+  host_gff_atribute = "gene_id"
+  pathogen_gff_atribute = "locus_tag"
+
+  tRNA gff - assume it has the same gene atribute as in genomic gff - gene_id
 In the nf-core/dualrnaseq pipeline you can specify the following cutadapt parameters: 
 
 ## HTSeq - counting of multi-mapped reads
+
+### `--run_htseq_multi_mapped`
+
+  gene_feature_gff_to_quantify_host = ["exon","tRNA"]
+  gene_feature_gff_to_quantify_pathogen = ["gene", "sRNA", "tRNA", "rRNA"]
+  host_gff_atribute = "gene_id"
+  pathogen_gff_atribute = "locus_tag"
+
+
+
 
 ## Salmon - quantification in alignment-based mode
 

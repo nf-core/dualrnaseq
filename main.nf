@@ -1061,26 +1061,29 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 /*
  * STEP 1 - FastQC
  */
-process fastqc {
-    tag "$name"
-    label 'process_medium'
-    label 'main_env'
-    publishDir "${params.outdir}/fastqc", mode: 'copy',
-        saveAs: { filename ->
-                      filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-                }
-    storeDir "${params.outdir}/fastqc"
 
-    input:
-    set val(name), file(reads) from ch_read_files_fastqc
+if (!params.skipFastqc) {
+	process fastqc {
+	    tag "$name"
+	    label 'process_medium'
+	    label 'main_env'
+	    publishDir "${params.outdir}/fastqc", mode: 'copy',
+		saveAs: { filename ->
+		              filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
+		        }
+	    storeDir "${params.outdir}/fastqc"
 
-    output:
-    file "*_fastqc.{zip,html}" into ch_fastqc_results
+	    input:
+	    set val(name), file(reads) from ch_read_files_fastqc
 
-    script:
-    """
-    fastqc --quiet --threads $task.cpus --noextract $reads
-    """
+	    output:
+	    file "*_fastqc.{zip,html}" into ch_fastqc_results
+
+	    script:
+	    """
+	    fastqc --quiet --threads $task.cpus --noextract $reads
+	    """
+	}
 }
 
 /*
@@ -1140,7 +1143,7 @@ if (!params.skipTrimming) {
  * STEP 3 -FastQC after trimming 
  */
 
-if (!params.skipTrimming) {
+if (!params.skipTrimming | !params.skipFastqc) {
 	process fastqc_after_trimming {
 	    tag "$sample_name"
 	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
@@ -1161,11 +1164,7 @@ if (!params.skipTrimming) {
 	    fastqc --threads ${task.cpus} --quiet --noextract $reads
 	    """
 	}
-}else{
-   trimming_results_to_qc
-         .set{raw_reads_fastqc_trim}
 }
-
 
 
 if(params.mapping_statistics) {
