@@ -1167,7 +1167,7 @@ if (!params.skipTrimming | !params.skipFastqc) {
 }
 
 
-if(params.mapping_statistics) {
+if(params.mapping_statistics | !params.skipTrimming) {
 
 	/*
 	* count total number of raw reads
@@ -1192,7 +1192,7 @@ if(params.mapping_statistics) {
 	    output:
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
-	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
+//	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
 
 	    script:
 	    """
@@ -1207,24 +1207,26 @@ if(params.mapping_statistics) {
 	*/
 
 
-	process count_total_trimmed_reads {
-	    tag "count_total_trimmed_reads"
-	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
-	    storeDir "${params.outdir}/mapping_statistics"
+		process count_total_trimmed_reads {
+		    tag "count_total_trimmed_reads"
+		    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics"
 
-	    label 'process_high'
+		    label 'process_high'
 
-	    input:
-	    file(fastq) from count_reads.collect()
+		    input:
+		    file(fastq) from count_reads.collect()
 
-	    output:
-	    file "total_trimmed_reads_fastq.csv" into mapping_stats_total_processed_reads_alignment
+		    output:
+		    file "total_trimmed_reads_fastq.csv" into mapping_stats_total_processed_reads_alignment
 
-	    script:
-	    """
-	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
-	    """
-	}
+		    script:
+		    """
+		    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
+		    """
+		}
+
+
 
 }
 
@@ -1594,7 +1596,7 @@ if (params.single_end){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
 		    val attribute from attribute_quant_stats_salmon
 		    file total_processed_reads from mapping_stats_total_reads
-		    file total_raw_reads from collect_total_reads_raw_salmon
+		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty([])
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
@@ -2133,7 +2135,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
-		    file total_raw_reads from collect_total_reads_raw_salmon_alignment
+		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty([])
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
@@ -2511,6 +2513,31 @@ if(params.run_star) {
 		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt >> !{out_file_name}
 		    '''
 		}
+
+		process star_quantification_stats_uniquely_mapped {
+		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
+		    tag "quantification_statistics htseq"
+
+		    label 'main_env'
+
+		    input:
+		    file quant_table_host from host_quantification_stats_htseq_total
+		    file quant_table_pathogen from pathogen_quantification_stats_htseq_total
+		    file total_raw_reads from collect_total_reads_raw_htseq_uniquely_mapped
+		    val attribute from host_gff_attribute_mapping_stats_htseq
+		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
+
+		    output:
+		    file ('htseq_uniquely_mapped_host_pathogen_total_reads.csv') into htseq_mapped_stats_to_plot
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
+		    """
+		}
+
+
 
 
 }
