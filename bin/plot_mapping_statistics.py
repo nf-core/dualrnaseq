@@ -49,26 +49,52 @@ args = parser.parse_args()
 
 df_stats = pd.read_csv(args.input_files,sep="\t",index_col=0)
 
-##percentage
-pathogen_percent = (df_stats['pathogen']/df_stats['processed_reads']) * 100
-host_percent = (df_stats['host']/df_stats['processed_reads']) * 100
-unmapped_percent = (df_stats['unmapped_reads']/df_stats['processed_reads']) * 100
-trimmed_percent = (df_stats['trimmed_reads']/df_stats['processed_reads']) * 100
+print(df_stats)
+if 'trimmed_reads' in df_stats.columns:
+    ##percentage
+    pathogen_percent = (df_stats['pathogen']/df_stats['total_raw_reads']) * 100
+    host_percent = (df_stats['host']/df_stats['total_raw_reads']) * 100
+    unmapped_percent = (df_stats['unmapped_reads']/df_stats['total_raw_reads']) * 100
 
-df_comb = pd.concat([host_percent,pathogen_percent,unmapped_percent, trimmed_percent], axis=1)
-df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
+    trimmed_percent = (df_stats['trimmed_reads']/df_stats['total_raw_reads']) * 100
+    df_comb = pd.concat([host_percent,pathogen_percent,unmapped_percent, trimmed_percent], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
+else:
+    ##percentage
+    pathogen_percent = (df_stats['pathogen']/df_stats['processed_reads']) * 100
+    host_percent = (df_stats['host']/df_stats['processed_reads']) * 100
+    unmapped_percent = (df_stats['unmapped_reads']/df_stats['processed_reads']) * 100
+
+    df_comb = pd.concat([host_percent,pathogen_percent,unmapped_percent], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads']
+
+
+
 no_samples = df_stats.shape[0]
 plot_mapping_stats(df_comb,no_samples,'samples_percentage','[ % ]',np.arange(0, 105, step=5), percentage = True)
     
 ##total
-df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unmapped_reads'], df_stats['trimmed_reads']], axis=1)
-df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
-no_samples = df_stats.shape[0]
+if 'trimmed_reads' in df_stats.columns:
+    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unmapped_reads'], df_stats['trimmed_reads']], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
+    no_samples = df_stats.shape[0]
+    
+    step = int(df_stats['total_raw_reads'].max()/50)
+    step2 = int((step + 50) /100) * 100
+    plot_mapping_stats(df_comb,no_samples,'samples_total_reads','Number of reads',np.arange(0, df_stats['total_raw_reads'].max() + step2, step=step2), percentage = False)
 
-step = int(df_stats['total_raw_reads'].max()/50)
-step2 = int((step + 50) /100) * 100
+    
+else:
+    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unmapped_reads']], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads']
+    no_samples = df_stats.shape[0]
+    
+    step = int(df_stats['processed_reads'].max()/50)
+    step2 = int((step + 50) /100) * 100
+    plot_mapping_stats(df_comb,no_samples,'samples_total_reads','Number of reads',np.arange(0, df_stats['processed_reads'].max() + step2, step=step2), percentage = False)
 
-plot_mapping_stats(df_comb,no_samples,'samples_total_reads','Number of reads',np.arange(0, df_stats['total_raw_reads'].max() + step2, step=step2), percentage = False)
+
+
 
 
 

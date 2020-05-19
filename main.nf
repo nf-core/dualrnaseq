@@ -1143,7 +1143,7 @@ if (!params.skipTrimming) {
  * STEP 3 -FastQC after trimming 
  */
 
-if (!params.skipTrimming | !params.skipFastqc) {
+if (!params.skipTrimming & !params.skipFastqc) {
 	process fastqc_after_trimming {
 	    tag "$sample_name"
 	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
@@ -1167,7 +1167,7 @@ if (!params.skipTrimming | !params.skipFastqc) {
 }
 
 
-if(params.mapping_statistics | !params.skipTrimming) {
+if(params.mapping_statistics & !params.skipTrimming) {
 
 	/*
 	* count total number of raw reads
@@ -1201,7 +1201,6 @@ if(params.mapping_statistics | !params.skipTrimming) {
 	}
 
 
-
 	/*
 	* count total number of reads after trimming
 	*/
@@ -1225,11 +1224,10 @@ if(params.mapping_statistics | !params.skipTrimming) {
 		    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
 		    """
 		}
-
-
-
+}else{
+   Channel.empty()
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_htseq_uniquely_mapped}
 }
-
 
 
 
@@ -1496,6 +1494,7 @@ if (params.single_end){
 		 * salmon - 'quantification_stats'
 		 */
 
+
 		process scatter_plot_pathogen_salmon {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
@@ -1596,7 +1595,7 @@ if (params.single_end){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
 		    val attribute from attribute_quant_stats_salmon
 		    file total_processed_reads from mapping_stats_total_reads
-		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty()
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
@@ -2100,7 +2099,7 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
-
+/*
 	process collect_processed_reads_salmon_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
@@ -2302,7 +2301,7 @@ if (params.run_salmon_alignment_based_mode){
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-
+*/
 }
 
 }
@@ -2514,6 +2513,7 @@ if(params.run_star) {
 		    '''
 		}
 
+/*
 		process star_quantification_stats_uniquely_mapped {
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
@@ -2538,7 +2538,7 @@ if(params.run_star) {
 		}
 
 
-
+*/
 
 }
 }
@@ -2715,7 +2715,7 @@ if(params.run_htseq_uniquely_mapped){
 	    """
 	}
 
-
+/*
 	if(params.mapping_statistics) {
 		process htseq_quantification_stats_uniquely_mapped {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
@@ -2904,7 +2904,7 @@ if(params.run_htseq_uniquely_mapped){
 
 }
 
-
+*/
 
 }
 
