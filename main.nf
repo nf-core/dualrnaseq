@@ -270,7 +270,7 @@ if (params.run_salmon_selective_alignment){
 }
 
 
-if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped){
+if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run_star){
 
 	Channel
 	    .value(params.gene_feature_gff_to_quantify_host)
@@ -424,6 +424,7 @@ process combine_pathogen_host_fasta_genome {
 
     output:
     file "host_pathogen.fasta" into host_pathogen_fasta_index
+    file "host_pathogen.fasta" into host_pathogen_fasta_star_index
     file "host_pathogen.fasta" into genome_fasta_file_host_pathogen_to_decoy_transcriptome
 
     script:
@@ -440,7 +441,7 @@ process combine_pathogen_host_fasta_genome {
  * chimeric gff file
  */
 
-if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
+if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_star) {
 
 	/*
 	 * combine host genome and tRNA gff files
@@ -560,6 +561,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped ) {
 	    output:
 	    file "host_pathogen_htseq.gff" into quantification_gff_u_m
 //	    file "host_pathogen_htseq.gff" into quantification_gtf_u_m
+	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_alignment_gff
 	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_htseq_alignment_gff
 
 	    script:
@@ -819,7 +821,6 @@ if(params.run_salmon_alignment_based_mode){
 
 	    output:
 	    file "host_pathogen_star_alignment_mode.gff" into genome_gff_star_index
-	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_alignment_gff
 	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_salmon_alignment_gff
 
 	    script:
@@ -1193,6 +1194,8 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
 //	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
+	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_star
+
 
 	    script:
 	    """
@@ -1206,6 +1209,7 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	*/
 
 
+/*
 		process count_total_trimmed_reads {
 		    tag "count_total_trimmed_reads"
 		    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
@@ -1217,16 +1221,18 @@ if(params.mapping_statistics & !params.skipTrimming) {
 		    file(fastq) from count_reads.collect()
 
 		    output:
-		    file "total_trimmed_reads_fastq.csv" into mapping_stats_total_processed_reads_alignment
+//		    file "total_trimmed_reads_fastq.csv" into mapping_stats_total_processed_reads_alignment
 
 		    script:
 		    """
 		    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
 		    """
 		}
+*/
+
 }else{
    Channel.empty()
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_htseq_uniquely_mapped}
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_htseq_uniquely_mapped}
 }
 
 
@@ -1556,7 +1562,7 @@ if (params.single_end){
 
 			    script:
 			    """
-			    $workflow.projectDir/bin/extract_processed_reads_salmon.sh salmon/*/aux_info/meta_info.json $sample_name
+			    $workflow.projectDir/bin/extract_processed_reads.sh salmon/*/aux_info/meta_info.json $sample_name salmon
 			    """
 			}
 
@@ -1778,21 +1784,16 @@ if (params.single_end){
 }
 
 
-
-/*
-* STAR
-*/
-
-if(params.run_star | params.run_salmon_alignment_based_mode) {
-
 	/*
-	 * STAR - build an index
+	 * salmon - alignment_based_mode
 	 */
 
+if (params.run_salmon_alignment_based_mode){
 
-	process STARindex {
-                publishDir "${params.outdir}/STAR", mode: 'copy'
-		storeDir "${params.outdir}/STAR" 
+
+	process STARindex_salmon_alignment {
+                publishDir "${params.outdir}/STAR_for_salmon", mode: 'copy'
+		storeDir "${params.outdir}/STAR_for_salmon" 
 		tag "STAR index"
 
  		label 'main_env'
@@ -1805,7 +1806,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 		output:
 		file "index/*" into star_index_transcriptome_alignment
 		file "index/*" into multiqc_star_index
-                file "index/*" into star_index_genome_alignment
+
 		script:
 		"""
 		mkdir index
@@ -1813,14 +1814,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 		"""
 	}
 
-}
 
-
-	/*
-	 * salmon - alignment_based_mode
-	 */
-
-if (params.run_salmon_alignment_based_mode){
 
 	process ALIGNMENTstar_for_salmon {
 	    tag "$sample_name"
@@ -2095,7 +2089,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/extract_processed_reads_salmon.sh salmon/*/aux_info/meta_info.json $sample_name
+		    $workflow.projectDir/bin/extract_processed_reads.sh salmon/*/aux_info/meta_info.json $sample_name salmon
 		    """
 		}
 
@@ -2134,7 +2128,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
-		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty()
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
@@ -2309,6 +2303,39 @@ if (params.run_salmon_alignment_based_mode){
 
 if(params.run_star) {
 
+/*
+* STAR - index
+*/
+
+	/*
+	 * STAR - build an index
+	 */
+
+
+	process STARindex {
+                publishDir "${params.outdir}/STAR", mode: 'copy'
+		storeDir "${params.outdir}/STAR" 
+		tag "STAR index"
+
+ 		label 'main_env'
+         	label 'process_high'
+
+		input:
+		file(fasta) from host_pathogen_fasta_star_index
+		file(gff) from gff_host_pathogen_star_alignment_gff
+
+		output:
+//		file "index/*" into multiqc_star_index
+                file "index/*" into star_index_genome_alignment
+
+		script:
+		"""
+		mkdir index
+		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent 
+		"""
+	}
+
+
 	/*
 	 * STAR - align the reads
 	 */
@@ -2335,6 +2362,7 @@ if(params.run_star) {
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
 //	    file "${sample_name}/*" into multiqc_star_alignment
+	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR
 
 	    script:
 	outSAMunmapped = params.outSAMunmapped
@@ -2426,9 +2454,46 @@ if(params.run_star) {
 
 	if(params.mapping_statistics) {
 
-		/*
-		 * uniquly mapped reads - statistics
-		 */
+		process extract_processed_reads_STAR {
+			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR"
+			    tag "extract_processed_reads_STAR"
+
+			    label 'main_env'
+	   		    label 'process_high'
+			   
+			    input: 
+			    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR
+
+			    output:
+			    file "${sample_name}.txt" into collect_results_star
+
+			    script:
+			    """
+			    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
+			    """
+			}
+
+
+		process collect_processed_reads_STAR {
+			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR"
+			    tag "collect_processed_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file process_reads from collect_results_star.collect()
+
+			    output:
+			    file "processed_reads_star.csv" into mapping_stats_total_processed_reads_alignment
+
+			    script:
+			    """
+			    cat $process_reads > processed_reads_star.csv
+			    """
+			}
 
 
 		process unique_mapping_stats_STAR {
@@ -2446,6 +2511,7 @@ if(params.run_star) {
 
 		    output:
 		    file "${out_file_name}" into unique_stats_to_plot
+		    file "${out_file_name}" into STAR_mapping_stats_unique
 		   
 		    shell: 
 		    name = alignment[0].toString()
@@ -2456,6 +2522,28 @@ if(params.run_star) {
 		    cat host_uniquly_mapped_reads_sum.txt pathogen_uniquly_mapped_reads_sum.txt >> !{out_file_name}
 		    '''
 		}
+
+
+		process collect_stats_STAR_uniquly_mapped {
+			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR"
+			    tag "collect_processed_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file stats from STAR_mapping_stats_unique.collect()
+
+			    output:
+			    file "uniquly_mapped_reads_star.csv" into mapping_stats_uniquly_mapped_star
+
+			    script:
+			    """
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquly_mapped_reads_star.csv
+			    """
+			}
+
 
 		/*
 		 * count_cross_mapped_reads 
@@ -2473,7 +2561,7 @@ if(params.run_star) {
 
 		    output:
                     file "cross_mapped_reads_sum.txt"
-                    file "cross_mapped_reads_sum2.txt"
+                    file "cross_mapped_reads_sum2.txt" into STAR_mapping_stats_cross_mapped
 		    
 		    shell:
 		    '''
@@ -2500,7 +2588,8 @@ if(params.run_star) {
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
 		    output:
-		    file "${out_file_name}" into multi_mapped_stats_to_plot
+//		    file "${out_file_name}" into multi_mapped_stats_to_plot
+		    file "${out_file_name}" into STAR_mapping_stats_multi
 
 		    shell: 
 		    name = alignment[0].toString()
@@ -2514,32 +2603,29 @@ if(params.run_star) {
 		}
 
 /*
-		process star_quantification_stats_uniquely_mapped {
-		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
-		    tag "quantification_statistics htseq"
+		process star_mapping_stats {
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    tag "star_mapping_stats"
 
 		    label 'main_env'
 
 		    input:
-		    file quant_table_host from host_quantification_stats_htseq_total
-		    file quant_table_pathogen from pathogen_quantification_stats_htseq_total
-		    file total_raw_reads from collect_total_reads_raw_htseq_uniquely_mapped
-		    val attribute from host_gff_attribute_mapping_stats_htseq
+		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty()
 		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
+		    file uniquely_mapped_reads from mapping_stats_uniquly_mapped_star
+		    file multi_mapped_reads from STAR_mapping_stats_multi
+		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped
 
 		    output:
-		    file ('htseq_uniquely_mapped_host_pathogen_total_reads.csv') into htseq_mapped_stats_to_plot
+		    file ('star_mapping_stats.csv') 
 
 		    script:
 		    """
 		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
 		    """
 		}
-
-
 */
-
 }
 }
 
@@ -2729,7 +2815,7 @@ if(params.run_htseq_uniquely_mapped){
 		    file quant_table_pathogen from pathogen_quantification_stats_htseq_total
 		    file total_raw_reads from collect_total_reads_raw_htseq_uniquely_mapped
 		    val attribute from host_gff_attribute_mapping_stats_htseq
-		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
+//		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
 
 		    output:
 		    file ('htseq_uniquely_mapped_host_pathogen_total_reads.csv') into htseq_mapped_stats_to_plot
