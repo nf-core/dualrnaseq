@@ -1601,7 +1601,7 @@ if (params.single_end){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
 		    val attribute from attribute_quant_stats_salmon
 		    file total_processed_reads from mapping_stats_total_reads
-		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty()
+		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty([])
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
@@ -2128,7 +2128,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
-		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty()
+		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty([])
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
@@ -2440,7 +2440,7 @@ if(params.run_star) {
 		    file(cross_mapped_reads) from remove_crossmapped_reads
 
 		    output:
-		    file "${bam_file_without_crossmapped}" into alignment_multi_mapping_stats
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
 //		    file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
 
 		    shell:
@@ -2584,7 +2584,7 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name), file(alignment) from alignment_multi_mapping_stats
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
@@ -2592,16 +2592,27 @@ if(params.run_star) {
 //		    file "${out_file_name}" into multi_mapped_stats_to_plot
 		    file "${out_file_name}" into STAR_mapping_stats_multi
 
+
 		    shell: 
 		    name = alignment[0].toString()
 		    name2 = name.replaceFirst(/_no_crossmapped.bam/, "") 
 		    out_file_name = name.replaceFirst(/no_crossmapped.bam/, "multi_mapped_reads_statistics.txt")
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1| fgrep -wv NH:i:1 | echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1 | fgrep -wv NH:i:1 | echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
 		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w HI:i:1 | fgrep -wv NH:i:1 | echo "!{name2} pathogen `wc -l`" > pathogen_multi_mapped_reads_sum.txt
 		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt > !{out_file_name}
 		    '''
 		}
+
+
+
+
+
+
+
+
+
+/*
 
 
 		process collect_stats_STAR_multi_mapped {
@@ -2634,7 +2645,7 @@ if(params.run_star) {
 		    label 'process_high' 
 
 		    input:
-		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty()
+		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty([])
 		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
 		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star
 		    file multi_mapped_reads from mapping_stats_multi_mapped_star
@@ -2648,6 +2659,8 @@ if(params.run_star) {
 		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.csv
 		    """
 		}
+*/
+
 }
 }
 
