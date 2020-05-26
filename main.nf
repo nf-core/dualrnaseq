@@ -2440,7 +2440,8 @@ if(params.run_star) {
 		    file(cross_mapped_reads) from remove_crossmapped_reads
 
 		    output:
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_host
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_pathogen
 //		    file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
 
 		    shell:
@@ -2575,7 +2576,7 @@ if(params.run_star) {
 		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
 		 */
 
-		process multi_mapping_stats {
+		process multi_mapping_stats_host {
 		    tag "$name2"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
@@ -2584,30 +2585,70 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_host
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
-		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
 		    output:
 //		    file "${out_file_name}" into multi_mapped_stats_to_plot
-		    file "${out_file_name}" into STAR_mapping_stats_multi
+		    set val(sample_name), file(name) into STAR_mapping_stats_multi_host_collect_sample
 
 
 		    shell: 
-		    name = alignment[0].toString()
-		    name2 = name.replaceFirst(/_no_crossmapped.bam/, "") 
-		    out_file_name = name.replaceFirst(/no_crossmapped.bam/, "multi_mapped_reads_statistics.txt")
+		    name = sample_name + '_host_multi_mapped.txt'
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1 | fgrep -wv NH:i:1 | echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w HI:i:1 | fgrep -wv NH:i:1 | echo "!{name2} pathogen `wc -l`" > pathogen_multi_mapped_reads_sum.txt
-		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt > !{out_file_name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
 		    '''
 		}
 
 
+		process multi_mapping_stats_pathogen {
+		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
+
+                    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_pathogen
+		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
+
+		    output:
+//		    file "${out_file_name}" into multi_mapped_stats_to_plot
+		    set val(sample_name), file(name) into STAR_mapping_stats_multi_pathogen_collect_sample
 
 
+		    shell: 
+		    name = sample_name + '_pathogen_multi_mapped.txt'
+		    '''
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
+		    '''
+		}
 
+
+		process multi_mapping_stats_collect_sample {
+		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
+
+                    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(host) from STAR_mapping_stats_multi_host_collect_sample
+		    set val(sample_name), file(pathogen) from STAR_mapping_stats_multi_pathogen_collect_sample 
+
+		    output:
+//		    file "${out_file_name}" into multi_mapped_stats_to_plot
+		    file(name) into STAR_mapping_stats_multi
+
+
+		    shell: 
+		    name = sample_name + '_multi_mapped.txt'
+		    '''
+		    cat !{host} !{pathogen} > !{name}
+		    '''
+		}
 
 
 
