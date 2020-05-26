@@ -1608,7 +1608,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
 		    """
 		}
 
@@ -2135,7 +2135,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
 		    """
 		}
 
@@ -2515,19 +2515,19 @@ if(params.run_star) {
 		   
 		    shell: 
 		    name = alignment[0].toString()
-		    out_file_name = name.replaceFirst(/Aligned.sortedByCoord.out.bam/, "uniquly_mapped_reads_statistics.txt")
+		    out_file_name = name.replaceFirst(/Aligned.sortedByCoord.out.bam/, "uniquely_mapped_reads_statistics.txt")
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} host `wc -l`" > host_uniquly_mapped_reads_sum.txt
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > pathogen_uniquly_mapped_reads_sum.txt
-		    cat host_uniquly_mapped_reads_sum.txt pathogen_uniquly_mapped_reads_sum.txt >> !{out_file_name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} host `wc -l`" > host_uniquely_mapped_reads_sum.txt
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > pathogen_uniquely_mapped_reads_sum.txt
+		    cat host_uniquely_mapped_reads_sum.txt pathogen_uniquely_mapped_reads_sum.txt > !{out_file_name}
 		    '''
 		}
 
 
-		process collect_stats_STAR_uniquly_mapped {
+		process collect_stats_STAR_uniquely_mapped {
 			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 			    storeDir "${params.outdir}/mapping_statistics/STAR"
-			    tag "collect_processed_reads_STAR"
+			    tag "collect_uniquely_mapped_reads_STAR"
 
 			    label 'main_env'
 			    label 'process_high' 
@@ -2536,11 +2536,11 @@ if(params.run_star) {
 			    file stats from STAR_mapping_stats_unique.collect()
 
 			    output:
-			    file "uniquly_mapped_reads_star.csv" into mapping_stats_uniquly_mapped_star
+			    file "uniquely_mapped_reads_star.csv" into mapping_stats_uniquely_mapped_star
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquly_mapped_reads_star.csv
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped
 			    """
 			}
 
@@ -2572,18 +2572,19 @@ if(params.run_star) {
 
 
 		/*
-		 * multi mapped reads - statistics (uniquely_mapped + multi_mapped - cross_mapped reads )
+		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
 		 */
 
 		process multi_mapping_stats {
 		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
                     label 'main_env'
 		    label 'process_high'
 
 		    input:
-		    file(alignment) from alignment_multi_mapping_stats
+		    set val(sample_name), file(alignment) from alignment_multi_mapping_stats
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
@@ -2596,25 +2597,47 @@ if(params.run_star) {
 		    name2 = name.replaceFirst(/_no_crossmapped.bam/, "") 
 		    out_file_name = name.replaceFirst(/no_crossmapped.bam/, "multi_mapped_reads_statistics.txt")
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1| echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w HI:i:1 | echo "!{name2} pathogen `wc -l`" > pathogen_multi_mapped_reads_sum.txt
-		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt >> !{out_file_name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w HI:i:1| fgrep -wv NH:i:1 | echo "!{name2} host `wc -l`" > host_multi_mapped_reads_sum.txt
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w HI:i:1 | fgrep -wv NH:i:1 | echo "!{name2} pathogen `wc -l`" > pathogen_multi_mapped_reads_sum.txt
+		    cat host_multi_mapped_reads_sum.txt pathogen_multi_mapped_reads_sum.txt > !{out_file_name}
 		    '''
 		}
 
-/*
+
+		process collect_stats_STAR_multi_mapped {
+			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR"
+			    tag "collect_multi_mapped_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file stats from STAR_mapping_stats_multi.collect()
+
+			    output:
+			    file "multi_mapped_reads_star.csv" into mapping_stats_multi_mapped_star
+
+			    script:
+			    """
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped
+			    """
+			}
+
+
 		process star_mapping_stats {
 		    storeDir "${params.outdir}/mapping_statistics/STAR"
 		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 		    tag "star_mapping_stats"
 
 		    label 'main_env'
+		    label 'process_high' 
 
 		    input:
 		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty()
 		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
-		    file uniquely_mapped_reads from mapping_stats_uniquly_mapped_star
-		    file multi_mapped_reads from STAR_mapping_stats_multi
+		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star
+		    file multi_mapped_reads from mapping_stats_multi_mapped_star
 		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped
 
 		    output:
@@ -2622,10 +2645,9 @@ if(params.run_star) {
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.csv
 		    """
 		}
-*/
 }
 }
 
@@ -2822,7 +2844,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
 		    """
 		}
 
