@@ -288,7 +288,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute}
 }
 
 
@@ -617,7 +617,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_
 
 	    output:
 	    file "${outfile_name}*_htseq.csv" into host_annotations_RNA_class_stats_htseq
-//	    file "${outfile_name}*_htseq.csv" into annotation_host_combine_quant_htseq
+	    file "${outfile_name}*_htseq.csv" into annotation_host_combine_quant_htseq
 	    file "${outfile_name}*_htseq.csv" into annotation_host_split_quant_htseq
 
 	    script:
@@ -2489,6 +2489,7 @@ if(params.run_star) {
 
 			    output:
 			    file "processed_reads_star.csv" into mapping_stats_total_processed_reads_alignment
+			    file "processed_reads_star.csv" into mapping_stats_htseq_total_processed_reads_alignment
 
 			    script:
 			    """
@@ -2687,6 +2688,7 @@ if(params.run_star) {
 
 		    output:
 		    file ('star_mapping_stats.csv') into star_mapped_stats_to_plot
+		    file ('star_mapping_stats.csv') into mapping_stats_star_htseq_stats
 
 		    script:
 		    """
@@ -2784,7 +2786,7 @@ if(params.run_htseq_uniquely_mapped){
 		    output:
 		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_host
 		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_pathogen
-		    file "alignment_stats_uniquely_mapped.csv"
+		    file "quantification_stats_uniquely_mapped.csv"
 
 		    script:
 		    """
@@ -2813,6 +2815,7 @@ if(params.run_htseq_uniquely_mapped){
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_htseq_quantification_RNA_stats
+		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_host_add_annotations_htseq_u_m
 
 		    shell:
 		    '''
@@ -2869,30 +2872,31 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
-	process combine_annotations_quant_host_uniquely_mapped_host {
-	    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-	    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-	    tag "combine_annotations_quant_host_salmon"
+		process combine_annotations_quant_host_uniquely_mapped_host {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "combine_annotations_quant_host"
 
-	    label 'main_env'
-	    label 'process_high'
-	   
-	    input: 
-	    file quantification_table from quant_host_add_annotations_salmon_alignment_based
-	    file annotation_table from annotation_host_combine_quant_salmon_alignment_based
-	    val attribute from combine_annot_quant_host_salmon_alignment_based
+		    label 'main_env'
+		    label 'process_high'
+		   
+		    input: 
+		    file quantification_table from quant_host_add_annotations_htseq_u_m
+		    file annotation_table from annotation_host_combine_quant_htseq
+		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
 
-	    output:
-	    file "host_combined_quant_annotations.csv"
+		    output:
+		    file "host_combined_quant_annotations.csv"
 
-	    script:
-	    """
-	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
-	    """
-	}
+		    script:
+		    """
+		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
+		    """
+		}
 
-/*
+
 	if(params.mapping_statistics) {
+
 		process htseq_quantification_stats_uniquely_mapped {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
@@ -2903,20 +2907,19 @@ if(params.run_htseq_uniquely_mapped){
 		    input:
 		    file quant_table_host from host_quantification_stats_htseq_total
 		    file quant_table_pathogen from pathogen_quantification_stats_htseq_total
-		    file total_raw_reads from collect_total_reads_raw_htseq_uniquely_mapped
 		    val attribute from host_gff_attribute_mapping_stats_htseq
-//		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
+		    file star_stats from mapping_stats_star_htseq_stats
 
 		    output:
 		    file ('htseq_uniquely_mapped_host_pathogen_total_reads.csv') into htseq_mapped_stats_to_plot
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute -total_raw $total_raw_reads -total_processed $total_processed_reads -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
 		    """
 		}
 
-
+/*
 		process plot_mapping_stats_host_pathogen_htseq_uniquely_mapped{
 		    tag "$name2"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
@@ -2936,7 +2939,7 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
 		    """
 		}
-
+*/
 
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen/"
@@ -3075,13 +3078,7 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
-
-
-
 }
-
-*/
-
 }
 
 

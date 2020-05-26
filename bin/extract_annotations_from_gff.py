@@ -39,12 +39,12 @@ def extract_gene_types_host(gff,gene_feature,feature):
                           g_type = 'tRNA'
                       else:
                           g_type = r_pos_host     
-                      # if feature.startswith('gene'):
-                      #    gene_type_host.append({feature + '_ID':ID_pos_host, 'gene_type':g_type, feature + '_name':feature_name_host})   
-                      # else:
                       ID_gene_pos_host = [pos.split(' ') for pos in d1 if pos.startswith('gene_id')][0][0].split("=")[1]
                       gene_name_host = [pos.split(' ') for pos in d1 if pos.startswith('gene_name')][0][0].split("=")[1]
-                      gene_type_host.append({'transcript_id' :ID_pos_host, 'transcript_name':transcript_name_host, 'gene_id':ID_gene_pos_host,'gene_name':gene_name_host, 'gene_type':g_type, })                    
+                      if feature.startswith('gene'):
+                          gene_type_host.append({'gene_id':ID_gene_pos_host,'gene_name':gene_name_host, 'gene_type':g_type})   
+                      else:
+                          gene_type_host.append({'transcript_id' :ID_pos_host, 'transcript_name':transcript_name_host, 'gene_id':ID_gene_pos_host,'gene_name':gene_name_host, 'gene_type':g_type})                    
     return gene_type_host
 
 
