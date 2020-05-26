@@ -25,7 +25,7 @@ def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
     quant_merged_table.index.names = [gene_attribute]
     quant_merged_table = quant_merged_table.sort_index(axis=1)
     alignment_stats = quant_merged_table['__no_feature':'__alignment_not_unique']
-    alignment_stats.to_csv("alignment_stats_" + profile + ".csv", sep='\t')
+    alignment_stats.to_csv("quantification_stats_" + profile + ".csv", sep='\t')
     quant_merged_table = quant_merged_table.drop(['__no_feature','__ambiguous','__too_low_aQual','__not_aligned','__alignment_not_unique'])
     quant_merged_table.to_csv("quantification_results_" + profile + ".csv",sep='\t')
 

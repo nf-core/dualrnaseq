@@ -49,7 +49,6 @@ args = parser.parse_args()
 
 df_stats = pd.read_csv(args.input_files,sep="\t",index_col=0)
 
-print(df_stats)
 if 'trimmed_reads' in df_stats.columns:
     ##percentage
     pathogen_percent = (df_stats['pathogen']/df_stats['total_raw_reads']) * 100
