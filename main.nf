@@ -2551,7 +2551,7 @@ if(params.run_star) {
 		*/
 
 		process count_crossmapped_reads {
-		    tag "$name2"
+		    tag "$name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2577,7 +2577,7 @@ if(params.run_star) {
 		 */
 
 		process multi_mapping_stats_host {
-		    tag "$name2"
+		    tag "$name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2589,20 +2589,19 @@ if(params.run_star) {
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
 
 		    output:
-//		    file "${out_file_name}" into multi_mapped_stats_to_plot
 		    set val(sample_name), file(name) into STAR_mapping_stats_multi_host_collect_sample
 
 
 		    shell: 
 		    name = sample_name + '_host_multi_mapped.txt'
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 |  echo "!{sample_name} host `wc -l`" > !{name}
 		    '''
 		}
 
 
 		process multi_mapping_stats_pathogen {
-		    tag "$name2"
+		    tag "$name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2614,20 +2613,19 @@ if(params.run_star) {
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
 		    output:
-//		    file "${out_file_name}" into multi_mapped_stats_to_plot
 		    set val(sample_name), file(name) into STAR_mapping_stats_multi_pathogen_collect_sample
 
 
 		    shell: 
 		    name = sample_name + '_pathogen_multi_mapped.txt'
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
 		    '''
 		}
 
 
 		process multi_mapping_stats_collect_sample {
-		    tag "$name2"
+		    tag "$name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2639,7 +2637,6 @@ if(params.run_star) {
 		    set val(sample_name), file(pathogen) from STAR_mapping_stats_multi_pathogen_collect_sample 
 
 		    output:
-//		    file "${out_file_name}" into multi_mapped_stats_to_plot
 		    file(name) into STAR_mapping_stats_multi
 
 
@@ -2650,10 +2647,6 @@ if(params.run_star) {
 		    '''
 		}
 
-
-
-
-/*
 
 
 		process collect_stats_STAR_multi_mapped {
@@ -2693,14 +2686,35 @@ if(params.run_star) {
 		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped
 
 		    output:
-		    file ('star_mapping_stats.csv') 
+		    file ('star_mapping_stats.csv') into star_mapped_stats_to_plot
 
 		    script:
 		    """
 		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.csv
 		    """
 		}
-*/
+
+
+		process plot_star_mapping_stats {
+		    tag "$name2"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file(stats) from star_mapped_stats_to_plot
+
+		    output:
+		    file "mapping_stats_*"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_mapping_stats_star.py -i $stats
+		    """
+		}
+
 
 }
 }
