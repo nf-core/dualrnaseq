@@ -83,16 +83,16 @@ if args.tool == 'salmon':
     results_df.to_csv(args.output_dir, sep='\t')
     
 elif args.tool == 'htseq':
-    pathogen_total_counts = mapping_stats_htseq(args.quantification_table_pathogen,args.gene_attribute,'pathogen_quantification')
-    host_total_counts = mapping_stats_htseq(args.quantification_table_host,args.gene_attribute,'host_quantification')
+    pathogen_total_counts = mapping_stats_htseq(args.quantification_table_pathogen,args.gene_attribute,'pathogen_assigned_reads')
+    host_total_counts = mapping_stats_htseq(args.quantification_table_host,args.gene_attribute,'host_assigned_reads')
 
     #alignment stats
     star_stats = pd.read_csv(args.star_stats,sep="\t",index_col=0 )
     
     results_df = pd.concat([star_stats,host_total_counts,pathogen_total_counts], axis=1)
 
-    results_df['unassigned_host_reads'] = results_df['host_uniquely_mapped'] - results_df['host_quantification']
-    results_df['unassigned_pathogen_reads'] = results_df['pathogen_uniquely_mapped'] - results_df['pathogen_quantification']
+    results_df['unassigned_host_reads'] = results_df['host_uniquely_mapped_reads'] - results_df['host_assigned_reads']
+    results_df['unassigned_pathogen_reads'] = results_df['pathogen_uniquely_mapped_reads'] - results_df['pathogen_assigned_reads']
 
     results_df.to_csv(args.output_dir, sep='\t')
    

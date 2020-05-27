@@ -3029,7 +3029,7 @@ if(params.run_htseq_uniquely_mapped){
 
 
 
-if( params.run_htseq_uniquely_mapped){
+if( params.run_htseq_multi_mapped){
 
 	/*
 	 * HTseq - quantification - multi mapping
