@@ -2358,8 +2358,7 @@ if(params.run_star) {
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats_host
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats_pathogen
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
 //	    file "${sample_name}/*" into multiqc_star_alignment
@@ -2499,7 +2498,7 @@ if(params.run_star) {
 			}
 
 
-		process unique_mapping_stats_STAR_host {
+		process unique_mapping_stats_STAR {
 		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
@@ -2508,54 +2507,9 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats_host
+		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats
 		    file(host_reference_names) from reference_host_names_uniquelymapped.collect()
-
-		    output:
-		    set val(sample_name), file("*_host_uniquely_mapped.txt") into STAR_mapping_stats_uniquely_host_collect_sample
-		   
-		    shell: 
-		    name = sample_name + '_host_uniquely_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
-		    '''
-		}
-
-
-
-		process unique_mapping_stats_STAR_pathogen {
-		    tag "$sample_name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
-
-		    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats_pathogen
 		    file(pathogen_reference_names) from reference_pathogen_names_uniquelymapped.collect()
-
-		    output:
-		    set val(sample_name), file("*_pathogen_uniquely_mapped.txt") into STAR_mapping_stats_uniquely_pathogen_collect_sample
-		   
-		    shell: 
-		    name = sample_name + '_pathogen_uniquely_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
-		    '''
-		}
-
-		process unique_mapping_stats_STAR_collect_sample {
-		    tag "$sample_name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
-
-		    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(host) from STAR_mapping_stats_uniquely_host_collect_sample
-		    set val(sample_name), file(pathogen) from STAR_mapping_stats_uniquely_pathogen_collect_sample 
 
 		    output:
 		    file("${name}") into STAR_mapping_stats_unique
@@ -2563,7 +2517,7 @@ if(params.run_star) {
 		    shell: 
 		    name = sample_name + '_uniquely_mapped.txt'
 		    '''
-		    cat !{host} !{pathogen} > !{name}
+		    !{workflow.projectDir}/bin/count_uniquely_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
 		}
 
