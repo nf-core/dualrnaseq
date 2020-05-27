@@ -2440,8 +2440,7 @@ if(params.run_star) {
 		    file(cross_mapped_reads) from remove_crossmapped_reads
 
 		    output:
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_host
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_pathogen
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 
 		    shell:
@@ -2538,7 +2537,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
 			    """
 			}
 
@@ -2573,7 +2572,7 @@ if(params.run_star) {
 		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
 		 */
 
-		process multi_mapping_stats_host {
+		process multi_mapping_stats {
 		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
@@ -2582,54 +2581,9 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_host
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
-
-		    output:
-		    set val(sample_name), file("*_host_multi_mapped.txt") into STAR_mapping_stats_multi_host_collect_sample
-
-		    shell: 
-		    name = sample_name + '_host_multi_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
-		    '''
-		}
-
-
-		process multi_mapping_stats_pathogen {
-		    tag "$sample_name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
-
-                    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_pathogen
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
-
-		    output:
-		    set val(sample_name), file("*_pathogen_multi_mapped.txt") into STAR_mapping_stats_multi_pathogen_collect_sample
-
-		    shell: 
-		    name = sample_name + '_pathogen_multi_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
-		    '''
-		}
-
-
-		process multi_mapping_stats_collect_sample {
-		    tag "$sample_name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
-
-                    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(host) from STAR_mapping_stats_multi_host_collect_sample
-		    set val(sample_name), file(pathogen) from STAR_mapping_stats_multi_pathogen_collect_sample 
 
 		    output:
 		    file("${name}") into STAR_mapping_stats_multi
@@ -2637,10 +2591,9 @@ if(params.run_star) {
 		    shell: 
 		    name = sample_name + '_multi_mapped.txt'
 		    '''
-		    cat !{host} !{pathogen} > !{name}
+		    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
 		}
-
 
 
 		process collect_stats_STAR_multi_mapped {
@@ -2659,7 +2612,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped_reads
 			    """
 			}
 
