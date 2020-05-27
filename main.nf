@@ -2559,15 +2559,14 @@ if(params.run_star) {
 		    file(cross_mapped_reads) from count_crossmapped_reads.collect()
 
 		    output:
-                    file "cross_mapped_reads_sum.txt"
-                    file "cross_mapped_reads_sum2.txt" into STAR_mapping_stats_cross_mapped
+                    file "cross_mapped_reads_sum.txt" into STAR_mapping_stats_cross_mapped
 		    
-		    shell:
-		    '''
-		    wc -l !{cross_mapped_reads} >> cross_mapped_reads_sum.txt
-		    head -n -1 cross_mapped_reads_sum.txt > cross_mapped_reads_sum2.txt
-		    '''
+		    script:
+		    """
+		    $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
+		    """
 		}
+
 
 
 		/*

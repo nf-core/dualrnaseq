@@ -100,24 +100,24 @@ elif args.tool == 'star':
     #mapped reads
      mapped_uniquely = pd.read_csv(args.mapped_uniquely,sep="\t",index_col=0)
      mapped_multi = pd.read_csv(args.mapped_multi,sep="\t",index_col=0)
-     cross_mapped = pd.read_csv(args.cross_mapped,sep=" ", header=None, index_col=1, names=['cross_mapped_reads'])
+     cross_mapped = pd.read_csv(args.cross_mapped,sep="\t", header=None, index_col=0, names=['cross_mapped_reads'])
      cross_mapped.index = [sample.replace("_cross_mapped_reads.txt", "") for sample in cross_mapped.index]
      combined_total_mapped_reads = pd.concat([mapped_uniquely, mapped_multi, cross_mapped ], axis=1)
      combined_total_mapped_reads['total_mapped_reads'] = combined_total_mapped_reads.sum(axis=1)
 
      if args.total_no_raw_reads.endswith('.csv'):
-        #read total number of raw reads
-        total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
-        #read total number of processed reads 
-        processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
-        results_df = pd.concat([processed_reads_star, total_reads, combined_total_mapped_reads], axis=1) 
-     #   unmapped reads
-        results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
-        results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads'] 
+          #read total number of raw reads
+          total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
+          #read total number of processed reads 
+          processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
+          results_df = pd.concat([processed_reads_star, total_reads, combined_total_mapped_reads], axis=1) 
+       #   unmapped reads
+          results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
+          results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads'] 
      else:
-        #read total number of processed reads 
-        processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
-        results_df = pd.concat([processed_reads_star, combined_total_mapped_reads], axis=1)
-        results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
+          #read total number of processed reads 
+          processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
+          results_df = pd.concat([processed_reads_star, combined_total_mapped_reads], axis=1)
+          results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
 
      results_df.to_csv(args.output_dir, sep='\t')
