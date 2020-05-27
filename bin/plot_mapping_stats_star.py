@@ -53,14 +53,14 @@ df_stats = pd.read_csv(args.input_files,sep="\t",index_col=0)
 if 'trimmed_reads' in df_stats.columns:
     ##percentage
     pathogen_uniquely_mapped_percent = (df_stats['pathogen_uniquely_mapped_reads']/df_stats['total_raw_reads']) * 100
-    host_uniquely_percent = (df_stats['host_uniquely_mapped_reads']/df_stats['total_raw_reads']) * 100
+    host_uniquely_mapped_percent = (df_stats['host_uniquely_mapped_reads']/df_stats['total_raw_reads']) * 100
     pathogen_multi_mapped_percent = (df_stats['pathogen_multi_mapped_reads']/df_stats['total_raw_reads']) * 100
     host_multi_mapped_percent = (df_stats['host_multi_mapped_reads']/df_stats['total_raw_reads']) * 100
     cross_mapped_percent = (df_stats['cross_mapped_reads']/df_stats['total_raw_reads']) * 100
     unmapped_percent = (df_stats['unmapped_reads']/df_stats['total_raw_reads']) * 100
     trimmed_percent = (df_stats['trimmed_reads']/df_stats['total_raw_reads']) * 100
     
-    df_comb = pd.concat([host_uniquely_percent,host_multi_mapped_percent, pathogen_uniquely_mapped_percent, pathogen_multi_mapped_percent, cross_mapped_percent, unmapped_percent, trimmed_percent], axis=1)
+    df_comb = pd.concat([host_uniquely_mapped_percent,host_multi_mapped_percent, pathogen_uniquely_mapped_percent, pathogen_multi_mapped_percent, cross_mapped_percent, unmapped_percent, trimmed_percent], axis=1)
     df_comb.columns = ['host uniquely mapped reads','host multi-mapped reads', 'pathogen uniquely mapped reads', 'pathogen multi-mapped reads', 'cross-mapped reads','unmapped reads','trimmed reads']
 else:
     ##percentage
@@ -71,7 +71,7 @@ else:
     cross_mapped_percent = (df_stats['cross_mapped_reads']/df_stats['processed_reads']) * 100
     unmapped_percent = (df_stats['unmapped_reads']/df_stats['processed_reads']) * 100
     
-    df_comb = pd.concat([host_uniquely_percent, host_multi_mapped_percent, pathogen_uniquely_mapped_percent, pathogen_multi_mapped_percent, cross_mapped_percent, unmapped_percent], axis=1)
+    df_comb = pd.concat([host_uniquely_mapped_percent, host_multi_mapped_percent, pathogen_uniquely_mapped_percent, pathogen_multi_mapped_percent, cross_mapped_percent, unmapped_percent], axis=1)
     df_comb.columns = ['host uniquely mapped reads','host multi-mapped reads','pathogen uniquely mapped reads', 'pathogen multi-mapped reads', 'cross-mapped reads','unmapped reads']
 
 
@@ -91,7 +91,7 @@ if 'trimmed_reads' in df_stats.columns:
     
 else:
     df_comb = pd.concat([df_stats['host_uniquely_mapped_reads'],df_stats['host_multi_mapped_reads'],df_stats['pathogen_uniquely_mapped_reads'],df_stats['pathogen_multi_mapped_reads'],df_stats['cross_mapped_reads'],df_stats['unmapped_reads']], axis=1)
-    df_comb.columns = ['host uniquely mapped reads','host multi-mapped reads', 'pathogen uniquely mapped reads', 'pathogen multi-mapped reads', 'cross-mapped reads','unmapped reads','trimmed reads']
+    df_comb.columns = ['host uniquely mapped reads','host multi-mapped reads', 'pathogen uniquely mapped reads', 'pathogen multi-mapped reads', 'cross-mapped reads','unmapped reads']
     no_samples = df_stats.shape[0]
     
     step = int(df_stats['processed_reads'].max()/50)
