@@ -2638,7 +2638,7 @@ if(params.run_star) {
 		    shell: 
 		    name = sample_name + '_host_multi_mapped.txt'
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 |  echo "!{sample_name} host `wc -l`" > !{name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
 		    '''
 		}
 
@@ -2662,7 +2662,7 @@ if(params.run_star) {
 		    shell: 
 		    name = sample_name + '_pathogen_multi_mapped.txt'
 		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
+		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
 		    '''
 		}
 
