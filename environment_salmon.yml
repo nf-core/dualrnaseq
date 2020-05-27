@@ -1,0 +1,8 @@
+name: BarquistLab-Dual_RNA_seq
+channels:
+  - bioconda
+  - anaconda
+  - defaults
+  - conda-forge
+dependencies:
+  - salmon 1.2.1

@@ -1601,7 +1601,7 @@ if (params.single_end){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
 		    val attribute from attribute_quant_stats_salmon
 		    file total_processed_reads from mapping_stats_total_reads
-		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty('.')
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
@@ -1847,6 +1847,7 @@ if (params.run_salmon_alignment_based_mode){
 	alignIntronMin = params.alignIntronMin
 	alignIntronMax = params.alignIntronMax
 	alignMatesGapMax = params.alignMatesGapMax
+	readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    if (params.single_end){
 	    """
 	    mkdir $sample_name
@@ -2128,7 +2129,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
-		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty('.')
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
@@ -2358,8 +2359,7 @@ if(params.run_star) {
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats_host
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats_pathogen
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
 //	    file "${sample_name}/*" into multiqc_star_alignment
@@ -2379,15 +2379,16 @@ if(params.run_star) {
 	alignMatesGapMax = params.alignMatesGapMax
 	outWigType = params.outWigType
 	outWigStrand = params.outWigStrand
+	readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    if (params.single_end){
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff --readFilesCommand zcat --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    }
 	}
@@ -2441,9 +2442,8 @@ if(params.run_star) {
 		    file(cross_mapped_reads) from remove_crossmapped_reads
 
 		    output:
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_host
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_pathogen
-		    set val(sample_name), file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 
 		    shell:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
@@ -2499,8 +2499,8 @@ if(params.run_star) {
 			}
 
 
-		process unique_mapping_stats_STAR_host {
-		    tag "$name"
+		process unique_mapping_stats_STAR {
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
@@ -2508,62 +2508,17 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats_host
+		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats
 		    file(host_reference_names) from reference_host_names_uniquelymapped.collect()
-
-		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_uniquely_host_collect_sample
-		   
-		    shell: 
-		    name = sample_name + '_host_uniquely_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
-		    '''
-		}
-
-
-
-		process unique_mapping_stats_STAR_pathogen {
-		    tag "$name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
-
-		    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats_pathogen
 		    file(pathogen_reference_names) from reference_pathogen_names_uniquelymapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_uniquely_pathogen_collect_sample
-		   
-		    shell: 
-		    name = sample_name + '_pathogen_uniquely_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -w NH:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
-		    '''
-		}
-
-		process unique_mapping_stats_STAR_collect_sample {
-		    tag "$name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
-
-		    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(host) from STAR_mapping_stats_uniquely_host_collect_sample
-		    set val(sample_name), file(pathogen) from STAR_mapping_stats_uniquely_pathogen_collect_sample 
-
-		    output:
-		    file(name) into STAR_mapping_stats_unique
+		    file("${name}") into STAR_mapping_stats_unique
 		   
 		    shell: 
 		    name = sample_name + '_uniquely_mapped.txt'
 		    '''
-		    cat !{host} !{pathogen} > !{name}
+		    !{workflow.projectDir}/bin/count_uniquely_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
 		}
 
@@ -2584,7 +2539,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
 			    """
 			}
 
@@ -2594,7 +2549,7 @@ if(params.run_star) {
 		*/
 
 		process count_crossmapped_reads {
-		    tag "$name"
+		    tag "count_crossmapped_reads"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2619,8 +2574,8 @@ if(params.run_star) {
 		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
 		 */
 
-		process multi_mapping_stats_host {
-		    tag "$name"
+		process multi_mapping_stats {
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2628,68 +2583,19 @@ if(params.run_star) {
 		    label 'process_high'
 
 		    input:
-		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_host
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
-
-		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_multi_host_collect_sample
-
-
-		    shell: 
-		    name = sample_name + '_host_multi_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{host_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} host `wc -l`" > !{name}
-		    '''
-		}
-
-
-		process multi_mapping_stats_pathogen {
-		    tag "$name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
-
-                    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_pathogen
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_multi_pathogen_collect_sample
-
-
-		    shell: 
-		    name = sample_name + '_pathogen_multi_mapped.txt'
-		    '''
-		    samtools view -F 4 -h !{alignment} | grep -f !{pathogen_reference_names} | fgrep -wv NH:i:1 | fgrep -w HI:i:1 | echo "!{sample_name} pathogen `wc -l`" > !{name}
-		    '''
-		}
-
-
-		process multi_mapping_stats_collect_sample {
-		    tag "$name"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
-
-                    label 'main_env'
-		    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(host) from STAR_mapping_stats_multi_host_collect_sample
-		    set val(sample_name), file(pathogen) from STAR_mapping_stats_multi_pathogen_collect_sample 
-
-		    output:
-		    file(name) into STAR_mapping_stats_multi
-
+		    file("${name}") into STAR_mapping_stats_multi
 
 		    shell: 
 		    name = sample_name + '_multi_mapped.txt'
 		    '''
-		    cat !{host} !{pathogen} > !{name}
+		    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
 		}
-
 
 
 		process collect_stats_STAR_multi_mapped {
@@ -2708,7 +2614,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped_reads
 			    """
 			}
 
@@ -2722,7 +2628,7 @@ if(params.run_star) {
 		    label 'process_high' 
 
 		    input:
-		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty('.')
 		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
 		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star
 		    file multi_mapped_reads from mapping_stats_multi_mapped_star
@@ -2981,7 +2887,7 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
 		    """
 		}
-*/
+
 
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen/"
@@ -3119,13 +3025,13 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-
+*/
 }
 }
 
 
 
-if( params.run_htseq_uniquely_mapped){
+if( params.run_htseq_multi_mapped){
 
 	/*
 	 * HTseq - quantification - multi mapping
