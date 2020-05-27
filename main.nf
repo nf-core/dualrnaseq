@@ -288,7 +288,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m}
 }
 
 
@@ -560,7 +560,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_
 
 	    output:
 	    file "host_pathogen_htseq.gff" into quantification_gff_u_m
-//	    file "host_pathogen_htseq.gff" into quantification_gtf_u_m
+	    file "host_pathogen_htseq.gff" into quantification_gff_m_m
 	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_alignment_gff
 	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_htseq_alignment_gff
 
@@ -2442,7 +2442,7 @@ if(params.run_star) {
 		    output:
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_host
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_pathogen
-//		    file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
+		    set val(sample_name), file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
 
 		    shell:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
@@ -3082,6 +3082,163 @@ if(params.run_htseq_uniquely_mapped){
 }
 
 
+
+if( params.run_htseq_uniquely_mapped){
+
+	/*
+	 * HTseq - quantification - multi mapping
+	 */
+
+	process HTseq_multi_mapping {
+	    storeDir "${params.outdir}/HTseq/multi_mapped"
+	    tag "$name_file2"
+
+            label 'main_env'
+            label 'cpu_memory_high_usage'
+
+	    input:
+	    file(gff) from quantification_gff_m_m.collect()
+	    set val(sample_name), file(st) from without_crossmapped_m_m
+	    val(host_attribute) from host_gff_attribute_htseq_m_m
+
+
+	    output:
+	    file ('*.count_m_m') into htseq_files_m_m
+	    file ('*.count_m_m') into htseq_files_to_combine_m_m
+	    file ('*.count_m_m') into multiqc_htseq_multi
+
+	    script:
+	    name_file2 = sample_name + "count_m_m"
+	    host_attr = host_attribute
+	    """
+	    htseq-count -t quant --nonunique all -f bam -r pos $st $gff -i $host_attr > $name_file2
+	    sed -i '1{h;s/.*/ '"$sample_name"'/;G}' "$name_file2"
+	    """
+	}
+
+
+	/*
+	 * htseq - combine quantification results
+	 */
+
+	htseq_files_to_combine_m_m
+	    .last()
+	    .collect()
+	    .set { htseq_result_quantification_m_m }
+
+	process combine_quantification_tables_htseq_multimapped {
+		    publishDir "${params.outdir}/HTseq_combined", mode: 'copy'
+		    storeDir "${params.outdir}/HTseq_combined"
+		    tag "combine_quantification_htseq_m_m"
+
+                    label 'main_env'
+
+		    input: 
+		    file input_quantification from htseq_result_quantification_m_m
+		    output:
+		    file "quantification_results_multi_mapped.csv" into split_table_htseq_m_m
+		    file "alignment_stats_multi_mapped.csv"
+		    
+		    script:
+		    """
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -p multi_mapped
+		    """
+		}
+
+
+
+	/*
+	 * htseq - split quantification tables into host and pathogen results
+	 */
+
+/*
+	process split_quantification_tables_htseq_m_m {
+		    publishDir "${params.outdir}/HTseq_combined", mode: 'copy'
+		    storeDir "${params.outdir}/HTseq_combined"
+		    tag "split_quantification_m_m"
+
+                    label 'main_env'
+
+		    input:
+		    file quant_table from split_table_htseq_m_m
+		    file gtf_host from split_tab_host_genome_gtf_htseq_m_m.mix(split_tab_host_tRNA_gtf_htseq_m_m).collect()
+		    file gtf_pathogen from split_tab_gff_pathogen_htseq_m_m
+
+		    output:
+		    file 'host_quantification_multi_mapped.csv' into host_quantification_stats_htseq_m_m
+		    file 'pathogen_quantification_multi_mapped.csv' into pathogen_quantification_stats_htseq_m_m
+		    file 'host_quantification_multi_mapped.csv' into host_quantification_stats_htseq_total_m_m
+		    file 'pathogen_quantification_multi_mapped.csv' into pathogen_quantification_stats_htseq_total_m_m
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/separate_quantification_tables.py -q $quant_table -host $gff_host -pathogen $gff_pathogen -q_tool htseq -p multi_mapped
+		    """
+		}
+
+*/
+	/*
+	 * htseq - 'quantification_stats'
+	 */
+
+/*
+	process htseq_quantification_stats_m_m {
+            storeDir "${params.outdir}/mapping_statistics"
+            tag "quantification_statistics htseq m_m"
+
+            label 'main_env'
+
+            input:
+            file quant_table_host from host_quantification_stats_htseq_total_m_m
+            file quant_table_pathogen from pathogen_quantification_stats_htseq_total_m_m
+
+            output:
+            file ('htseq_multi_host_pathogen_total_NR.csv')
+
+            script:
+            """
+            python $workflow.projectDir/bin/quantification_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -t htseq -o htseq_multi_host_pathogen_total_NR.csv
+            """
+        }
+
+*/
+	/*
+	 * htseq - RNA_class statistics
+	 */
+
+/*
+	process RNA_class_statistics_htseq_m_m {
+            storeDir "${params.outdir}/RNA_class_statistics/htseq/multi_mapped"
+            tag "RNA class stistics m_m"
+
+            label 'main_env'
+
+            input:
+            file quant_table_host from host_quantification_stats_htseq_m_m
+            file quant_table_pathogen from pathogen_quantification_stats_htseq_m_m
+            file genome_gtf_host from RNA_class_stats_genome_gtf_host_m_m
+            file tRNA_gtf_host from RNA_class_stats_host_tRNA_gtf_m_m
+            file gtf_pathogen from RNA_class_stats_gtf_pathogen_m_m
+            file gbk_pathogen from gbk_pathogen_to_htseq_stats_m_m
+
+            output:
+            file ('host/*.pdf')
+            file ('host/*.csv')
+            file ('pathogen/*.pdf')
+            file ('pathogen/*.csv')
+            file ('host_gene_annotations_gene.csv')
+            file ('host_gene_types_groups_gene.csv')
+            file ('pathogen_gene_annotations.csv')
+
+            script:
+            """
+            python $workflow.projectDir/bin/RNA_class_content.py -q_p $quant_table_pathogen -q_h $quant_table_host -gtf_h_genome $genome_gtf_host -gtf_h_tRNA $tRNA_gtf_host -gtf_p $gtf_pathogen -gbk_p $gbk_pathogen -q_tool htseq -o . -p multi_mapped
+            """
+        }
+
+*/
+
+}
 
 
 
