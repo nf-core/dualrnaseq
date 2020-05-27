@@ -1601,7 +1601,7 @@ if (params.single_end){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon
 		    val attribute from attribute_quant_stats_salmon
 		    file total_processed_reads from mapping_stats_total_reads
-		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty('.')
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
@@ -2128,7 +2128,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
-		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty('.')
 
 		    output:
 		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
@@ -2443,7 +2443,7 @@ if(params.run_star) {
 		    output:
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_host
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_pathogen
-		    set val(sample_name), file "${bam_file_without_crossmapped}" into without_crossmapped_m_m
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 
 		    shell:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
@@ -2500,7 +2500,7 @@ if(params.run_star) {
 
 
 		process unique_mapping_stats_STAR_host {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
@@ -2512,7 +2512,7 @@ if(params.run_star) {
 		    file(host_reference_names) from reference_host_names_uniquelymapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_uniquely_host_collect_sample
+		    set val(sample_name), file("*_host_uniquely_mapped.txt") into STAR_mapping_stats_uniquely_host_collect_sample
 		   
 		    shell: 
 		    name = sample_name + '_host_uniquely_mapped.txt'
@@ -2524,7 +2524,7 @@ if(params.run_star) {
 
 
 		process unique_mapping_stats_STAR_pathogen {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
@@ -2536,7 +2536,7 @@ if(params.run_star) {
 		    file(pathogen_reference_names) from reference_pathogen_names_uniquelymapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_uniquely_pathogen_collect_sample
+		    set val(sample_name), file("*_pathogen_uniquely_mapped.txt") into STAR_mapping_stats_uniquely_pathogen_collect_sample
 		   
 		    shell: 
 		    name = sample_name + '_pathogen_uniquely_mapped.txt'
@@ -2546,7 +2546,7 @@ if(params.run_star) {
 		}
 
 		process unique_mapping_stats_STAR_collect_sample {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
@@ -2558,7 +2558,7 @@ if(params.run_star) {
 		    set val(sample_name), file(pathogen) from STAR_mapping_stats_uniquely_pathogen_collect_sample 
 
 		    output:
-		    file(name) into STAR_mapping_stats_unique
+		    file("${name}") into STAR_mapping_stats_unique
 		   
 		    shell: 
 		    name = sample_name + '_uniquely_mapped.txt'
@@ -2594,7 +2594,7 @@ if(params.run_star) {
 		*/
 
 		process count_crossmapped_reads {
-		    tag "$name"
+		    tag "count_crossmapped_reads"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2620,7 +2620,7 @@ if(params.run_star) {
 		 */
 
 		process multi_mapping_stats_host {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2632,8 +2632,7 @@ if(params.run_star) {
 		    file(host_reference_names) from reference_host_names_multimapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_multi_host_collect_sample
-
+		    set val(sample_name), file("*_host_multi_mapped.txt") into STAR_mapping_stats_multi_host_collect_sample
 
 		    shell: 
 		    name = sample_name + '_host_multi_mapped.txt'
@@ -2644,7 +2643,7 @@ if(params.run_star) {
 
 
 		process multi_mapping_stats_pathogen {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2656,8 +2655,7 @@ if(params.run_star) {
 		    file(pathogen_reference_names) from reference_pathogen_names_multimapped.collect()
 
 		    output:
-		    set val(sample_name), file(name) into STAR_mapping_stats_multi_pathogen_collect_sample
-
+		    set val(sample_name), file("*_pathogen_multi_mapped.txt") into STAR_mapping_stats_multi_pathogen_collect_sample
 
 		    shell: 
 		    name = sample_name + '_pathogen_multi_mapped.txt'
@@ -2668,7 +2666,7 @@ if(params.run_star) {
 
 
 		process multi_mapping_stats_collect_sample {
-		    tag "$name"
+		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
@@ -2680,8 +2678,7 @@ if(params.run_star) {
 		    set val(sample_name), file(pathogen) from STAR_mapping_stats_multi_pathogen_collect_sample 
 
 		    output:
-		    file(name) into STAR_mapping_stats_multi
-
+		    file("${name}") into STAR_mapping_stats_multi
 
 		    shell: 
 		    name = sample_name + '_multi_mapped.txt'
@@ -2722,7 +2719,7 @@ if(params.run_star) {
 		    label 'process_high' 
 
 		    input:
-		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty([])
+		    file total_raw_reads from collect_total_reads_raw_star.ifEmpty('.')
 		    file total_processed_reads from mapping_stats_total_processed_reads_alignment
 		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star
 		    file multi_mapped_reads from mapping_stats_multi_mapped_star
