@@ -287,6 +287,10 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 	    .into { pathogen_gff_attribute; pathogen_gff_attribute_to_extract_annotations_htseq}
 
 	Channel
+	    .value(params.stranded)
+	    .set { stranded_htseq_unique}
+
+	Channel
 	    .value(params.host_gff_attribute)
 	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m}
 }
@@ -2694,6 +2698,8 @@ if(params.run_htseq_uniquely_mapped){
 	    file(gff) from quantification_gff_u_m.collect()
 	    set val(sample_name), file(st) from star_aligned_u_m
 	    val(host_attribute) from host_gff_attribute_htseq
+	    val(stranded) from stranded_htseq_unique
+
 
 	    output:
 //	    file ("$name_file2") into htseq_files_u_m
@@ -2704,7 +2710,7 @@ if(params.run_htseq_uniquely_mapped){
 	    name_file2 = sample_name + "_count_u_m"
 	    host_attr = host_attribute
 	    """
-	    htseq-count -t quant -f bam -r pos $st $gff -i $host_attr > $name_file2
+	    htseq-count -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded > $name_file2
 	    sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$name_file2"
 	    """
 	}
