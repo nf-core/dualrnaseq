@@ -2448,7 +2448,7 @@ if(params.run_star) {
 		    shell:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
 		    '''
-		    samtools view -@ !{task.cpus} -h !{alignment} | fgrep -vf !{cross_mapped_reads} | samtools view -@ !{task.cpus} -bS -o !{bam_file_without_crossmapped} -
+		    samtools view -@ !{task.cpus} -h !{alignment} | fgrep -wvf !{cross_mapped_reads} | samtools view -@ !{task.cpus} -bS -o !{bam_file_without_crossmapped} -
 		    '''
 		}
 	}
