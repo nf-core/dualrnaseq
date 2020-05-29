@@ -889,7 +889,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    output:
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats_salmon_alignment
-
+	    file "${outfile_name}*_salmon.csv" into tximport_annotations
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_salmon_alignment_based
 
@@ -1366,6 +1366,7 @@ if (params.single_end){
             output:
             set val(sample_name), file("host_quant.sf")
             set val(sample_name), file("pathogen_quant.sf")
+	    set val(sample_name), file("${sample_name}") into salmon_host_tximport
 
             shell:
             '''
@@ -1376,6 +1377,36 @@ if (params.single_end){
             awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - host_quantification_salmon_without_headers.sf > host_quant.sf
             '''
         }
+
+
+	/*
+	 * tximport - host
+	 */
+
+	process tximport_host {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "combine_annotations_quant_pathogen_salmon"
+
+		    label 'main_env'
+   		    label 'process_high'
+
+	            input: 
+		    file ("salmon/*") from salmon_host_tximport
+		    file (annotations) from tximport_annotations
+
+
+		    output:
+		    file "host_gene_TPM.csv"
+		    file "host_gene_length.csv"
+		    file "host_gene_counts.csv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/tximport.R salmon $annotations
+		    """
+		}
+
 
 
 
@@ -1472,7 +1503,6 @@ if (params.single_end){
 		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
 		    """
 		}
-
 
 
 	process combine_annotations_quant_host_salmon {
