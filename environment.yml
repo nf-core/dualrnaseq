@@ -19,6 +19,8 @@ dependencies:
   - samtools 1.9
   - gffread 0.11.7
 
+  - bioconductor-tximport=1.16.0
+
   - pip
   - pip:
     - biopython==1.76
