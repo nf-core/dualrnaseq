@@ -2790,12 +2790,12 @@ if(params.run_htseq_uniquely_mapped){
 		    val(host_attribute) from host_gff_attribute_htseq_TPM
 
 		    output:
-		    file "HTSeq_TPM.csv" into split_table_htseq_host
+		    file "HTSeq_TPM.csv" 
 		    file "HTSeq_quantification_with_gene_length.csv" 
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.py $input_quantification $host_attribute
+		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute
 		    """
 		}
 
