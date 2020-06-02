@@ -292,7 +292,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_TPM}
 }
 
 
@@ -2451,11 +2451,11 @@ if(params.run_star) {
 		    file "${cross_mapped_reads}" into remove_crossmapped_reads
 		    file "${cross_mapped_reads}" into count_crossmapped_reads
 
-		    shell:
+		    script:
 		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
-		    '''
-		    samtools view -F 4 -h !{alignment} | fgrep -vw NH:i:1 | !{workflow.projectDir}/bin/extract_crossmapped_reads.py -h_ref !{host_reference} -p_ref !{pathogen_reference} -o !{cross_mapped_reads}
-		    '''
+		    """
+		    $workflow.projectDir/bin/find_crossmapped_reads.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads
+		    """
 		}
 
 
@@ -2479,11 +2479,11 @@ if(params.run_star) {
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 
-		    shell:
+		    script:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
-		    '''
-		    samtools view -h !{alignment} | fgrep -wvf !{cross_mapped_reads} | samtools view -bS -o !{bam_file_without_crossmapped} -
-		    '''
+		    """
+		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $cross_mapped_reads $bam_file_without_crossmapped -
+		    """
 		}
 	}
 
@@ -2769,13 +2769,37 @@ if(params.run_htseq_uniquely_mapped){
 		    output:
 		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_host
 		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_pathogen
-		    file "quantification_stats_uniquely_mapped.csv"
+		    file "quantification_stats_uniquely_mapped.csv" into htseq_result_quantification_TPM
 
 		    script:
 		    """
 		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute -p uniquely_mapped
 		    """
 		}
+
+
+	process htseq_uniquely_mapped_TPM {
+		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+		    tag "htseq_uniquely_mapped_TPM"
+
+                    label 'process_high'
+
+		    input: 
+		    file input_quantification from htseq_result_quantification_TPM
+		    val(host_attribute) from host_gff_attribute_htseq_TPM
+
+		    output:
+		    file "HTSeq_TPM.csv" into split_table_htseq_host
+		    file "HTSeq_quantification_with_gene_length.csv" 
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.py $input_quantification $host_attribute
+		    """
+		}
+
+
  
 
 	/*
