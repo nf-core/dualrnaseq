@@ -2451,11 +2451,11 @@ if(params.run_star) {
 		    file "${cross_mapped_reads}" into remove_crossmapped_reads
 		    file "${cross_mapped_reads}" into count_crossmapped_reads
 
-		    shell:
+		    script:
 		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
-		    '''
-		    samtools view -F 4 -h !{alignment} | fgrep -vw NH:i:1 | !{workflow.projectDir}/bin/extract_crossmapped_reads.py -h_ref !{host_reference} -p_ref !{pathogen_reference} -o !{cross_mapped_reads}
-		    '''
+		    """
+		    $workflow.projectDir/bin/find_crossmapped_reads.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads
+		    """
 		}
 
 
