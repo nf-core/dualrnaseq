@@ -2779,13 +2779,14 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
-/*
+
 	process htseq_uniquely_mapped_TPM {
 		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
 		    tag "htseq_uniquely_mapped_TPM"
 
                     label 'process_high'
+                    label 'main_env'
 
 		    input: 
 		    file input_quantification from htseq_result_quantification_TPM
@@ -2804,7 +2805,7 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
- */
+
 
 	/*
 	 * htseq - split quantification tables into host and pathogen results
