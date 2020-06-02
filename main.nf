@@ -2790,7 +2790,7 @@ if(params.run_htseq_uniquely_mapped){
 		    input: 
 		    file input_quantification from htseq_result_quantification_TPM
 		    val(host_attribute) from host_gff_attribute_htseq_TPM
-		    file gff_host from from gff_host_to_TPM
+		    file gff_host from gff_host_to_TPM
 		    file gff_pathogen from gff_pathogen_to_TPM
 
 		    output:
