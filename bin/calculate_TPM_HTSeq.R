@@ -1,12 +1,13 @@
 library(plyr)
+library(rtracklayer)
 
 args = commandArgs(trailingOnly=TRUE)
 gene_attribute <- args[2]
 table_htseq <- read.table(args[1], sep="\t", stringsAsFactors=F, header = T,row.names = gene_attribute) 
 
-pathogen_gff <- rtracklayer::import(args[3])
+pathogen_gff <- import(args[3])
 
-host_gff <- rtracklayer::import(args[4])
+host_gff <- import(args[4])
 
 
 if(gene_attribute == 'gene_id'){

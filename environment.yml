@@ -13,6 +13,7 @@ dependencies:
   - gffread 0.11.7
 
   - r-plyr=1.8.6
+  - bioconductor-rtracklayer=1.48.0
   - bioconductor-tximport=1.16.0
 
   - pip 
