@@ -2479,11 +2479,11 @@ if(params.run_star) {
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 
-		    shell:
+		    script:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
-		    '''
-		    samtools view -h !{alignment} | fgrep -wvf !{cross_mapped_reads} | samtools view -bS -o !{bam_file_without_crossmapped} -
-		    '''
+		    """
+		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $cross_mapped_reads $bam_file_without_crossmapped -
+		    """
 		}
 	}
 
