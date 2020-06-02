@@ -2397,7 +2397,6 @@ if(params.run_star) {
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_find
 //	    file "${sample_name}/*" into multiqc_star_alignment
 	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR
 
@@ -2432,34 +2431,6 @@ if(params.run_star) {
 
 
 	if(params.run_htseq_multi_mapped | params.mapping_statistics) {
-		/*
-		 * find_cross_mapped_reads 
-		*/
-
-		process find_crossmapped_reads {
-		    tag "$sample_name"
-		    publishDir "${params.outdir}/STAR/multimapped_reads", mode: 'copy'
-		    storeDir "${params.outdir}/STAR/multimapped_reads"
-		    
-                    label 'main_env'
-                    label 'process_high'
-
-		    input:
-		    set val(sample_name), file(alignment) from alignment_crossmapped_find
-		    file(host_reference) from reference_host_names_crossmapped_find.collect()
-		    file(pathogen_reference) from reference_pathogen_crossmapped_find.collect()
-
-		    output:
-		    file "${cross_mapped_reads}" into remove_crossmapped_reads
-		    file "${cross_mapped_reads}" into count_crossmapped_reads
-
-		    script:
-		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
-		    """
-		    $workflow.projectDir/bin/find_crossmapped_reads.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads
-		    """
-		}
-
 
 		/*
 		 * remove_cross_mapped_reads
@@ -2475,16 +2446,20 @@ if(params.run_star) {
 
 		    input:
 		    set val(sample_name), file(alignment) from alignment_crossmapped_extract
-		    file(cross_mapped_reads) from remove_crossmapped_reads
+		    file(host_reference) from reference_host_names_crossmapped_find.collect()
+		    file(pathogen_reference) from reference_pathogen_crossmapped_find.collect()
+
 
 		    output:
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
+		    file "${cross_mapped_reads}" into count_crossmapped_reads
 
 		    script:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
+		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
 		    """
-		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $cross_mapped_reads $bam_file_without_crossmapped -
+		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
 		    """
 		}
 	}
@@ -2602,7 +2577,6 @@ if(params.run_star) {
 		    $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
 		    """
 		}
-
 
 
 		/*
