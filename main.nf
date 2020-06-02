@@ -2799,7 +2799,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
+		    $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
 		    """
 		}
 
