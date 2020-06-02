@@ -491,6 +491,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_
 
 	    output:
 	    file "${outfile_name}" into combine_gff_host 
+	    file "${outfile_name}" into gff_host_to_TPM 
 
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature.gff3")
@@ -538,6 +539,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_
 
 	    output:
 	    file "${outfile_name}" into combine_gff_pathogen
+	    file "${outfile_name}" into gff_pathogen_to_TPM
 
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_new_attribute.gff3")
@@ -2788,6 +2790,8 @@ if(params.run_htseq_uniquely_mapped){
 		    input: 
 		    file input_quantification from htseq_result_quantification_TPM
 		    val(host_attribute) from host_gff_attribute_htseq_TPM
+		    file gff_host from from gff_host_to_TPM
+		    file gff_pathogen from gff_pathogen_to_TPM
 
 		    output:
 		    file "HTSeq_TPM.csv" 
@@ -2795,7 +2799,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute
+		    python $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
 		    """
 		}
 

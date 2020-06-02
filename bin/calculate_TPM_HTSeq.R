@@ -4,9 +4,9 @@ args = commandArgs(trailingOnly=TRUE)
 gene_attribute <- args[2]
 table_htseq <- read.table(args[1], sep="\t", stringsAsFactors=F, header = T,row.names = gene_attribute) 
 
-pathogen_gff <- rtracklayer::import('../results/references/Salmonella_combined_BMG3_quant_feature_new_attribute.gff3')
+pathogen_gff <- rtracklayer::import(args[3]'../results/references/Salmonella_combined_BMG3_quant_feature_new_attribute.gff3')
 
-host_gff <- rtracklayer::import('../results/references/gencode.v33.chr_patch_hapl_scaff.annotation_with_tRNA_quant_feature.gff3')
+host_gff <- rtracklayer::import(args[4]'../results/references/gencode.v33.chr_patch_hapl_scaff.annotation_with_tRNA_quant_feature.gff3')
 
 
 if(gene_attribute == 'gene_id'){
