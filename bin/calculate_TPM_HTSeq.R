@@ -33,7 +33,7 @@ tpm <- function(counts, lengths) {
 }
 
 TPMs <- apply(htseq_table_with_gene_length[2:dim(htseq_table_with_gene_length)[2]], 2, function(x) tpm(x, htseq_table_with_gene_length$length))
-colnames(TPMs) <- colnames(htseq_table_with_gene_length)
+#colnames(TPMs) <- colnames(htseq_table_with_gene_length)
 
 write.table(TPMs,file = "HTSeq_TPM.csv",sep = "\t", row.names = F)
 
