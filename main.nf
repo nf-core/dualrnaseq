@@ -2484,7 +2484,7 @@ if(params.run_star) {
 		    script:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
 		    """
-		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $cross_mapped_reads $bam_file_without_crossmapped -
+		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $cross_mapped_reads $bam_file_without_crossmapped
 		    """
 		}
 	}
