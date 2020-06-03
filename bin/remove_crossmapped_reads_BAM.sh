@@ -12,3 +12,4 @@ cross_mapped_reads=$out_name
 out_bam_name=$6
 
 samtools view -h $alignment | fgrep -wvf $cross_mapped_reads | samtools view -bS -o $out_bam_name -
+
