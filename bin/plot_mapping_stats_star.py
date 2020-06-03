@@ -17,8 +17,7 @@ import numpy as np
 def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage):
     my_cmap2= matplotlib.cm.get_cmap('tab20')
     my_cmap4 = matplotlib.cm.get_cmap('tab20c')
-    my_cmap3 = matplotlib.cm.get_cmap('tab20b')
-    color = [my_cmap3.colors[8],my_cmap3.colors[9],my_cmap3.colors[12],my_cmap3.colors[13],my_cmap4.colors[6], my_cmap2.colors[15],my_cmap2.colors[14]] 
+    color = [my_cmap4.colors[12],my_cmap4.colors[13],'#4984b8','#95d0fc',my_cmap4.colors[6], my_cmap2.colors[15],my_cmap2.colors[14]] 
     df_comb = df_comb.loc[reversed(df_comb.index)]
    # plt.yticks(yint)
     fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples * 2 + 3),legend=True,color = color, width = 0.8, fontsize=40)
@@ -36,7 +35,7 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage)
         plt.xticks(xticks_np,rotation = 90, fontsize=40)
         plt.tick_params(axis='x', which='major', pad=10)
     plt.ylabel('')
-    fig.legend(loc = 'upper center',ncol=4,bbox_to_anchor=(0.5,-0.2),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
+    fig.legend(loc = 'upper center',ncol=4,bbox_to_anchor=(0.5,0),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
     fig.set_yticklabels(df_comb.index)
     df_comb.to_csv("mapping_stats_" + profile + ".csv",sep='\t')  
     plt.savefig('mapping_stats_star_' + profile + '.pdf', dpi = 300, orientation = 'landscape',transparent=False,bbox_inches='tight')
