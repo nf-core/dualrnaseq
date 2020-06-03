@@ -292,7 +292,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_TPM}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_TPM; atr_scatter_plot_pathogen_htseq_u_m; atr_scatter_plot_host_htseq_u_m}
 }
 
 
@@ -2801,10 +2801,12 @@ if(params.run_htseq_uniquely_mapped){
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_htseq_quantification_RNA_stats
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_host_add_annotations_htseq_u_m
+		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_scatter_plot_host_htseq_u_m
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_htseq_quantification_RNA_stats
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_pathogen_add_annotations_htseq_u_m
+		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_scatter_plot_pathogen_htseq_u_m
 
 		    script:
 		    """
@@ -2870,8 +2872,8 @@ if(params.run_htseq_uniquely_mapped){
 		    label 'process_high'
 
 		    input:
-		    file quant_table from quant_scatter_plot_pathogen_salmon_alignment_based
-		    val attribute from atr_scatter_plot_pathogen_alignment
+		    file quant_table from quant_scatter_plot_pathogen_htseq_u_m
+		    val attribute from atr_scatter_plot_pathogen_htseq_u_m
 
 		    output:
 		    file ('*.pdf')
@@ -2892,8 +2894,8 @@ if(params.run_htseq_uniquely_mapped){
 		    label 'process_high'
 
 		    input:
-		    file quant_table from quant_scatter_plot_host_salmon_alignment_based
-		    val attribute from atr_scatter_plot_host_alignment
+		    file quant_table from quant_scatter_plot_host_htseq_u_m
+		    val attribute from atr_scatter_plot_host_htseq_u_m
 
 		    output:
 		    file ('*.pdf') 
