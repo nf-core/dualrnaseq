@@ -2468,8 +2468,8 @@ if(params.run_star) {
 	if(params.mapping_statistics) {
 
 		process extract_processed_reads_STAR {
-			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR"
+			    publishDir "${params.outdir}/mapping_statistics/STAR/processed_reads", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR/processed_reads"
 			    tag "extract_processed_reads_STAR"
 
 			    label 'main_env'
@@ -2561,8 +2561,8 @@ if(params.run_star) {
 
 		process count_crossmapped_reads {
 		    tag "count_crossmapped_reads"
-		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
 
 		    label 'process_high'
 
@@ -2743,8 +2743,6 @@ if(params.run_htseq_uniquely_mapped){
 		    val(host_attribute) from host_gff_attribute_htseq_combine
 
 		    output:
-		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_host
-		    file "quantification_results_uniquely_mapped.csv" into split_table_htseq_pathogen
 		    file "quantification_stats_uniquely_mapped.csv" into htseq_result_quantification_TPM
 
 		    script:
@@ -2769,16 +2767,15 @@ if(params.run_htseq_uniquely_mapped){
 		    file gff_pathogen from gff_pathogen_to_TPM
 
 		    output:
-		    file "HTSeq_TPM.csv" 
-		    file "HTSeq_quantification_with_gene_length.csv" 
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" 
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" into split_table_htseq_host
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" into split_table_htseq_pathogen
 
 		    script:
 		    """
 		    $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
 		    """
 		}
-
-
 
 
 	/*
