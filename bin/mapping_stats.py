@@ -10,7 +10,7 @@ import argparse
 import pandas as pd
 
     
-def mapping_stats_salmon(quantification_table_path,gene_attribute,organism):
+def mapping_stats(quantification_table_path,gene_attribute,organism):
     col_names = pd.read_csv(quantification_table_path, sep = '\t', nrows=0).columns
     types_dict = {gene_attribute: str}
     types_dict.update({col: float for col in col_names if col not in types_dict})
@@ -55,8 +55,8 @@ args = parser.parse_args()
 
 if args.tool == 'salmon':
     #mapped reads
-    pathogen_total_counts = mapping_stats_salmon(args.quantification_table_pathogen,args.gene_attribute,'pathogen')
-    host_total_counts = mapping_stats_salmon(args.quantification_table_host,args.gene_attribute,'host')
+    pathogen_total_counts = mapping_stats(args.quantification_table_pathogen,args.gene_attribute,'pathogen')
+    host_total_counts = mapping_stats(args.quantification_table_host,args.gene_attribute,'host')
     combined_total_mapped_reads = pd.concat([pathogen_total_counts, host_total_counts], axis=1)
     new_index1 = [sample.split('_NumReads')[0] for sample in combined_total_mapped_reads.index]
     combined_total_mapped_reads.index = new_index1
@@ -83,13 +83,17 @@ if args.tool == 'salmon':
     results_df.to_csv(args.output_dir, sep='\t')
     
 elif args.tool == 'htseq':
-    pathogen_total_counts = mapping_stats_htseq(args.quantification_table_pathogen,args.gene_attribute,'pathogen_assigned_reads')
-    host_total_counts = mapping_stats_htseq(args.quantification_table_host,args.gene_attribute,'host_assigned_reads')
+    pathogen_total_counts = mapping_stats(args.quantification_table_pathogen,args.gene_attribute,'pathogen_assigned_reads')
+    host_total_counts = mapping_stats(args.quantification_table_host,args.gene_attribute,'host_assigned_reads')
+    combined_total_mapped_reads = pd.concat([pathogen_total_counts, host_total_counts], axis=1)
+    new_index1 = [sample.split('_NumReads')[0] for sample in combined_total_mapped_reads.index]
+    combined_total_mapped_reads.index = new_index1
+    combined_total_mapped_reads['total_assigned_reads'] = combined_total_mapped_reads.sum(axis=1)
 
     #alignment stats
     star_stats = pd.read_csv(args.star_stats,sep="\t",index_col=0 )
     
-    results_df = pd.concat([star_stats,host_total_counts,pathogen_total_counts], axis=1)
+    results_df = pd.concat([star_stats,combined_total_mapped_reads], axis=1)
 
     results_df['unassigned_host_reads'] = results_df['host_uniquely_mapped_reads'] - results_df['host_assigned_reads']
     results_df['unassigned_pathogen_reads'] = results_df['pathogen_uniquely_mapped_reads'] - results_df['pathogen_assigned_reads']

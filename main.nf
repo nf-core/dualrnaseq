@@ -2908,7 +2908,7 @@ if(params.run_htseq_uniquely_mapped){
 
 
 
-/*
+
 		process htseq_quantification_stats_uniquely_mapped {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
@@ -2923,14 +2923,14 @@ if(params.run_htseq_uniquely_mapped){
 		    file star_stats from mapping_stats_star_htseq_stats
 
 		    output:
-		    file ('htseq_uniquely_mapped_host_pathogen_total_reads.csv') into htseq_mapped_stats_to_plot
+		    file ('htseq_uniquely_mapped_reads_stats.csv') into htseq_mapped_stats_to_plot
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_reads_stats.csv
 		    """
 		}
-*/
+
 /*
 		process plot_mapping_stats_host_pathogen_htseq_uniquely_mapped{
 		    tag "$name2"
