@@ -33,8 +33,22 @@ tpm <- function(counts, lengths) {
 }
 
 TPMs <- apply(htseq_table_with_gene_length[2:dim(htseq_table_with_gene_length)[2]], 2, function(x) tpm(x, htseq_table_with_gene_length$length))
-#colnames(TPMs) <- colnames(htseq_table_with_gene_length)
+colnames(TPMs) <- colnames(htseq_table_with_gene_length[,-1])
 
-write.table(TPMs,file = "HTSeq_TPM.csv",sep = "\t", row.names = F)
+rename_add_TPM <- function(x) {
+  paste(x,"_TPM",sep='')
+}
+colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
 
-write.table(htseq_table_with_gene_length,file = "HTSeq_quantification_with_gene_length.csv",sep = "\t", row.names = F)
+rename_add_NumReads <- function(x) {
+  paste(x,"_NumReads",sep='')
+}
+
+colnames_NR <- sapply(colnames(htseq_table_with_gene_length[,-1]),function(x) rename_add_NumReads(x))
+
+colnames(htseq_table_with_gene_length) <- (c('length',colnames_NR))
+
+quant_results <- cbind(name = rownames(TPMs), htseq_table_with_gene_length,TPMs)
+
+write.table(quant_results,file = "quantification_results_uniquely_mapped_NumReads_TPM.csv",sep = "\t", row.names = F)
+
