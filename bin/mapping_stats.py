@@ -79,7 +79,7 @@ if args.tool == 'salmon':
        results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
 
 
-
+    results_df2 = results_df.sort_index()
     results_df.to_csv(args.output_dir, sep='\t')
     
 elif args.tool == 'htseq':
@@ -94,6 +94,7 @@ elif args.tool == 'htseq':
     results_df['unassigned_host_reads'] = results_df['host_uniquely_mapped_reads'] - results_df['host_assigned_reads']
     results_df['unassigned_pathogen_reads'] = results_df['pathogen_uniquely_mapped_reads'] - results_df['pathogen_assigned_reads']
 
+    results_df2 = results_df.sort_index()
     results_df.to_csv(args.output_dir, sep='\t')
    
 elif args.tool == 'star':
@@ -119,5 +120,6 @@ elif args.tool == 'star':
           processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
           results_df = pd.concat([processed_reads_star, combined_total_mapped_reads], axis=1)
           results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
-
-     results_df.to_csv(args.output_dir, sep='\t')
+     
+     results_df2 = results_df.sort_index()
+     results_df2.to_csv(args.output_dir, sep='\t')

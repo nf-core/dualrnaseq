@@ -17,7 +17,8 @@ import numpy as np
 def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage):
     my_cmap2= matplotlib.cm.get_cmap('tab20')
     my_cmap4 = matplotlib.cm.get_cmap('tab20c')
-    color = [my_cmap4.colors[12],my_cmap4.colors[13],my_cmap4.colors[0],my_cmap4.colors[1],my_cmap4.colors[6], my_cmap2.colors[15],my_cmap2.colors[14]] 
+    my_cmap3 = matplotlib.cm.get_cmap('tab20b')
+    color = [my_cmap3.colors[8],my_cmap3.colors[9],my_cmap3.colors[12],my_cmap3.colors[13],my_cmap4.colors[6], my_cmap2.colors[15],my_cmap2.colors[14]] 
     df_comb = df_comb.loc[reversed(df_comb.index)]
    # plt.yticks(yint)
     fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples * 2 + 3),legend=True,color = color, width = 0.8, fontsize=40)
