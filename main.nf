@@ -2743,7 +2743,8 @@ if(params.run_htseq_uniquely_mapped){
 		    val(host_attribute) from host_gff_attribute_htseq_combine
 
 		    output:
-		    file "quantification_stats_uniquely_mapped.csv" into htseq_result_quantification_TPM
+		    file "quantification_stats_uniquely_mapped.csv" 
+		    file "quantification_results_uniquely_mapped.csv" into htseq_result_quantification_TPM
 
 		    script:
 		    """
@@ -2783,7 +2784,7 @@ if(params.run_htseq_uniquely_mapped){
 	 */
 
 
-	process split_quantification_tables_htseq_uniquely_mapped_host {
+	process split_quantification_tables_htseq_uniquely_mapped {
 		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
 		    tag "split_quantification_htseq_uniquely_mapped_host"
@@ -2793,44 +2794,24 @@ if(params.run_htseq_uniquely_mapped){
 		    input:
 		    file quant_table from split_table_htseq_host
 		    file host_annotations from annotation_host_split_quant_htseq
+		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
 
 		    output:
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_htseq_quantification_RNA_stats
 		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_host_add_annotations_htseq_u_m
-
-		    shell:
-		    '''
-		    awk -F"\t" '!(NR<=1) {print $1}' !{host_annotations}| awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table} > host_quantification_uniquely_mapped_htseq_without_headers.csv
-		    awk 'NR==1 {print; exit}' !{quant_table} | cat - host_quantification_uniquely_mapped_htseq_without_headers.csv > host_quantification_uniquely_mapped_htseq.csv
-		    '''
-		}
-
-
-	process split_quantification_tables_htseq_uniquely_mapped_pathogen {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "split_quantification_htseq_uniquely_mapped_pathogen"
-
-                    label 'main_env'
-
-		    input:
-		    file quant_table from split_table_htseq_pathogen
-		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
-
-		    output:
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_htseq_quantification_RNA_stats
 		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_pathogen_add_annotations_htseq_u_m
 
-		    shell:
-		    '''
-		    awk -F"\t" '!(NR<=1) {print $1}' !{pathogen_annotations}| awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table} > pathogen_quantification_uniquely_mapped_htseq_without_headers.csv
-		    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_uniquely_mapped_htseq_without_headers.csv > pathogen_quantification_uniquely_mapped_htseq.csv
-		    '''
+		    script:
+		    """
+		    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.csv
+		    """
 		}
+
 
 
 		process combine_annotations_quant_pathogen_uniquely_mapped_host {
