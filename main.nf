@@ -2861,6 +2861,52 @@ if(params.run_htseq_uniquely_mapped){
 
 	if(params.mapping_statistics) {
 
+		process scatter_plot_pathogen_htseq {
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
+		    tag "scatter_plot salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from quant_scatter_plot_pathogen_salmon_alignment_based
+		    val attribute from atr_scatter_plot_pathogen_alignment
+
+		    output:
+		    file ('*.pdf')
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org pathogen
+		    """
+		}
+
+
+	process scatter_plot_host_htseq {
+	    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
+	    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
+		    tag "scatter_plot salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file quant_table from quant_scatter_plot_host_salmon_alignment_based
+		    val attribute from atr_scatter_plot_host_alignment
+
+		    output:
+		    file ('*.pdf') 
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org host 
+		    """
+		}
+
+
+
+/*
 		process htseq_quantification_stats_uniquely_mapped {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
@@ -2882,7 +2928,7 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_host_pathogen_total_reads.csv
 		    """
 		}
-
+*/
 /*
 		process plot_mapping_stats_host_pathogen_htseq_uniquely_mapped{
 		    tag "$name2"
