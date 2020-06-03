@@ -58,35 +58,35 @@ def sum_counts_for_each_RNA_class(gene_RNAtype_counts, set_RNA_classes):
 
         
                                                                           
-def RNA_classes_for_each_sample_htseq(quantification_table_path,gene_types,set_RNA_classes,organism, profile, gene_attribute):
-    col_names = pd.read_csv(quantification_table_path, sep = '\t', nrows=0).columns
-    types_dict = {gene_attribute: str}
-    types_dict.update({col: float for col in col_names if col not in types_dict})  
-    quantification_table = pd.read_csv(quantification_table_path, sep = '\t',index_col=0,dtype=types_dict)
-    df_percentage_RNA_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
-    df_RNA_classes_sum_counts_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
-    for sample_name in quantification_table:
-        gene_RNA_type_counts = add_counts_to_genes(quantification_table[sample_name],gene_types,gene_attribute)
-        # get gene types for host
-        if organism == 'host':
-            get_gene_type_host(gene_RNA_type_counts,set_RNA_classes,gene_attribute)
-        sum_counts_RNA_class_df = sum_counts_for_each_RNA_class(gene_RNA_type_counts,set_RNA_classes)
-        #sample name as an index
-        df_RNA_classes_sum_counts = sum_counts_RNA_class_df.sort_values('sum_counts', ascending=0)
-        df_RNA_classes_sum_counts = pd.DataFrame(df_RNA_classes_sum_counts).T        
-        df_RNA_classes_sum_counts.index = [sample_name]
-        df_RNA_classes_sum_counts = df_RNA_classes_sum_counts.T
-        percentage_RNA_class = calculate_percentage_RNA_classes(df_RNA_classes_sum_counts)
-        df_RNA_classes_sum_counts_all_samples = pd.concat([df_RNA_classes_sum_counts_all_samples, df_RNA_classes_sum_counts.T],sort=True)  
-        df_percentage_RNA_all_samples = pd.concat([df_percentage_RNA_all_samples, percentage_RNA_class.T],sort=True)
-    df_percentage_RNA_all_samples = df_percentage_RNA_all_samples.dropna()
-    df_RNA_classes_sum_counts_all_samples = df_RNA_classes_sum_counts_all_samples.dropna()
-    df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
-    df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage_" + profile + ".csv", sep = '\t')  
+# def RNA_classes_for_each_sample_htseq(quantification_table_path,gene_types,set_RNA_classes,organism, profile, gene_attribute):
+#     col_names = pd.read_csv(quantification_table_path, sep = '\t', nrows=0).columns
+#     types_dict = {gene_attribute: str}
+#     types_dict.update({col: float for col in col_names if col not in types_dict})  
+#     quantification_table = pd.read_csv(quantification_table_path, sep = '\t',index_col=0,dtype=types_dict)
+#     df_percentage_RNA_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
+#     df_RNA_classes_sum_counts_all_samples  = pd.DataFrame(columns = set_RNA_classes,index=['NA'])
+#     for sample_name in quantification_table:
+#         gene_RNA_type_counts = add_counts_to_genes(quantification_table[sample_name],gene_types,gene_attribute)
+#         # get gene types for host
+#         if organism == 'host':
+#             get_gene_type_host(gene_RNA_type_counts,set_RNA_classes,gene_attribute)
+#         sum_counts_RNA_class_df = sum_counts_for_each_RNA_class(gene_RNA_type_counts,set_RNA_classes)
+#         #sample name as an index
+#         df_RNA_classes_sum_counts = sum_counts_RNA_class_df.sort_values('sum_counts', ascending=0)
+#         df_RNA_classes_sum_counts = pd.DataFrame(df_RNA_classes_sum_counts).T        
+#         df_RNA_classes_sum_counts.index = [sample_name]
+#         df_RNA_classes_sum_counts = df_RNA_classes_sum_counts.T
+#         percentage_RNA_class = calculate_percentage_RNA_classes(df_RNA_classes_sum_counts)
+#         df_RNA_classes_sum_counts_all_samples = pd.concat([df_RNA_classes_sum_counts_all_samples, df_RNA_classes_sum_counts.T],sort=True)  
+#         df_percentage_RNA_all_samples = pd.concat([df_percentage_RNA_all_samples, percentage_RNA_class.T],sort=True)
+#     df_percentage_RNA_all_samples = df_percentage_RNA_all_samples.dropna()
+#     df_RNA_classes_sum_counts_all_samples = df_RNA_classes_sum_counts_all_samples.dropna()
+#     df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
+#     df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage_" + profile + ".csv", sep = '\t')  
         
     
       
-def RNA_classes_for_each_sample_salmon(quantification_table_path,gene_types,set_RNA_classes,organism, gene_attribute):
+def RNA_classes_for_each_sample(quantification_table_path,gene_types,set_RNA_classes,organism, profile, gene_attribute):
     col_names = pd.read_csv(quantification_table_path, sep = '\t', nrows=0).columns
     types_dict = {gene_attribute: str}
     types_dict.update({col: float for col in col_names if col not in types_dict})
@@ -111,8 +111,8 @@ def RNA_classes_for_each_sample_salmon(quantification_table_path,gene_types,set_
             df_percentage_RNA_all_samples = pd.concat([df_percentage_RNA_all_samples, percentage_RNA_class.T],sort=True)
     df_percentage_RNA_all_samples = df_percentage_RNA_all_samples.dropna()
     df_RNA_classes_sum_counts_all_samples = df_RNA_classes_sum_counts_all_samples.dropna()
-    df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts.csv", sep = '\t')  
-    df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage.csv", sep = '\t')  
+    df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
+    df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage_" + profile + ".csv", sep = '\t')  
        
         
     
@@ -175,8 +175,8 @@ elif args.organism == 'host':
     dict_set_RNA_classes.update(rna_to_replace)
 
 
-if args.quantifier == 'htseq':
-    RNA_classes_for_each_sample_htseq(args.quantification_table,gene_types,dict_set_RNA_classes,args.organism, args.profile, args.gene_attribute)
-elif args.quantifier == 'salmon':
-    RNA_classes_for_each_sample_salmon(args.quantification_table,gene_types,dict_set_RNA_classes,args.organism, args.gene_attribute)
+#if args.quantifier == 'htseq':
+RNA_classes_for_each_sample(args.quantification_table,gene_types,dict_set_RNA_classes,args.organism, args.profile, args.gene_attribute)
+#elif args.quantifier == 'salmon':
+#RNA_classes_for_each_sample(args.quantification_table,gene_types,dict_set_RNA_classes,args.organism, args.profile, args.gene_attribute)
 

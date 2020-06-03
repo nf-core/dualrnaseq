@@ -1696,8 +1696,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen
-		    """
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen -p salmon
 		}
 
 
@@ -1728,7 +1727,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host -p salmon
 		    """
 		}
 
@@ -2218,7 +2217,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen -p salmon
 		    """
 		}
 
@@ -2245,7 +2244,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host
+		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host -p salmon
 		    """
 		}
 
@@ -2952,7 +2951,7 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
-*/
+
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen/"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen", mode: 'copy'
@@ -3005,7 +3004,6 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool htseq -org host -p uniquely_mapped
 		    """
 		}
-
 
 
 		process plot_RNA_class_htseq_uniquely_mapped_pathogen_each{
@@ -3089,7 +3087,7 @@ if(params.run_htseq_uniquely_mapped){
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-*/
+
 }
 }
 
