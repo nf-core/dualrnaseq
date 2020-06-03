@@ -2931,7 +2931,7 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
-/*
+
 		process plot_mapping_stats_host_pathogen_htseq_uniquely_mapped{
 		    tag "$name2"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
@@ -2952,7 +2952,7 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
-
+*/
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen/"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen", mode: 'copy'
