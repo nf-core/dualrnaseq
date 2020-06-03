@@ -50,5 +50,7 @@ colnames(htseq_table_with_gene_length) <- (c('length',colnames_NR))
 
 quant_results <- cbind(name = rownames(TPMs), htseq_table_with_gene_length,TPMs)
 
+rename(quant_results, c("name" = gene_attribute))
+ 
 write.table(quant_results,file = "quantification_results_uniquely_mapped_NumReads_TPM.csv",sep = "\t", row.names = F, quote = F)
 
