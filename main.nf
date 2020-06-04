@@ -2949,7 +2949,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
+		    python $workflow.projectDir/bin/plot_mapping_statistics_htseq.py -i $stats
 		    """
 		}
 
