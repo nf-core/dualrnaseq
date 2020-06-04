@@ -288,7 +288,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.stranded)
-	    .set { stranded_htseq_unique}
+	    .into { stranded_htseq_unique; stranded_htseq_multi}
 
 	Channel
 	    .value(params.host_gff_attribute)
@@ -1370,15 +1370,14 @@ if (params.single_end){
             set val(sample_name), file("pathogen_quant.sf")
 	    set val(sample_name), file("${sample_name}") into salmon_host_tximport
 
-            shell:
-            '''
-            grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > pathogen_quantification_without_headers.sf
-            awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - pathogen_quantification_without_headers.sf > pathogen_quant.sf
-
-            grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > host_quantification_salmon_without_headers.sf
-            awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - host_quantification_salmon_without_headers.sf > host_quant.sf
-            '''
+            script:
+            """
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host  salmon/*/quant.sf
+            """
         }
+
+
+
 
 
 	/*
@@ -1468,16 +1467,11 @@ if (params.single_end){
             file 'host_quantification_salmon.csv' into quant_scatter_plot_host
             file 'pathogen_quantification_salmon.csv' into quant_scatter_plot_pathogen
 
-            shell:
-            '''
-            grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > pathogen_quantification_without_headers.csv
-            awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_without_headers.csv > pathogen_quantification_salmon.csv
-
-            grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > host_quantification_salmon_without_headers.csv
-            awk 'NR==1 {print; exit}' !{quant_table} | cat - host_quantification_salmon_without_headers.csv > host_quantification_salmon.csv
-            '''
+            script:
+            """
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table
+            """
         }
-
 
 
 	/*
@@ -1945,14 +1939,10 @@ if (params.run_salmon_alignment_based_mode){
 	    set val(sample_name), file("host_quant.sf")
 	    set val(sample_name), file("pathogen_quant.sf")
 
-	    shell:
-	    '''
-	    grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > pathogen_quantification_without_headers.sf
-	    awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - pathogen_quantification_without_headers.sf > pathogen_quant.sf
-
-	    grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - salmon/*/quant.sf > host_quantification_salmon_without_headers.sf
-	    awk 'NR==1 {print; exit}' salmon/*/quant.sf | cat - host_quantification_salmon_without_headers.sf > host_quant.sf
-	    '''
+            script:
+            """
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host salmon/*/quant.sf
+            """
 	}
 
 
@@ -2003,14 +1993,10 @@ if (params.run_salmon_alignment_based_mode){
 	    file 'host_quantification_salmon.csv' into quant_scatter_plot_host_salmon_alignment_based
 	    file 'pathogen_quantification_salmon.csv' into quant_scatter_plot_pathogen_salmon_alignment_based
 
-	    shell:
-	    '''
-	    grep ">" !{transcriptome_pathogen} | awk -F ">" '{ print $2 }' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > pathogen_quantification_without_headers.csv
-	    awk 'NR==1 {print; exit}' !{quant_table} | cat - pathogen_quantification_without_headers.csv > pathogen_quantification_salmon.csv
-
-	    grep ">" !{transcriptome_host} | awk -F ">" '{ print $2 }' | awk -F ' ' '{print $1}' | awk 'NR==FNR{a[$0]=$0}NR>FNR{if($1==a[$1])print $0}' - !{quant_table}  > host_quantification_salmon_without_headers.csv
-	    awk 'NR==1 {print; exit}' !{quant_table} | cat - host_quantification_salmon_without_headers.csv > host_quantification_salmon.csv
-	    '''
+            script:
+            """
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table
+            """
 	}
 
 
@@ -3111,7 +3097,7 @@ if( params.run_htseq_multi_mapped){
 	    file(gff) from quantification_gff_m_m.collect()
 	    set val(sample_name), file(st) from without_crossmapped_m_m
 	    val(host_attribute) from host_gff_attribute_htseq_m_m
-
+	    val(stranded) from stranded_htseq_multi
 
 	    output:
 	    file ('*.count_m_m') into htseq_files_m_m
@@ -3122,10 +3108,12 @@ if( params.run_htseq_multi_mapped){
 	    name_file2 = sample_name + "count_m_m"
 	    host_attr = host_attribute
 	    """
-	    htseq-count -t quant --nonunique all -f bam -r pos $st $gff -i $host_attr > $name_file2
+	    htseq-count -t quant --nonunique all -f bam -r pos $st $gff -i $host_attr -s $stranded > $name_file2
 	    sed -i '1{h;s/.*/ '"$sample_name"'/;G}' "$name_file2"
 	    """
 	}
+
+
 
 
 	/*
