@@ -1368,7 +1368,7 @@ if (params.single_end){
             output:
             set val(sample_name), file("host_quant.sf")
             set val(sample_name), file("pathogen_quant.sf")
-	    set val(sample_name), file("${sample_name}") into salmon_host_tximport
+            set val(sample_name), file("salmon/${sample_name}") into salmon_host_tximport
 
             script:
             """
@@ -1393,7 +1393,7 @@ if (params.single_end){
    		    label 'process_high'
 
 	            input: 
-		    file ("salmon/*") from salmon_host_tximport
+		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
 		    file (annotations) from tximport_annotations
 
 
@@ -1404,7 +1404,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/tximport.R salmon $annotations
+		    $workflow.projectDir/bin/tximport.R salmon/$sample_name $annotations
 		    """
 		}
 
@@ -1469,7 +1469,7 @@ if (params.single_end){
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "salmon.csv"
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.csv"
             """
         }
 
@@ -1995,7 +1995,7 @@ if (params.run_salmon_alignment_based_mode){
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "salmon.csv"
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.csv"
             """
 	}
 
