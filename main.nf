@@ -1697,6 +1697,7 @@ if (params.single_end){
 		    script:
 		    """
 		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen -p salmon
+		    """
 		}
 
 
