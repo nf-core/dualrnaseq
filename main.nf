@@ -1393,14 +1393,11 @@ if (params.single_end){
    		    label 'process_high'
 
 	            input: 
-		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
+		    set val(sample_name), file ("salmon/*") from salmon_host_tximport.collect()
 		    file (annotations) from tximport_annotations
 
-
 		    output:
-		    file "host_gene_TPM.csv"
-		    file "host_gene_length.csv"
-		    file "host_gene_counts.csv"
+		    file "host_quantification_gene_level_salmon.csv"
 
 		    script:
 		    """
@@ -1684,9 +1681,9 @@ if (params.single_end){
 		    file gene_annotations from pathogen_annotations_RNA_class_stats
 
 		    output:
-		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen
-		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen_combined
-		    file "pathogen_RNA_classes_sum_counts.csv"
+		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen
+		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined
+		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
 
 		    script:
 		    """
@@ -2198,9 +2195,9 @@ if (params.run_salmon_alignment_based_mode){
 		    file gene_annotations from pathogen_annotations_RNA_class_stats_salmon_alignment
 
 		    output:
-		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen_alignment
-		    file "pathogen_RNA_classes_percentage.csv" into plot_RNA_stats_pathogen_combined_alignment
-		    file "pathogen_RNA_classes_sum_counts.csv"
+		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_alignment
+		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined_alignment
+		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
 
 		    script:
 		    """
