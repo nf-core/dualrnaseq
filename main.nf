@@ -1387,7 +1387,7 @@ if (params.single_end){
 	process tximport_host {
 		    publishDir "${params.outdir}/salmon", mode: 'copy'
 		    storeDir "${params.outdir}/salmon"
-		    tag "combine_annotations_quant_pathogen_salmon"
+		    tag "tximport_host"
 
 		    label 'main_env'
    		    label 'process_high'
@@ -1404,7 +1404,7 @@ if (params.single_end){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/tximport.R salmon/$sample_name $annotations
+		    $workflow.projectDir/bin/tximport.R salmon $annotations
 		    """
 		}
 
