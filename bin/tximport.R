@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 library(tximport)
 
 args = commandArgs(trailingOnly=TRUE)
