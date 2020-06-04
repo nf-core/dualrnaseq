@@ -34,7 +34,7 @@ colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
 colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
 colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))
 
-gene_results <- cbind('Name'=rownames(txi$abundance), 'TPM'=txi$abundance, 'Length' = txi$length, 'NumReads'= txi$counts)
+gene_results <- cbind('Name'=rownames(txi$abundance), TPMs, length, counts)
 
 
 write.table(gene_results,file = paste(args[3],"_host_quant_gene_level.sf",sep=''),sep = "\t", row.names = F, quote = F)
