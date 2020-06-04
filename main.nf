@@ -1366,9 +1366,8 @@ if (params.single_end){
             file transcriptome_host from transcriptome_host_to_split_q_table_salmon
 
             output:
-            set val(sample_name), file("host_quant.sf")
+            set val(sample_name), file("host_quant.sf") into salmon_host_tximport
             set val(sample_name), file("pathogen_quant.sf")
-            set val(sample_name), file("salmon/${sample_name}") into salmon_host_tximport
 
             script:
             """
@@ -1504,12 +1503,11 @@ if (params.single_end){
    		    label 'process_high'
 
 	            input: 
-		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
+		    set val(sample_name), file("salmon/*") from salmon_host_tximport
 		    file (annotations) from tximport_annotations
 
 		    output:
-		    file "host_quant_gene_level.sf" 
-		    file("salmon/${sample_name}/*") into salmon_files_to_combine_gene_level
+		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level
 
 		    script:
 		    """
@@ -2534,7 +2532,7 @@ if(params.run_star) {
 		    '''
 		}
 
-
+/*
 		process collect_stats_STAR_uniquely_mapped {
 			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 			    storeDir "${params.outdir}/mapping_statistics/STAR"
@@ -2554,7 +2552,7 @@ if(params.run_star) {
 			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
 			    """
 			}
-
+*/
 
 		/*
 		 * count_cross_mapped_reads 
