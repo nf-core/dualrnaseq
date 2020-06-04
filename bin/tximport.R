@@ -15,26 +15,27 @@ names(files) = names
 
 txi = tximport(files, type = "salmon",tx2gene = tx2gene, dropInfReps=TRUE)
 
-TPMs <- txi$abundance
-length <- txi$length
-counts <- txi$counts
+#TPMs <- txi$abundance
+#length <- txi$length
+#counts <- txi$counts
+#
+#rename_add_TPM <- function(x) {
+#  paste(x,"_TPM",sep='')
+#}
+#
+#rename_add_Length <- function(x) {
+#  paste(x,"_Length",sep='')
+#}
+#
+#rename_add_NumReads <- function(x) {
+#  paste(x,"_NumReads",sep='')
+#}
+#
+#colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
+#colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
+#colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))
 
-rename_add_TPM <- function(x) {
-  paste(x,"_TPM",sep='')
-}
+gene_results <- cbind('Name'=rownames(txi$abundance), 'TPM'=txi$abundance, 'Length' = txi$length, 'NumReads'= txi$counts)
 
-rename_add_Length <- function(x) {
-  paste(x,"_Length",sep='')
-}
 
-rename_add_NumReads <- function(x) {
-  paste(x,"_NumReads",sep='')
-}
-
-colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
-colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
-colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))
-
-gene_results <- cbind(rownames(txi$abundance), TPMs, length, counts)
-
-write.table(gene_results,file = "host_quantification_gene_level.csv",sep = "\t", row.names = F, quote = F)
+write.table(gene_results,file = "host_quant_gene_level.sf",sep = "\t", row.names = F, quote = F)
