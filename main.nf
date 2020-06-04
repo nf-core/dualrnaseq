@@ -1355,7 +1355,7 @@ if (params.single_end){
 	process split_table_salmon_each {
             publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
             storeDir "${params.outdir}/salmon/${sample_name}"
-            tag "split_quantification ${sample}"
+            tag "split_quantification ${sample_name}"
 
             label 'main_env'
             label 'process_high'
@@ -1372,7 +1372,7 @@ if (params.single_end){
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host  salmon/*/quant.sf
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host  salmon/*/quant.sf ".sf"
             """
         }
 
@@ -1458,18 +1458,18 @@ if (params.single_end){
             file transcriptome_host from transcriptome_host_to_split_table_salmon
 
             output:
-            file 'host_quantification_salmon.csv' into host_quantification_mapping_stats_salmon 
-            file 'pathogen_quantification_salmon.csv' into pathogen_quantification_mapping_stats_salmon
-            file 'host_quantification_salmon.csv' into host_quantification_RNA_stats_salmon 
-            file 'pathogen_quantification_salmon.csv' into pathogen_quantification_RNA_stats_salmon
-            file 'host_quantification_salmon.csv' into quant_host_add_annotations 
-            file 'pathogen_quantification_salmon.csv' into quant_pathogen_add_annotations
-            file 'host_quantification_salmon.csv' into quant_scatter_plot_host
-            file 'pathogen_quantification_salmon.csv' into quant_scatter_plot_pathogen
+            file 'host_quant_salmon.csv' into host_quantification_mapping_stats_salmon 
+            file 'pathogen_quant_salmon.csv' into pathogen_quantification_mapping_stats_salmon
+            file 'host_quant_salmon.csv' into host_quantification_RNA_stats_salmon 
+            file 'pathogen_quant_salmon.csv' into pathogen_quantification_RNA_stats_salmon
+            file 'host_quant_salmon.csv' into quant_host_add_annotations 
+            file 'pathogen_quant_salmon.csv' into quant_pathogen_add_annotations
+            file 'host_quant_salmon.csv' into quant_scatter_plot_host
+            file 'pathogen_quant_salmon.csv' into quant_scatter_plot_pathogen
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "salmon.csv"
             """
         }
 
@@ -1941,7 +1941,7 @@ if (params.run_salmon_alignment_based_mode){
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host salmon/*/quant.sf
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host salmon/*/quant.sf ".sf"
             """
 	}
 
@@ -1984,18 +1984,18 @@ if (params.run_salmon_alignment_based_mode){
 	    file transcriptome_host from transcriptome_host_to_split_table_salmon_alignment
 
 	    output:
-	    file 'host_quantification_salmon.csv' into host_quantification_mapping_stats_salmon_alignment_based
-	    file 'pathogen_quantification_salmon.csv' into pathogen_quantification_mapping_stats_salmon_alignment_based
-	    file 'host_quantification_salmon.csv' into host_quantification_RNA_stats_salmon_alignment_based
-	    file 'pathogen_quantification_salmon.csv' into pathogen_quantification_RNA_stats_salmon_alignment_based
-	    file 'host_quantification_salmon.csv' into quant_host_add_annotations_salmon_alignment_based
-	    file 'pathogen_quantification_salmon.csv' into quant_pathogen_add_annotations_alignment_based
-	    file 'host_quantification_salmon.csv' into quant_scatter_plot_host_salmon_alignment_based
-	    file 'pathogen_quantification_salmon.csv' into quant_scatter_plot_pathogen_salmon_alignment_based
+	    file 'host_quant_salmon.csv' into host_quantification_mapping_stats_salmon_alignment_based
+	    file 'pathogen_quant_salmon.csv' into pathogen_quantification_mapping_stats_salmon_alignment_based
+	    file 'host_quant_salmon.csv' into host_quantification_RNA_stats_salmon_alignment_based
+	    file 'pathogen_quant_salmon.csv' into pathogen_quantification_RNA_stats_salmon_alignment_based
+	    file 'host_quant_salmon.csv' into quant_host_add_annotations_salmon_alignment_based
+	    file 'pathogen_quant_salmon.csv' into quant_pathogen_add_annotations_alignment_based
+	    file 'host_quant_salmon.csv' into quant_scatter_plot_host_salmon_alignment_based
+	    file 'pathogen_quant_salmon.csv' into quant_scatter_plot_pathogen_salmon_alignment_based
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "salmon.csv"
             """
 	}
 
