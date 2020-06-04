@@ -1509,7 +1509,7 @@ if (params.single_end){
 
 		    output:
 		    file "host_quant_gene_level.sf" 
-		    file("${sample_name}") into salmon_files_to_combine_gene_level
+		    file(salmon/"${sample_name}") into salmon_files_to_combine_gene_level
 
 		    script:
 		    """
