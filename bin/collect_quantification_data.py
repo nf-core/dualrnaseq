@@ -32,24 +32,26 @@ def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
 
 def collect_quantification_data_salmon(input_files, gene_attribute, organism):
     for input_file in input_files:
-            if organism == 'both':
-                quant_table = pd.read_csv(input_file + '/quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})
-            elif organism == 'pathogen':
-                quant_table = pd.read_csv(input_file + '/pathogen_quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})
-            elif organism == 'host':
-                  quant_table = pd.read_csv(input_file + '/host_quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})               
-            elif organism == 'host_gene_level':
-                  quant_table = pd.read_csv(input_file + '/host_quant_gene_level.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'TPM':float,'NumReads': float})               
-
-            name_file = input_file.split('/')
-            #create new column names that keep sample name
-            new_col = [name_file[0] + '_' + column for column in quant_table.columns]
-            quant_table.columns = new_col
-            if input_file == input_files[0]:
-                #initiate first columns
-                  quant_merged_table = quant_table
+            if organism == 'host_gene_level':
+                quant_table = pd.read_csv(input_file,sep='\t',header=0,index_col=0)
+                print(quant_table)
             else:
-                  quant_merged_table = pd.concat([quant_merged_table, quant_table], axis=1)
+                if organism == 'both':
+                    quant_table = pd.read_csv(input_file + '/quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})
+                elif organism == 'pathogen':
+                    quant_table = pd.read_csv(input_file + '/pathogen_quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})
+                elif organism == 'host':
+                      quant_table = pd.read_csv(input_file + '/host_quant.sf',sep='\t',header=0,index_col=0,dtype={'Name':str,'Length': int,'EffectiveLength':float,'TPM':float,'NumReads': float})               
+    
+                name_file = input_file.split('/')
+                #create new column names that keep sample name
+                new_col = [name_file[0] + '_' + column for column in quant_table.columns]
+                quant_table.columns = new_col
+            if input_file == input_files[0]:
+                    #initiate first columns
+                quant_merged_table = quant_table
+            else:
+                quant_merged_table = pd.concat([quant_merged_table, quant_table], axis=1)
     quant_merged_table.index.names = [gene_attribute]
     quant_merged_table = quant_merged_table.sort_index(axis=1)
     if organism == 'both':
