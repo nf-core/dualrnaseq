@@ -1509,7 +1509,7 @@ if (params.single_end){
 
 		    output:
 		    file "host_quant_gene_level.sf" 
-		    file(salmon/"${sample_name}") into salmon_files_to_combine_gene_level
+		    file("salmon/${sample_name}/*") into salmon_files_to_combine_gene_level
 
 		    script:
 		    """
@@ -2949,7 +2949,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/plot_mapping_statistics_htseq.py -i $stats
+		    python $workflow.projectDir/bin/plot_mapping_stats_htseq.py -i $stats
 		    """
 		}
 
