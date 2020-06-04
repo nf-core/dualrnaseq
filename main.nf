@@ -1377,35 +1377,6 @@ if (params.single_end){
         }
 
 
-
-	/*
-	 * tximport - host
-	 */
-
-	process tximport_host {
-		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
-		    storeDir "${params.outdir}/salmon/${sample_name}"
-		    tag "tximport_host"
-
-		    label 'main_env'
-   		    label 'process_high'
-
-	            input: 
-		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
-		    file (annotations) from tximport_annotations
-
-		    output:
-		    file "host_quantification_gene_level.csv"
-
-		    script:
-		    """
-		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
-		    """
-		}
-
-
-
-
 	/*
 	 * salmon - combine quantification results
 	 */
@@ -1515,6 +1486,55 @@ if (params.single_end){
 		    script:
 		    """
 		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
+		    """
+		}
+
+
+
+	/*
+	 * tximport - host
+	 */
+
+	process tximport_host {
+		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
+		    storeDir "${params.outdir}/salmon/${sample_name}"
+		    tag "tximport_host"
+
+		    label 'main_env'
+   		    label 'process_high'
+
+	            input: 
+		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
+		    file (annotations) from tximport_annotations
+
+		    output:
+		    file "host_quant_gene_level.sf" 
+		    file("${sample_name}") into salmon_files_to_combine_gene_level
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
+		    """
+		}
+
+
+	process combine_host_quant_gene_level_salmon {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "combine_qene_level_quant_salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input: 
+		    file input_quantification from salmon_files_to_combine_gene_level.collect()
+
+		    output:
+		    file "host_combined_gene_level.csv"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
 		    """
 		}
 
