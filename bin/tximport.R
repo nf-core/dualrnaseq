@@ -37,4 +37,4 @@ colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))
 
 gene_results <- cbind(rownames(txi$abundance), TPMs, length, counts)
 
-write.table(gene_results,file = "host_quantification_gene_level_salmon.csv",sep = "\t", row.names = F, quote = F)
+write.table(gene_results,file = "host_quantification_gene_level.csv",sep = "\t", row.names = F, quote = F)

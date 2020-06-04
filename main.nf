@@ -1378,30 +1378,28 @@ if (params.single_end){
 
 
 
-
-
 	/*
 	 * tximport - host
 	 */
 
 	process tximport_host {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
+		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
+		    storeDir "${params.outdir}/salmon/${sample_name}"
 		    tag "tximport_host"
 
 		    label 'main_env'
    		    label 'process_high'
 
 	            input: 
-		    set val(sample_name), file ("salmon/*") from salmon_host_tximport.collect()
+		    set val(sample_name), file ("salmon/*") from salmon_host_tximport
 		    file (annotations) from tximport_annotations
 
 		    output:
-		    file "host_quantification_gene_level_salmon.csv"
+		    file "host_quantification_gene_level.csv"
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/tximport.R salmon $annotations
+		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
 		    """
 		}
 
