@@ -1515,7 +1515,7 @@ if (params.single_end){
 		    """
 		}
 
-
+/*
 	process combine_host_quant_gene_level_salmon {
 		    publishDir "${params.outdir}/salmon", mode: 'copy'
 		    storeDir "${params.outdir}/salmon"
@@ -1536,7 +1536,7 @@ if (params.single_end){
 		    """
 		}
 
-
+*/
 
 	if(params.mapping_statistics) {
 		/*
@@ -2532,7 +2532,7 @@ if(params.run_star) {
 		    '''
 		}
 
-/*
+
 		process collect_stats_STAR_uniquely_mapped {
 			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 			    storeDir "${params.outdir}/mapping_statistics/STAR"
@@ -2552,7 +2552,7 @@ if(params.run_star) {
 			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
 			    """
 			}
-*/
+
 
 		/*
 		 * count_cross_mapped_reads 
