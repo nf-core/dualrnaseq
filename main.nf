@@ -3104,7 +3104,7 @@ if( params.run_htseq_multi_mapped){
 	    tag "$name_file2"
 
             label 'main_env'
-            label 'cpu_memory_high_usage'
+            label 'process_high'
 
 	    input:
 	    file(gff) from quantification_gff_m_m.collect()
