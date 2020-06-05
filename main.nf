@@ -445,7 +445,7 @@ process combine_pathogen_host_fasta_genome {
  * chimeric gff file
  */
 
-if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_star) {
+if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run_star) {
 
 	/*
 	 * combine host genome and tRNA gff files
@@ -642,7 +642,7 @@ if(params.run_htseq_uniquely_mapped| params.run_htseq_multi_mapped | params.run_
 
 if(params.run_star) {
 
-	if(params.mapping_statistics) {
+	if(params.mapping_statistics | params.run_htseq_multi_mapped) {
 		/*
 		* extract reference names from genome fasta files - mapping stats
 		*/
