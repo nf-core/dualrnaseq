@@ -3113,9 +3113,9 @@ if( params.run_htseq_multi_mapped){
 	    val(stranded) from stranded_htseq_multi
 
 	    output:
-	    file ('*.count_m_m') into htseq_files_m_m
-	    file ('*.count_m_m') into htseq_files_to_combine_m_m
-	    file ('*.count_m_m') into multiqc_htseq_multi
+	    file ('*count_m_m') into htseq_files_m_m
+	    file ('*count_m_m') into htseq_files_to_combine_m_m
+	    file ('*count_m_m') into multiqc_htseq_multi
 
 	    script:
 	    name_file2 = sample_name + "count_m_m"
