@@ -1728,9 +1728,9 @@ if (params.single_end){
 		    file rna_classes_to_replace from RNA_classes_to_replace
 
 		    output:
-		    file "host_RNA_classes_percentage_salmon.csv.csv" into plot_RNA_stats_host
-		    file "host_RNA_classes_percentage_salmon.csv.csv" into plot_RNA_stats_host_combined
-		    file "host_RNA_classes_sum_counts_salmon.csv.csv"
+		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host
+		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined
+		    file "host_RNA_classes_sum_counts_salmon.csv"
 		    file "host_gene_types_groups_*"
 
 		    script:
@@ -2237,9 +2237,9 @@ if (params.run_salmon_alignment_based_mode){
 		    file rna_classes_to_replace from RNA_classes_to_replace_alignment
 
 		    output:
-		    file "host_RNA_classes_percentage_salmon.csv.csv" into plot_RNA_stats_host_alignment
-		    file "host_RNA_classes_percentage_salmon.csv.csv" into plot_RNA_stats_host_combined_alignment
-		    file "host_RNA_classes_sum_counts_salmon.csv.csv"
+		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_alignment
+		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined_alignment
+		    file "host_RNA_classes_sum_counts_salmon.csv"
 		    file "host_gene_types_groups_*"
 
 		    script:
