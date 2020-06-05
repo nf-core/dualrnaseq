@@ -2422,7 +2422,7 @@ if(params.run_star) {
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    }
 	}
@@ -3149,7 +3149,7 @@ if( params.run_htseq_multi_mapped){
 		    file input_quantification from htseq_result_quantification_m_m
 		    output:
 		    file "quantification_results_multi_mapped.csv" into split_table_htseq_m_m
-		    file "alignment_stats_multi_mapped.csv"
+		    file "quantification_stats_multi_mapped.csv"
 		    
 		    script:
 		    """
