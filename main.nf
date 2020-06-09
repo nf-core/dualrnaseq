@@ -189,11 +189,11 @@ if(params.gff_host_tRNA){
 
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { combine_gff_host_genome_star_salmon;gff_host_create_transcriptome; combine_gff_host_genome_htseq}
+	    .into { gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; combine_gff_host_genome_htseq}
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_salmon_alignment;gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
+	    .into {gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
 }
 
 Channel
@@ -237,7 +237,7 @@ if (!params.skipTrimming){
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 	Channel
 	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
-	    .into {host_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_host_salmon; host_atr_collect_data_salmon; combine_annot_quant_pathogen; combine_annot_quant_host; atr_scatter_plot_pathogen; atr_scatter_plot_host; attribute_quant_stats_salmon; host_annotations_RNA_class_stats_pathogen; attribute_host_RNA_class_stats; host_atr_collect_data_salmon_alignment_mode; combine_annot_quant_pathogen_salmon_alignment_based; combine_annot_quant_host_salmon_alignment_based; atr_scatter_plot_pathogen_alignment; atr_scatter_plot_host_alignment; attribute_quant_stats_salmon_alignment;host_annotations_RNA_class_stats_pathogen_alignment; attribute_host_RNA_class_stats_alignment}
+	    .into {host_gff_attribute_salmon_alignment_tRNA; gene_attribute_gff_to_create_transcriptome_host_salmon; host_atr_collect_data_salmon; combine_annot_quant_pathogen; combine_annot_quant_host; atr_scatter_plot_pathogen; atr_scatter_plot_host; attribute_quant_stats_salmon; host_annotations_RNA_class_stats_pathogen; attribute_host_RNA_class_stats; host_atr_collect_data_salmon_alignment_mode; combine_annot_quant_pathogen_salmon_alignment_based; combine_annot_quant_host_salmon_alignment_based; atr_scatter_plot_pathogen_alignment; atr_scatter_plot_host_alignment; attribute_quant_stats_salmon_alignment;host_annotations_RNA_class_stats_pathogen_alignment; attribute_host_RNA_class_stats_alignment}
 
 	Channel
 	    .value(params.gene_feature_gff_to_create_transcriptome_host)
@@ -544,7 +544,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_new_attribute.gff3")
 	    """
-	    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} $host_attribute $pathogen_attribute
+	    $workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} $host_attribute $pathogen_attribute
 	    """
 	}
 
@@ -694,12 +694,32 @@ if(params.run_star) {
 
 
 
-
-
-
-
-
 if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+
+
+	process replace_attribute_host_genome_gff_star_salmon {
+	    tag "replace_attribute_host_genome_gff"
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from gff_host_genome_star_salmon_change_atr
+
+	    output:
+	    file "${outfile_name}" into combine_gff_host_genome_star_salmon
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_parent_attribute.gff3")
+
+	    """
+	    $workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} parent Parent
+	    """
+	}
+
+
+
 	if(params.gff_host_tRNA){
 		process replace_attribute_host_tRNA_gff_star_salmon {
 		    tag "replace_attribute_host_tRNA_gff"
@@ -710,17 +730,18 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 		    input:
 		    file(gff) from change_attrubute_gff_host_tRNA_salmon_alignment
-		    val(host_attribute) from host_gff_attribute_salmon_alignment
+		    val(host_attribute) from host_gff_attribute_salmon_alignment_tRNA
 
 		    output:
 		    file "${outfile_name}" into combine_host_gffs
 
 		    script:
-		    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_Parent_attribute.gff3")
+		    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_parent_attribute.gff3")
 		    """
-		    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} Parent $host_attribute
+		    $workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} parent $host_attribute
 		    """
 		}
+
 
 		process combine_host_genome_tRNA_gff_star_salmon {
 		    tag "combine_host_genome_tRNA_gff"
@@ -734,7 +755,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    file(host_gff_tRNA) from combine_host_gffs
 
 		    output:
-		    file "${outfile_name}" into gff_host_genome_salmon_alignment
+		    file "${outfile_name}" into gff_host_tRNA_genome_salmon_alignment
 
 		    script:
 		    outfile_name = host_gff_genome[0].toString().replaceAll(/.gff3|.gff/,"_with_tRNA_STAR_salmon.gff3")
@@ -743,6 +764,8 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    """
 		}
 	}
+
+	gff_host_genome_salmon_alignment = params.gff_host_tRNA ? gff_host_tRNA_genome_salmon_alignment : combine_gff_host_genome_star_salmon
 
 	process replace_gene_feature_gff_host_salmon {
 	    tag "replace_gene_feature_gff_host"
@@ -784,9 +807,9 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 
 	    script:
-	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_Parent_attribute.gff3")
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_parent_attribute.gff3")
 	    """
-	    $workflow.projectDir/bin/replace_pathogen_attribute_gff.sh $gff ${outfile_name} Parent $pathogen_attribute
+	    $workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} parent $pathogen_attribute
 	    """
 	}
 }
@@ -872,7 +895,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    script:
 	    outfile_name = "pathogen_gff_annotations"
 	    """
-	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f $features -a Parent -org pathogen -q_tool salmon -o ${outfile_name}
+	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f $features -a parent -org pathogen -q_tool salmon -o ${outfile_name}
 	    """
 	}
 
@@ -898,7 +921,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    script:
 	    outfile_name = "host_gff_annotations"
 	    """
-	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f quant -a Parent -org host -q_tool salmon -o ${outfile_name}
+	    python $workflow.projectDir/bin/extract_annotations_from_gff.py -gff $gff -f quant -a parent -org host -q_tool salmon -o ${outfile_name}
 	    """
 	}
 
@@ -1853,7 +1876,7 @@ if (params.run_salmon_alignment_based_mode){
 		script:
 		"""
 		mkdir index
-		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent 
+		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent 
 		"""
 	}
 
@@ -1894,12 +1917,12 @@ if (params.run_salmon_alignment_based_mode){
 	    if (params.single_end){
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax
 	    """
 	    }
 	}
