@@ -253,11 +253,6 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 	    .collect()
 	    .into {gene_feature_to_quantify_pathogen_salmon_alignment; gene_feature_to_extract_annotations_pathogen; gene_feature_gff_to_create_transcriptome_pathogen_salmon}
 
-}
-
-
-if (params.run_salmon_selective_alignment){
-
 	Channel
 	    .value(params.kmer_length)
 	    .set {kmer_length_salmon_index}
@@ -266,8 +261,8 @@ if (params.run_salmon_selective_alignment){
 	Channel
 	    .value(params.libtype)
 	    .into {libtype_salmon; libtype_salmon_alignment_mode}
-
 }
+
 
 
 if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run_star){
