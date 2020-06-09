@@ -1989,8 +1989,8 @@ if (params.run_salmon_alignment_based_mode){
 	 */
 
 	process tximport_host_salmon_alignment {
-		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
-		    storeDir "${params.outdir}/salmon/${sample_name}"
+		    publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}", mode: 'copy'
+		    storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}"
 		    tag "tximport_host"
 
 		    label 'main_env'
@@ -2006,6 +2006,27 @@ if (params.run_salmon_alignment_based_mode){
 		    script:
 		    """
 		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
+		    """
+		}
+
+
+	process combine_host_quant_gene_level_salmon_alignment {
+		    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+		    storeDir "${params.outdir}/salmon_alignment_mode"
+		    tag "combine_qene_level_quant_salmon_alignment"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input: 
+		    file input_quantification from salmon_files_to_combine_gene_level.collect()
+
+		    output:
+		    file "host_combined_gene_level.csv"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
 		    """
 		}
 
