@@ -193,7 +193,7 @@ if(params.gff_host_tRNA){
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into {gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
+	    .into {gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
 }
 
 Channel
@@ -915,6 +915,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats_salmon_alignment
 	    file "${outfile_name}*_salmon.csv" into tximport_annotations
+	    file "${outfile_name}*_salmon.csv" into tximport_annotations_salmon_alignment
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_salmon_alignment_based
 
@@ -1538,7 +1539,7 @@ if (params.single_end){
 		    """
 		}
 
-/*
+
 	process combine_host_quant_gene_level_salmon {
 		    publishDir "${params.outdir}/salmon", mode: 'copy'
 		    storeDir "${params.outdir}/salmon"
@@ -1559,7 +1560,7 @@ if (params.single_end){
 		    """
 		}
 
-*/
+
 
 	if(params.mapping_statistics) {
 		/*
@@ -1972,7 +1973,7 @@ if (params.run_salmon_alignment_based_mode){
 	    file transcriptome_host from transcriptome_host_to_split_q_table_salmon_alignment_based
 
 	    output:
-	    set val(sample_name), file("host_quant.sf")
+	    set val(sample_name), file("host_quant.sf") into salmon_alignment_host_tximport
 	    set val(sample_name), file("pathogen_quant.sf")
 
             script:
@@ -1980,6 +1981,33 @@ if (params.run_salmon_alignment_based_mode){
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host salmon/*/quant.sf ".sf"
             """
 	}
+
+
+
+	/*
+	 * tximport - host
+	 */
+
+	process tximport_host_salmon_alignment {
+		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
+		    storeDir "${params.outdir}/salmon/${sample_name}"
+		    tag "tximport_host"
+
+		    label 'main_env'
+   		    label 'process_high'
+
+	            input: 
+		    set val(sample_name), file("salmon/${sample_name}/*") from salmon_alignment_host_tximport
+		    file (annotations) from tximport_annotations_salmon_alignment
+
+		    output:
+		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
+		    """
+		}
 
 
 
@@ -3172,7 +3200,7 @@ if( params.run_htseq_multi_mapped){
 		    file input_quantification from htseq_result_quantification_m_m
 		    output:
 		    file "quantification_results_multi_mapped.csv" into split_table_htseq_m_m
-		    file "alignment_stats_multi_mapped.csv"
+		    file "quantification_stats_multi_mapped.csv"
 		    
 		    script:
 		    """
