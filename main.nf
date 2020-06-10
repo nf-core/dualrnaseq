@@ -1996,7 +1996,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file (annotations) from tximport_annotations_salmon_alignment
 
 		    output:
-		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level
+		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level_alignment
 
 		    script:
 		    """
@@ -2014,7 +2014,7 @@ if (params.run_salmon_alignment_based_mode){
 		    label 'process_high'
 
 		    input: 
-		    file input_quantification from salmon_files_to_combine_gene_level.collect()
+		    file input_quantification from salmon_files_to_combine_gene_level_alignment.collect()
 
 		    output:
 		    file "host_combined_gene_level.csv"
