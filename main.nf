@@ -3167,7 +3167,7 @@ if( params.run_htseq_multi_mapped){
 	 */
 
 	process HTseq_multi_mapping {
-	    storeDir "${params.outdir}/HTseq/multi_mapped"
+	    storeDir "${params.outdir}/HTSeq/multi_mapped"
 	    tag "$name_file2"
 
             label 'main_env'
@@ -3206,8 +3206,8 @@ if( params.run_htseq_multi_mapped){
 	    .set { htseq_result_quantification_m_m }
 
 	process combine_quantification_tables_htseq_multimapped {
-		    publishDir "${params.outdir}/HTseq_combined", mode: 'copy'
-		    storeDir "${params.outdir}/HTseq_combined"
+		    publishDir "${params.outdir}/HTSeq/multi_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/HTSeq/multi_mapped"
 		    tag "combine_quantification_htseq_m_m"
 
                     label 'main_env'
