@@ -47,7 +47,7 @@ parser.add_argument("-o", help="output file name")
 args = parser.parse_args()
 
 gene_features = [feature.replace('[' , '').replace(']','').replace(',','') for feature in args.gene_feature ]
-
+print(gene_features)
 fasta_records_dict =  dict()
 for fasta_file in  args.fasta:
         fasta_records_dict.update(SeqIO.to_dict(SeqIO.parse(fasta_file, 'fasta')))
