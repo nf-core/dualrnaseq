@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 library(tximport)
 
 args = commandArgs(trailingOnly=TRUE)
@@ -11,14 +12,29 @@ tx2gene <-annotations[,c('transcript_id','gene_id')]
 files = list.files(salmon_path, pattern = "host_quant.sf", recursive = T, full.names = T)
 names = basename(dirname(files))
 names(files) = names
-
 txi = tximport(files, type = "salmon",tx2gene = tx2gene, dropInfReps=TRUE)
 
-TPM <- cbind(rownames(txi$abundance),txi$abundance)
-write.table(TPM,file = "host_gene_TPM.csv",sep = "\t", row.names = F)
+TPMs <- txi$abundance
+length <- txi$length
+counts <- txi$counts
 
-length <- cbind(rownames(txi$length),txi$length)
-write.table(length,file = "host_gene_length.csv",sep = "\t", row.names = F)
+rename_add_TPM <- function(x) {
+  paste(x,"_TPM",sep='')
+}
 
-counts <- cbind(rownames(txi$counts),txi$counts)
-write.table(counts,file = "host_gene_counts.csv",sep = "\t", row.names = F)
+rename_add_Length <- function(x) {
+  paste(x,"_Length",sep='')
+}
+
+rename_add_NumReads <- function(x) {
+  paste(x,"_NumReads",sep='')
+}
+
+colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
+colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
+colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))
+
+gene_results <- cbind('Name'=rownames(txi$abundance), TPMs, length, counts)
+
+
+write.table(gene_results,file = paste(args[3],"_host_quant_gene_level.sf",sep=''),sep = "\t", row.names = F, quote = F)
