@@ -44,7 +44,7 @@ def scatter_plot(TPM_log, TPMs, name_1, name_2, lim_plot, organism):
     plt.subplots_adjust(bottom=0.1)
     #plt.savefig('results/' + prefix + '_statter_1_2.svg', dpi = 300)
     plt.savefig('scatter_plot' + name_1 + '_' + name_2 + '_' + organism + '.pdf', dpi = 300,bbox_inches='tight')
-
+    plt.close(plt.gcf())
 
 
 parser = argparse.ArgumentParser(description="""RNA class statistics""")
