@@ -2524,11 +2524,18 @@ if(params.run_star) {
 		    script:
 		    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
 		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
+		    if (params.single_end){
 		    """
 		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
 		    """
+		    } else {
+		    """
+		    $workflow.projectDir/bin/remove_crossmapped_read_paires_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
+		    """
+		    }
 		}
 	}
+
 
 
 	if(params.mapping_statistics) {
@@ -2594,9 +2601,15 @@ if(params.run_star) {
 		   
 		    shell: 
 		    name = sample_name + '_uniquely_mapped.txt'
+		    if (params.single_end){
 		    '''
 		    !{workflow.projectDir}/bin/count_uniquely_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
+		    } else {
+		    '''
+		    !{workflow.projectDir}/bin/count_uniquely_mapped_read_pairs.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    }
 		}
 
 
@@ -2639,9 +2652,15 @@ if(params.run_star) {
                     file "cross_mapped_reads_sum.txt" into STAR_mapping_stats_cross_mapped
 		    
 		    script:
+		    if (params.single_end){
 		    """
 		    $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
 		    """
+		    } else {
+		    """
+		    $workflow.projectDir/bin/count_cross_mapped_read_pairs.sh $cross_mapped_reads
+		    """
+		    }
 		}
 
 
@@ -2666,10 +2685,16 @@ if(params.run_star) {
 		    file("${name}") into STAR_mapping_stats_multi
 
 		    shell: 
+		    if (params.single_end){
 		    name = sample_name + '_multi_mapped.txt'
 		    '''
 		    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
+		    } else {
+		    '''
+		    !{workflow.projectDir}/bin/count_multi_mapped_read_pairs.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    }
 		}
 
 
