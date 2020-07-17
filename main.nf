@@ -2185,14 +2185,14 @@ if (params.run_salmon_alignment_based_mode){
 		    label 'process_high'
 		   
 		    input: 
-		    set val(sample_name), file ("salmon/*") from collect_processed_read_counts_alignment_based
+		    set val(sample_name), file ("salmon_alignment_mode/*") from collect_processed_read_counts_alignment_based
 
 		    output:
 		    file "${sample_name}.txt" into collect_results_alignment_based
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/extract_processed_reads.sh salmon/*/aux_info/meta_info.json $sample_name salmon
+		    $workflow.projectDir/bin/extract_processed_reads.sh salmon_alignment_mode/*/aux_info/meta_info.json $sample_name salmon
 		    """
 		}
 
