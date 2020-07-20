@@ -1183,6 +1183,7 @@ if (!params.skipTrimming & !params.skipFastqc) {
 
 	    output:
 	    file "${sample_name}{_1,_2,}_trimmed_fastqc.{zip,html}" into raw_reads_fastqc_trim
+	    file "*_trimmed_fastqc.{zip,html}" into ch_fastqc_trimmed_results
 
 	    script:
 	    sample_name = name.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
@@ -1344,7 +1345,7 @@ if(params.run_salmon_selective_alignment) {
 	    file("${sample_name}") into salmon_files_to_combine
 	    file("${sample_name}") into multiqc_salmon_quant
 	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts
- 
+
 	    script:
 	UnmappedNames = params.writeUnmappedNames ? "--writeUnmappedNames" : ''
 	softclip = params.softclipOverhangs ? "--softclipOverhangs" : ''
@@ -1892,7 +1893,7 @@ if (params.run_salmon_alignment_based_mode){
 	    file(index) from star_index_transcriptome_alignment.collect()
 
 	    output:
-	    //file "${sample_name}/*" into multiqc_star_alignment
+	    file "${sample_name}/*" into multiqc_star_for_salmon_alignment
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into salmon_quantify_alignment_based_mode
 	    file "${sample_name}/*"
 
@@ -1941,7 +1942,7 @@ if (params.run_salmon_alignment_based_mode){
 	    output:
 	    set val(sample_name), file("${sample_name}") into split_table_alignment_based
 	    file("${sample_name}") into salmon_files_to_combine_alignment_mode
-//	    file("${sample_name}") into multiqc_salmon_quant
+	    file("${sample_name}") into multiqc_salmon_alignment_quant
 	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts_alignment_based
 
 	    script:
@@ -2463,7 +2464,7 @@ if(params.run_star) {
 //	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_m_m
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
-//	    file "${sample_name}/*" into multiqc_star_alignment
+	    file "${sample_name}/*" into multiqc_star_alignment
 	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR
 
 	    script:
@@ -2801,7 +2802,7 @@ if(params.run_htseq_uniquely_mapped){
 	    output:
 //	    file ("$name_file2") into htseq_files_u_m
 	    file ("$name_file2") into htseq_files_to_combine
-//	    file ("$name_file2") into multiqc_htseq_unique
+	    file ("$name_file2") into multiqc_htseq_unique
 
 	    script:
 	    name_file2 = sample_name + "_count_u_m"
@@ -3347,30 +3348,10 @@ if( params.run_htseq_multi_mapped){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
  * STEP 2 - MultiQC
  */
-/*
+
 process multiqc {
     publishDir "${params.outdir}/MultiQC", mode: 'copy'
     storeDir "${params.outdir}/MultiQC"
@@ -3378,8 +3359,13 @@ process multiqc {
     input:
     file (multiqc_config) from ch_multiqc_config
     file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
-    // TODO nf-core: Add in log files from your new processes for MultiQC to find!
     file ('fastqc/*') from ch_fastqc_results.collect().ifEmpty([])
+    file ('fastqc_after_trimming/*') from ch_fastqc_trimmed_results.collect().ifEmpty([])
+    file ('salmon/*') from multiqc_salmon_quant.collect().ifEmpty([])
+    file ('salmon_alignment_mode/*') from multiqc_salmon_alignment_quant.collect().ifEmpty([])
+    file ('STAR/*') from multiqc_star_alignment.collect().ifEmpty([])
+    file ('STAR_for_salmon/*') from multiqc_star_for_salmon_alignment.collect().ifEmpty([])
+    file ('uniquely_mapped/*') from multiqc_htseq_unique.collect().ifEmpty([])
     file ('software_versions/*') from ch_software_versions_yaml.collect()
     file workflow_summary from ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
 
@@ -3397,13 +3383,13 @@ process multiqc {
     multiqc -f $rtitle $rfilename $custom_config_file .
     """
 }
-*/
+
 
 /*
  * STEP 3 - Output Description HTML
  */
 
-/*
+
 process output_documentation {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
@@ -3419,7 +3405,7 @@ process output_documentation {
     """
 }
 
-*/
+
 
 
 
