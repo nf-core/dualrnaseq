@@ -2685,8 +2685,8 @@ if(params.run_star) {
 		    file("${name}") into STAR_mapping_stats_multi
 
 		    shell: 
-		    if (params.single_end){
 		    name = sample_name + '_multi_mapped.txt'
+		    if (params.single_end){
 		    '''
 		    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
 		    '''
