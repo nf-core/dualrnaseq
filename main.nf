@@ -1371,6 +1371,7 @@ if(params.run_salmon_selective_alignment) {
 	    salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
 	    """
 	}
+	}
 
 
 
