@@ -372,7 +372,7 @@ Channel.from(summary.collect{ [it.key, it.value] })
 /*
  * Parse software version numbers
  */
-/*
+
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
         saveAs: { filename ->
@@ -398,7 +398,7 @@ process get_software_versions {
     """
 }
 
-*/
+
 
 /*
  *  create chimeric reference files
@@ -1110,7 +1110,11 @@ if (!params.skipFastqc) {
 	    fastqc --quiet --threads $task.cpus --noextract $reads
 	    """
 	}
+}else{
+   Channel.empty()
+      .set {ch_fastqc_results}
 }
+
 
 /*
  *  STEP 2 - Trimming
@@ -1191,6 +1195,9 @@ if (!params.skipTrimming & !params.skipFastqc) {
 	    fastqc --threads ${task.cpus} --quiet --noextract $reads
 	    """
 	}
+}else{
+   Channel.empty()
+      .set {ch_fastqc_trimmed_results}
 }
 
 
@@ -1351,20 +1358,20 @@ if(params.run_salmon_selective_alignment) {
 	softclip = params.softclipOverhangs ? "--softclipOverhangs" : ''
 	incompatPrior = params.incompatPrior
 	dumpEq = params.dumpEq ? "--dumpEq" : ''
-if (params.single_end){
+	if (params.single_end){
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 	    """
 	    salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
 	    """
-} else{
+	} else{
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 	    """
 	    salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
 	    """
-}
-}
+	}
+
 
 
 	/*
@@ -1844,6 +1851,9 @@ if (params.single_end){
 		}
 
 }
+}else{
+   Channel.empty()
+      .set {multiqc_salmon_quant}
 }
 
 
@@ -1923,6 +1933,7 @@ if (params.run_salmon_alignment_based_mode){
 	    """
 	    }
 	}
+
 
 
 
@@ -2402,6 +2413,9 @@ if (params.run_salmon_alignment_based_mode){
 */
 }
 
+}else{
+   Channel.empty()
+     .set {multiqc_star_for_salmon_alignment}
 }
 
 
@@ -2494,7 +2508,6 @@ if(params.run_star) {
 	    """
 	    }
 	}
-
 
 
 	if(params.run_htseq_multi_mapped | params.mapping_statistics) {
@@ -2768,7 +2781,11 @@ if(params.run_star) {
 
 
 }
+}else{
+   Channel.empty()
+     .set {multiqc_star_alignment}
 }
+
 
 
 
@@ -3182,7 +3199,11 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 }
+}else{
+   Channel.empty()
+     .set {multiqc_htseq_unique}
 }
+
 
 
 
