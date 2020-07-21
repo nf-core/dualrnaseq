@@ -380,19 +380,27 @@ process get_software_versions {
                       else null
                 }
 
+    label 'main_env'
+
     output:
     file 'software_versions_mqc.yaml' into ch_software_versions_yaml
     file "software_versions.csv"
 
     script:
-    // TODO nf-core: Get all tools to print their version number here
 
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
+    python --version > v_python.txt
+    R --version > v_r.txt
     cutadapt --version > v_cutadapt.txt
     fastqc --version > v_fastqc.txt
     multiqc --version > v_multiqc.txt
+    STAR --version > v_star.txt
+    htseq-count . . --version > v_htseq.txt
+    samtools --version > v_samtools.txt
+    gffread --version > v_gffread.txt
+
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
@@ -3377,6 +3385,8 @@ process multiqc {
     publishDir "${params.outdir}/MultiQC", mode: 'copy'
     storeDir "${params.outdir}/MultiQC"
 
+    label 'main_env'
+
     input:
     file (multiqc_config) from ch_multiqc_config
     file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
@@ -3413,6 +3423,8 @@ process multiqc {
 
 process output_documentation {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
+
+    label 'main_env'
 
     input:
     file output_docs from ch_output_docs
