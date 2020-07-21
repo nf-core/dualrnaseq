@@ -385,8 +385,6 @@ process get_software_versions {
     file "software_versions.csv"
 
     script:
-    // TODO nf-core: Get all tools to print their version number here
-
     """
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
