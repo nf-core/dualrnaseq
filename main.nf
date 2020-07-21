@@ -2419,11 +2419,11 @@ if (params.run_salmon_alignment_based_mode){
 		}
 */
 }
-
 }else{
    Channel.empty()
-     .set {multiqc_star_for_salmon_alignment}
+     .into {multiqc_star_for_salmon_alignment; multiqc_salmon_alignment_quant}
 }
+
 
 
 if(params.run_star) {
