@@ -3389,8 +3389,8 @@ process multiqc {
     input:
     file (multiqc_config) from ch_multiqc_config
     file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
-    file ('fastqc/*') from ch_fastqc_results.collect().ifEmpty([])
-    file ('fastqc_after_trimming/*') from ch_fastqc_trimmed_results.collect().ifEmpty([])
+    file ('fastqc/*') from ch_fastqc_results.last().collect().ifEmpty([]) 
+    file ('fastqc_after_trimming/*') from ch_fastqc_trimmed_results.last().collect().ifEmpty([])
     file ('salmon/*') from multiqc_salmon_quant.collect().ifEmpty([])
     file ('salmon_alignment_mode/*') from multiqc_salmon_alignment_quant.collect().ifEmpty([])
     file ('STAR/*') from multiqc_star_alignment.collect().ifEmpty([])
@@ -3401,16 +3401,15 @@ process multiqc {
 
     output:
     file "*multiqc_report.html" into ch_multiqc_report
-    file "*_data"
+    file "multiqc_data"
     file "multiqc_plots"
 
     script:
     rtitle = custom_runName ? "--title \"$custom_runName\"" : ''
     rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
     custom_config_file = params.multiqc_config ? "--config $mqc_custom_config" : ''
-    // TODO nf-core: Specify which MultiQC modules to use with -m for a faster run time
     """
-    multiqc -f $rtitle $rfilename $custom_config_file .
+    multiqc -d --export -f $rtitle $rfilename $custom_config_file . 
     """
 }
 
