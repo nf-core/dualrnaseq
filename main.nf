@@ -152,20 +152,21 @@ if (params.readPaths) {
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; trimming_reads; raw_read_count }
+            .into { ch_read_files_fastqc; trimming_reads; raw_read_count; scatter_plots_set }
     } else {
         Channel
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; trimming_reads; raw_read_count }
+            .into { ch_read_files_fastqc; trimming_reads; raw_read_count;scatter_plots_set }
     }
 } else {
     Channel
         .fromFilePairs(params.reads, size: params.single_end ? 1 : 2)
         .ifEmpty { exit 1, "Cannot find any reads matching: ${params.reads}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --single_end on the command line." }
-        .into { ch_read_files_fastqc; trimming_reads; raw_read_count}
+        .into { ch_read_files_fastqc; trimming_reads; raw_read_count; scatter_plots_set}
 }
+
 
 
 
@@ -293,9 +294,12 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 
 if(params.mapping_statistics) {
+
 Channel
     .value(ch_RNA_classes)
     .into { RNA_classes_to_replace; RNA_classes_to_replace_alignment; RNA_classes_to_replace_htseq_uniquely_mapped}
+
+
 }
 
 
@@ -404,6 +408,41 @@ process get_software_versions {
     """
 }
 
+
+
+
+if(params.mapping_statistics) {
+
+
+	scatter_plots_set
+			.map { tag, file -> tag }
+			.set {scatter_plots}
+
+
+	process check_replicates {
+	    tag "check_replicates"
+
+	    label 'main_env'
+	    label 'process_high'
+
+	    input:
+	    val(sample_name) from scatter_plots.collect()
+
+	    output:
+	    val(!{output}) into repl_scatter_plots_salmon_pathogen
+	    val(!{output}) into repl_scatter_plots_salmon_host
+	    val(!{output}) into repl_scatter_plots_salmon_alignment_host
+	    val(!{output}) into repl_scatter_plots_salmon_alignment_pathogen
+	    val(!{output}) into repl_scatter_plots_htseq_pathogen
+	    val(!{output}) into repl_scatter_plots_htseq_host
+
+	    shell:
+	    '''
+	    output=$(python !{workflow.projectDir}/bin/check_replicates.py -s !{sample_name} 2>&1)
+	    '''
+	}
+
+}
 
 
 /*
@@ -1572,6 +1611,10 @@ if(params.run_salmon_selective_alignment) {
 
 
 
+
+
+
+
 	if(params.mapping_statistics) {
 		/*
 		 * salmon - 'quantification_stats'
@@ -1589,13 +1632,17 @@ if(params.run_salmon_selective_alignment) {
 		    input:
 		    file quant_table from quant_scatter_plot_pathogen
 		    val attribute from atr_scatter_plot_pathogen
+		    val replicates from repl_scatter_plots_salmon_pathogen
 
 		    output:
 		    file ('*.pdf')
 
+		    when:
+		    $replicates==True
+
 		    script:
 		    """
-		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org pathogen
+		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org pathogen 
 		    """
 		}
 
@@ -1612,9 +1659,13 @@ if(params.run_salmon_selective_alignment) {
 		    input:
 		    file quant_table from quant_scatter_plot_host
 		    val attribute from atr_scatter_plot_host
+		    val replicates from repl_scatter_plots_salmon_host
 
 		    output:
 		    file ('*.pdf') 
+
+		    when:
+		    $replicates==True
 
 		    script:
 		    """
@@ -2162,9 +2213,13 @@ if (params.run_salmon_alignment_based_mode){
 		    input:
 		    file quant_table from quant_scatter_plot_pathogen_salmon_alignment_based
 		    val attribute from atr_scatter_plot_pathogen_alignment
+		    val replicates from repl_scatter_plots_salmon_alignment_pathogen
 
 		    output:
 		    file ('*.pdf')
+
+		    when:
+		    $replicates==True
 
 		    script:
 		    """
@@ -2184,9 +2239,13 @@ if (params.run_salmon_alignment_based_mode){
 		    input:
 		    file quant_table from quant_scatter_plot_host_salmon_alignment_based
 		    val attribute from atr_scatter_plot_host_alignment
+		    val replicates from repl_scatter_plots_salmon_alignment_host
 
 		    output:
 		    file ('*.pdf') 
+
+		    when:
+		    $replicates==True
 
 		    script:
 		    """
@@ -2982,7 +3041,7 @@ if(params.run_htseq_uniquely_mapped){
 		process scatter_plot_pathogen_htseq {
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
-		    tag "scatter_plot salmon"
+		    tag "scatter_plot htseq"
 
 		    label 'main_env'
 		    label 'process_high'
@@ -2990,9 +3049,13 @@ if(params.run_htseq_uniquely_mapped){
 		    input:
 		    file quant_table from quant_scatter_plot_pathogen_htseq_u_m
 		    val attribute from atr_scatter_plot_pathogen_htseq_u_m
+		    val replicates from repl_scatter_plots_htseq_pathogen
 
 		    output:
 		    file ('*.pdf')
+
+		    when:
+		    $replicates==True
 
 		    script:
 		    """
@@ -3004,7 +3067,7 @@ if(params.run_htseq_uniquely_mapped){
 	process scatter_plot_host_htseq {
 	    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
 	    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
-		    tag "scatter_plot salmon"
+		    tag "scatter_plot htseq"
 
 		    label 'main_env'
 		    label 'process_high'
@@ -3012,9 +3075,13 @@ if(params.run_htseq_uniquely_mapped){
 		    input:
 		    file quant_table from quant_scatter_plot_host_htseq_u_m
 		    val attribute from atr_scatter_plot_host_htseq_u_m
+		    val replicates from repl_scatter_plots_htseq_host
 
 		    output:
 		    file ('*.pdf') 
+
+		    when:
+		    $replicates==True
 
 		    script:
 		    """
