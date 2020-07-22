@@ -13,7 +13,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import seaborn as sns
 import itertools
 from scipy import stats
@@ -77,7 +76,9 @@ lim_plot = math.ceil(max_TPM) + 0.5
 
 
 #remove x_TPM
-columns_conditions = [column[:-6] for column in TMP_column]
+columns_conditions_no_TPM = [column[:-4] for column in TMP_column]
+#get list of sample names - without RX_TPM - conditions
+columns_conditions = [name.rsplit('_', 1)[0] for name in columns_conditions_no_TPM]
 
 
 #find position of replicates
@@ -92,15 +93,15 @@ for i in range(0,len(columns_conditions)):
 
 #list of replicates - positions
 condition_list = [patterns[condition] for condition in patterns.keys()]
-
 for cond in condition_list:
-    sample_cond = [TMP_column[c] for c in cond]
-    TPMs = quantification_table[sample_cond]
-    combinations = list(itertools.combinations(TPMs, 2))
-    for com in combinations: 
-         TPMs = pd.concat([quantification_table[com[0]], quantification_table[com[1]]], axis=1)
-         TPMs.columns = ['rep1','rep2']
-         TPM_plus1 = TPMs + 1 # to deal with 0 values
-         TPM_log = TPM_plus1.apply(np.log10, axis=1)
-         #plot 
-         scatter_plot(TPM_log,TPMs, com[0],com[1],lim_plot, args.organism)
+    if len(cond) > 1:
+        sample_cond = [TMP_column[c] for c in cond]
+        TPMs = quantification_table[sample_cond]
+        combinations = list(itertools.combinations(TPMs, 2))
+        for com in combinations: 
+              TPMs = pd.concat([quantification_table[com[0]], quantification_table[com[1]]], axis=1)
+              TPMs.columns = ['rep1','rep2']
+              TPM_plus1 = TPMs + 1 # to deal with 0 values
+              TPM_log = TPM_plus1.apply(np.log10, axis=1)
+              #plot 
+              scatter_plot(TPM_log,TPMs, com[0],com[1],lim_plot, args.organism)
