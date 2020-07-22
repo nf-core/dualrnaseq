@@ -680,7 +680,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 
 
-if(params.run_star) {
+if(params.run_star | params.run_salmon_alignment_based_mode) {
 
 	if(params.mapping_statistics | params.run_htseq_multi_mapped) {
 		/*
@@ -901,6 +901,7 @@ if(params.run_salmon_alignment_based_mode){
 }
 
 
+
 /*
 * SALMON - extract gff annotations and create chimeric transcriptome 
 */
@@ -991,6 +992,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    file "${outfile_name}" into transcriptome_host_to_split_q_table_salmon_without_tRNA
 		    file "${outfile_name}" into transcriptome_host_to_split_q_table_salmon_alignment_based_without_tRNA
 		    file "${outfile_name}" into host_transcriptome_to_combine_host
+		    file "${outfile_name}" into transcriptome_fasta_host_ref_names_without_tRNA
 
 		    script:
 		    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_transcriptome.fasta")
@@ -1039,6 +1041,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
                             file "host_transcriptome.fasta" into transcriptome_host_to_split_table_salmon_alignment_with_tRNA
                             file "host_transcriptome.fasta" into transcriptome_host_to_split_q_table_salmon_with_tRNA
                             file "host_transcriptome.fasta" into transcriptome_host_to_split_q_table_salmon_alignment_based_with_tRNA
+                            file "host_transcriptome.fasta" into transcriptome_fasta_host_ref_names_with_tRNA
 
  			    script:
 			    """
@@ -1056,7 +1059,9 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	transcriptome_host_to_split_q_table_salmon_alignment_based = params.gff_host_tRNA ? transcriptome_host_to_split_q_table_salmon_alignment_based_with_tRNA : transcriptome_host_to_split_q_table_salmon_alignment_based_without_tRNA
 
 	transcriptome_host_to_split_table_salmon_alignment = params.gff_host_tRNA ? transcriptome_host_to_split_table_salmon_alignment_with_tRNA : transcriptome_host_to_split_table_salmon_alignment_without_tRNA
-	}
+	transcriptome_fasta_host_ref_names = params.gff_host_tRNA ? transcriptome_fasta_host_ref_names_with_tRNA : transcriptome_fasta_host_ref_names_without_tRNA
+
+}
 
 
 
@@ -1086,6 +1091,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    file "${outfile_name}" into transcriptome_pathogen_to_split_table_salmon_alignment
 		    file "${outfile_name}" into transcriptome_pathogen_to_split_q_table_salmon
 		    file "${outfile_name}" into transcriptome_pathogen_to_split_q_table_salmon_alignment_based
+		    file "${outfile_name}" into transcriptome_fasta_pathogen_ref_names
 
 		    script:
 		    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_transcriptome.fasta")
@@ -1126,6 +1132,58 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 }
 
+if(params.run_salmon_alignment_based_mode) {
+
+	if(params.mapping_statistics ) {
+		/*
+		* extract reference names from transcriptome fasta files - mapping stats
+		*/
+
+		process extract_reference_names_host_star_for_salmon {
+		    publishDir "${params.outdir}/references", mode: 'copy' 
+		    storeDir "${params.outdir}/references"
+		    tag "extract_reference_names_host_star_for_salmon"
+
+		    label 'process_high'
+
+		    input:
+		    file(host_tr_fa) from transcriptome_fasta_host_ref_names
+
+		    output:
+		    file "reference_transcriptome_host_names.txt" into reference_host_names_uniquelymapped_star_for_salmon 
+		    file "reference_transcriptome_host_names.txt" into reference_host_names_crossmapped_find_for_salmon
+		    file "reference_transcriptome_host_names.txt" into reference_host_names_multimapped_for_salmon
+
+		    shell:
+		    '''
+		    grep ">" !{host_tr_fa} | awk -F ">" '{ print $2 }' > reference_transcriptome_host_names.txt
+		    '''
+		}
+
+
+		process extract_reference_names_pathogen_star_for_salmon {
+		    publishDir "${params.outdir}/references", mode: 'copy' 
+		    storeDir "${params.outdir}/references"
+		    tag "extract_reference_names_pathogen_star_for_salmon"
+
+		    label 'process_high'
+
+		    input:
+		    file(pathogen_tr_fa) from transcriptome_fasta_pathogen_ref_names
+
+		    output:
+		    file "reference_transcriptome_pathogen_names.txt" into reference_pathogen_names_uniquelymapped_star_for_salmon
+		    file "reference_transcriptome_pathogen_names.txt" into reference_pathogen_crossmapped_find_for_salmon
+		    file "reference_transcriptome_pathogen_names.txt" into reference_pathogen_names_multimapped_for_salmon
+
+		    shell:
+		    '''
+		    grep ">" !{pathogen_tr_fa} | awk -F ">" '{ print $2 }' > reference_transcriptome_pathogen_names.txt
+		    '''
+		}
+	}
+
+}
 
 
 
@@ -1273,7 +1331,7 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
 //	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_star
-
+	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_star_for_salmon
 
 	    script:
 	    """
@@ -1310,7 +1368,7 @@ if(params.mapping_statistics & !params.skipTrimming) {
 
 }else{
    Channel.empty()
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_htseq_uniquely_mapped}
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon; collect_total_reads_raw_htseq_uniquely_mapped}
 }
 
 
@@ -1964,6 +2022,9 @@ if (params.run_salmon_alignment_based_mode){
 	    file "${sample_name}/*" into multiqc_star_for_salmon_alignment
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into salmon_quantify_alignment_based_mode
 	    file "${sample_name}/*"
+	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR_for_salmon
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into alignment_unique_mapping_stats_for_salmon
+	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into alignment_crossmapped_extract_for_salmon
 
 	    script:
 	outSAMunmapped = params.outSAMunmapped
@@ -1992,6 +2053,46 @@ if (params.run_salmon_alignment_based_mode){
 	    }
 	}
 
+
+
+	if(params.mapping_statistics) {
+
+		/*
+		 * remove_cross_mapped_reads
+		 */
+
+		process remove_crossmapped_reads_STAR_for_salmon {
+		    tag "$sample_name"
+		    publishDir "${params.outdir}/STAR_for_salmon/multimapped_reads_transcriptome", mode: 'copy'
+		    storeDir "${params.outdir}/STAR_for_salmon/multimapped_reads_transcriptome"
+
+                    label 'main_env'
+                    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(alignment) from alignment_crossmapped_extract_for_salmon
+		    file(host_reference) from reference_host_names_crossmapped_find_for_salmon.collect()
+		    file(pathogen_reference) from reference_pathogen_crossmapped_find_for_salmon.collect()
+
+
+		    output:
+		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats_for_salmon
+		    file "${cross_mapped_reads}" into count_crossmapped_reads_for_salmon
+
+		    script:
+		    bam_file_without_crossmapped = sample_name + "_no_crossmapped_transcriptome.bam"
+		    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
+		    if (params.single_end){
+		    """
+		    $workflow.projectDir/bin/remove_crossmapped_reads_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
+		    """
+		    } else {
+		    """
+		    $workflow.projectDir/bin/remove_crossmapped_read_paires_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
+		    """
+		    }
+		}
+	}
 
 
 
@@ -2198,6 +2299,232 @@ if (params.run_salmon_alignment_based_mode){
 
 
 	if(params.mapping_statistics) {
+
+		process extract_processed_reads_STAR_for_salmon {
+			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads"
+			    tag "extract_processed_reads_STAR"
+
+			    label 'main_env'
+	   		    label 'process_high'
+			   
+			    input: 
+			    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR_for_salmon
+
+			    output:
+			    file "${sample_name}.txt" into collect_results_star_for_salmon
+
+			    script:
+			    """
+			    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
+			    """
+			}
+
+
+		process collect_processed_reads_STAR_for_salmon {
+			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+			    tag "collect_processed_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file process_reads from collect_results_star_for_salmon.collect()
+
+			    output:
+			    file "processed_reads_star.csv" into mapping_stats_total_processed_reads_alignment_for_salmon
+
+			    script:
+			    """
+			    cat $process_reads > processed_reads_star.csv
+			    """
+			}
+
+
+		process unique_mapping_stats_STAR_for_salmon {
+		    tag "$sample_name"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon/uniquely_mapped"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    set val(sample_name), file(alignment) from alignment_unique_mapping_stats_for_salmon
+		    file(host_reference_names) from reference_host_names_uniquelymapped_star_for_salmon.collect()
+		    file(pathogen_reference_names) from reference_pathogen_names_uniquelymapped_star_for_salmon.collect()
+
+		    output:
+		    file("${name}") into STAR_for_salmon_mapping_stats_unique
+		   
+		    shell: 
+		    name = sample_name + '_uniquely_mapped.txt'
+		    if (params.single_end){
+		    '''
+		    !{workflow.projectDir}/bin/count_uniquely_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    } else {
+		    '''
+		    !{workflow.projectDir}/bin/count_uniquely_mapped_read_pairs.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    }
+		}
+
+
+		process collect_stats_STAR_for_salmon_uniquely_mapped {
+			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+			    tag "collect_uniquely_mapped_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file stats from STAR_for_salmon_mapping_stats_unique.collect()
+
+			    output:
+			    file "uniquely_mapped_reads_star.csv" into mapping_stats_uniquely_mapped_star_for_salmon
+
+			    script:
+			    """
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
+			    """
+			}
+
+
+		/*
+		 * count_cross_mapped_reads 
+		*/
+
+		process count_crossmapped_reads_STAR_for_salmon {
+		    tag "count_crossmapped_reads"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+
+		    label 'process_high'
+
+		    input:
+		    file(cross_mapped_reads) from count_crossmapped_reads_for_salmon.collect()
+
+		    output:
+                    file "cross_mapped_reads_sum.txt" into STAR_mapping_stats_cross_mapped_for_salmon
+		    
+		    script:
+		    if (params.single_end){
+		    """
+		    $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
+		    """
+		    } else {
+		    """
+		    $workflow.projectDir/bin/count_cross_mapped_read_pairs.sh $cross_mapped_reads
+		    """
+		    }
+		}
+
+
+		/*
+		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
+		 */
+
+		process multi_mapping_stats_for_salmon {
+		    tag "$sample_name"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/multi_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon/multi_mapped"
+
+                    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    set val(sample_name),file(alignment) from alignment_multi_mapping_stats_for_salmon
+		    file(host_reference_names) from reference_host_names_multimapped_for_salmon.collect()
+		    file(pathogen_reference_names) from reference_pathogen_names_multimapped_for_salmon.collect()
+
+		    output:
+		    file("${name}") into STAR_mapping_stats_multi_for_salmon
+
+		    shell: 
+		    name = sample_name + '_multi_mapped.txt'
+		    if (params.single_end){
+		    '''
+		    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    } else {
+		    '''
+		    !{workflow.projectDir}/bin/count_multi_mapped_read_pairs.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+		    '''
+		    }
+		}
+
+
+		process collect_stats_STAR_for_salmon_multi_mapped {
+			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+			    tag "collect_multi_mapped_reads_STAR"
+
+			    label 'main_env'
+			    label 'process_high' 
+			    
+			    input: 
+			    file stats from STAR_mapping_stats_multi_for_salmon.collect()
+
+			    output:
+			    file "multi_mapped_reads_star.csv" into mapping_stats_multi_mapped_star_for_salmon
+
+			    script:
+			    """
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped_reads
+			    """
+			}
+
+
+		process star_mapping_stats_for_salmon {
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+		    tag "star_mapping_stats"
+
+		    label 'main_env'
+		    label 'process_high' 
+
+		    input:
+		    file total_raw_reads from collect_total_reads_raw_star_for_salmon.ifEmpty('.')
+		    file total_processed_reads from mapping_stats_total_processed_reads_alignment_for_salmon
+		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star_for_salmon
+		    file multi_mapped_reads from mapping_stats_multi_mapped_star_for_salmon
+		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped_for_salmon
+
+		    output:
+		    file ('star_mapping_stats.csv') into star_mapped_stats_to_plot_for_salmon
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.csv
+		    """
+		}
+
+
+		process plot_star_for_salmon_mapping_stats {
+		    tag "plot_star_mapping_stats"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+
+		    input:
+		    file(stats) from star_mapped_stats_to_plot_for_salmon
+
+		    output:
+		    file "mapping_stats_*"
+
+		    script:
+		    """
+		    python $workflow.projectDir/bin/plot_mapping_stats_star.py -i $stats
+		    """
+		}
+
+
+
 		/*
 		 * salmon - alignment-based 'quantification_stats'
 		 */
@@ -2274,7 +2601,7 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
-/*
+
 	process collect_processed_reads_salmon_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
@@ -2476,7 +2803,6 @@ if (params.run_salmon_alignment_based_mode){
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-*/
 }
 }else{
    Channel.empty()
