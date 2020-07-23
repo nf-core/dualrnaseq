@@ -1350,11 +1350,11 @@ if (!params.single_end){
 	    file(txt) from to_collect_total_reads.collect()
 
 	    output:
-	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
-	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
-//	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
-	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_star
-	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_star_for_salmon
+	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_salmon
+	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_salmon_alignment
+//	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_htseq_uniquely_mapped
+	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_star
+	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_star_for_salmon
 
 	    script:
 	    """

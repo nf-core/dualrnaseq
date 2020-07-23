@@ -29,4 +29,4 @@ df_stats.index = sample_names
 df_stats = df_stats.reset_index().drop_duplicates(subset='index', keep='last').set_index('index')
 
 
-df_stats.to_csv("total_raw_reads_fastq.csv", sep='\t',header=False)
+df_stats.to_csv("total_raw_reads_fastq2.csv", sep='\t',header=False)
