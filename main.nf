@@ -1326,6 +1326,30 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    file(fastq) from raw_read_count_file.collect()
 
 	    output:
+	    file "total_raw_reads_fastq.csv" into to_collect_total_reads
+
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.csv
+	    """
+	}
+
+
+
+if (!params.single_end){
+
+	process count_total_reads_collect {
+	    tag "count_total_reads"
+	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
+	    storeDir "${params.outdir}/mapping_statistics"
+
+	    label 'process_high'
+
+	    input:
+	    file(txt) from to_collect_total_reads.collect()
+
+	    output:
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon
 	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_salmon_alignment
 //	    file "total_raw_reads_fastq.csv" into collect_total_reads_raw_htseq_uniquely_mapped
@@ -1334,9 +1358,16 @@ if(params.mapping_statistics & !params.skipTrimming) {
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.csv
+	    $workflow.projectDir/bin/collect_total_raw_pair_reads.py -i $txt
 	    """
 	}
+}else{
+   to_collect_total_reads
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_htseq_uniquely_mapped; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
+}
+
+
+
 
 
 	/*
