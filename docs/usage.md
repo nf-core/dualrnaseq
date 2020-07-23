@@ -2,15 +2,15 @@
 
 ## Table of contents
 
-* [Introduction](#introduction)
-* [Running the pipeline](#running-the-pipeline)
+* [1. Introduction](#introduction)
+* [2. Running the pipeline](#running-the-pipeline)
   * [Updating the pipeline](#updating-the-pipeline)
   * [Reproducibility](#reproducibility)
-* [Main arguments](#main-arguments)
+* [3. Main arguments](#main-arguments)
   * [`-profile`](#-profile)
   * [`--reads`](#--reads)
   * [`--single_end`](#--single_end)
-* [Reference genomes](#reference-genomes)
+* [4. Reference genomes](#reference-genomes)
   * [`--genome_host` (using iGenomes)](#--genome_host-using-igenomes)
   * [`--genome_pathogen` (using iGenomes)](#--genome_pathogen-using-igenomes)
   * [`--fasta_host`](#--fasta_host)
@@ -23,14 +23,14 @@
   * [`--transcriptome_host`](#--transcriptome_host)
   * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
   * [`--igenomes_ignore`](#--igenomes_ignore)
-* [Fastqc](#Fastqc)
+* [5. Fastqc](#Fastqc)
     * [`-skipFastqc`](#--skipFastqc)
-* [Adapter trimming](#Adapter-trimming)
+* [6. Adapter trimming](#Adapter-trimming)
     * [`--a`](#--a)
     * [`--A`](#--A)
     * [`--quality-cutoff`](#--quality-cutoff)
     * [`--skipTrimming`](#--skipTrimming)
-* [Read mapping and quantification](#Read-mapping-and-quantification)
+* [7. Read mapping and quantification](#Read-mapping-and-quantification)
   * [Salmon - Selective-Alignment](#Salmon---Selective-Alignment)
     * [`--run_salmon_selective_alignment`](#--run_salmon_selective_alignment)
     * [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host)
@@ -64,15 +64,15 @@
   * [Salmon - quantification in alignment-based mode](#Salmon---quantification-in-alignment-based-mode)
     * [`--run_salmon_alignment_based_mode`](#--run_salmon_alignment_based_mode)
     * [`--quantTranscriptomeBan`](#--quantTranscriptomeBan)
-* [Maping statistics](#Maping-statistics)
-* [Job resources](#job-resources)
+* [8. Maping statistics](#Maping-statistics)
+* [9. Job resources](#job-resources)
   * [Automatic resubmission](#automatic-resubmission)
   * [Custom resource requests](#custom-resource-requests)
-* [AWS Batch specific parameters](#aws-batch-specific-parameters)
+* [10. AWS Batch specific parameters](#aws-batch-specific-parameters)
   * [`--awsqueue`](#--awsqueue)
   * [`--awsregion`](#--awsregion)
   * [`--awscli`](#--awscli)
-* [Other command line parameters](#other-command-line-parameters)
+* [11. Other command line parameters](#other-command-line-parameters)
   * [`--outdir`](#--outdir)
   * [`--email`](#--email)
   * [`--email_on_fail`](#--email_on_fail)
@@ -90,7 +90,7 @@
   * [`--multiqc_config`](#--multiqc_config)
 
 
-## Introduction
+## 1. Introduction
 
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus the Nextflow process must run until the pipeline is finished. We recommend that you put the process running in the background through `screen` / `tmux` or similar tool. Alternatively you can run nextflow within a cluster job submitted your job scheduler.
 
@@ -102,7 +102,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 <!-- TODO nf-core: Document required command line parameters to run the pipeline-->
 
-## Running the pipeline
+## 2. Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
@@ -141,7 +141,7 @@ First, go to the [nf-core/dualrnaseq releases page](https://github.com/nf-core/d
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
-## Main arguments
+## 3. Main arguments
 
 ### `-profile`
 
@@ -200,7 +200,7 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
-## Reference genomes
+## 4. Reference genomes
 The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gene expression. Thus, the pipeline requires to provide references for each of the organisms ([genome_host](#--genome_host-(using-iGenomes)) and [genome_pathogen](#--genome_pathogen-(using-iGenomes))).
 
 The pipeline config files come bundled with paths to the illumina iGenomes reference index files. If running with docker or AWS, the configuration is set up to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
@@ -347,7 +347,7 @@ the pipeline reads the transcriptome from the file.
 Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.
 
 
-## Fastqc
+## 5. Fastqc
 
 ### `--skipFastqc`
 If you don't want to run Fastqc, please specify the following flag:
@@ -358,7 +358,7 @@ If you don't want to run Fastqc, please specify the following flag:
 or set the parameter to true in your config file. 
 
 
-## Adapter trimming
+## 6. Adapter trimming
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
 To learn more on cutadapt and its parameters check the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
 
@@ -393,7 +393,7 @@ If you don't want to trim your reads, please specify the following flag:
 ```
 or set the parameter to true in your config file. 
 
-# Read mapping and quantification
+## 7. Read mapping and quantification
 
 The nf-core/dualrnaseq provides several strategies to map and quantify your Dual RNA-seq data. The first approach involves [`Salmon with Selective alignment`](#Salmon---Selective-Alignment) which performs mapping using Selective alignment algorith and quantifies the reads. The second strategy utilizes alignment-based mapping executed with [`STAR`](#STAR---alignment-based-genome-mapping). To count aligned reads, the pipeline uses HTSeq in two modes, counting of [`uniquely-mapped reads`](#HTSeq---counting-of-uniquely-mapped-reads) and [`multi-mapped reads`](#HTSeq---counting-of-multi-mapped-reads). The last approach involves [`Salmon with alignment-based mode`](#Salmon---quantification-in-alignment-based-mode). 
 
@@ -693,7 +693,7 @@ The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignment
 --quantTranscriptomeBan Singleend
 ```
 
-## Maping statistics
+## 8. Maping statistics
 ### `--mapping_statistics`  
 def. true
 
@@ -707,7 +707,7 @@ combined, each sample
 
 
 
-## Job resources
+## 9. Job resources
 
 ### Automatic resubmission
 
@@ -721,7 +721,7 @@ If you are likely to be running `nf-core` pipelines regularly it may be a good i
 
 If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack).
 
-## AWS Batch specific parameters
+## 10. AWS Batch specific parameters
 
 Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
 
@@ -739,7 +739,7 @@ The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installa
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
 
-## Other command line parameters
+## 11. Other command line parameters
 
 <!-- TODO nf-core: Describe any other command line flags here -->
 
