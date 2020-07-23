@@ -1132,12 +1132,10 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 }
 
+/*
 if(params.run_salmon_alignment_based_mode) {
 
 	if(params.mapping_statistics ) {
-		/*
-		* extract reference names from transcriptome fasta files - mapping stats
-		*/
 
 		process extract_reference_names_host_star_for_salmon {
 		    publishDir "${params.outdir}/references", mode: 'copy' 
@@ -1185,6 +1183,7 @@ if(params.run_salmon_alignment_based_mode) {
 
 }
 
+*/
 
 
 /*
@@ -2055,12 +2054,9 @@ if (params.run_salmon_alignment_based_mode){
 
 
 
+
+/*
 	if(params.mapping_statistics) {
-
-		/*
-		 * remove_cross_mapped_reads
-		 */
-
 		process remove_crossmapped_reads_STAR_for_salmon {
 		    tag "$sample_name"
 		    publishDir "${params.outdir}/STAR_for_salmon/multimapped_reads_transcriptome", mode: 'copy'
@@ -2094,7 +2090,7 @@ if (params.run_salmon_alignment_based_mode){
 		}
 	}
 
-
+*/
 
 	process salmon_quantification_alignment_based_mode {
 	 //   publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
@@ -2341,7 +2337,7 @@ if (params.run_salmon_alignment_based_mode){
 			    """
 			}
 
-
+/*
 		process unique_mapping_stats_STAR_for_salmon {
 		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/uniquely_mapped", mode: 'copy'
@@ -2393,9 +2389,6 @@ if (params.run_salmon_alignment_based_mode){
 			}
 
 
-		/*
-		 * count_cross_mapped_reads 
-		*/
 
 		process count_crossmapped_reads_STAR_for_salmon {
 		    tag "count_crossmapped_reads"
@@ -2421,11 +2414,6 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		    }
 		}
-
-
-		/*
-		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
-		 */
 
 		process multi_mapping_stats_for_salmon {
 		    tag "$sample_name"
@@ -2488,7 +2476,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file total_raw_reads from collect_total_reads_raw_star_for_salmon.ifEmpty('.')
-		    file total_processed_reads from mapping_stats_total_processed_reads_alignment_for_salmon
+		    file total_processed_reads from mapping_stats_total_processed_reads_alignment_for_salmon2
 		    file uniquely_mapped_reads from mapping_stats_uniquely_mapped_star_for_salmon
 		    file multi_mapped_reads from mapping_stats_multi_mapped_star_for_salmon
 		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped_for_salmon
@@ -2523,7 +2511,7 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
-
+*/
 
 		/*
 		 * salmon - alignment-based 'quantification_stats'
@@ -2597,7 +2585,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/extract_processed_reads.sh salmon_alignment_mode/*/aux_info/meta_info.json $sample_name salmon
+		    $workflow.projectDir/bin/extract_processed_reads.sh salmon_alignment_mode/*/aux_info/meta_info.json $sample_name salmon_alignment
 		    """
 		}
 
@@ -2614,10 +2602,10 @@ if (params.run_salmon_alignment_based_mode){
 		    file process_reads from collect_results_alignment_based.collect()
 
 		    output:
-		    file "processed_reads_salmon.csv" into mapping_stats_total_reads_alignment
+		    file "processed_reads_salmon_alignment.csv" into mapping_stats_total_reads_alignment
 		    script:
 		    """
-		    cat $process_reads > processed_reads_salmon.csv
+		    cat $process_reads > processed_reads_salmon_alignment.csv
 		    """
 		}
 
@@ -2636,14 +2624,17 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table_pathogen from pathogen_quantification_mapping_stats_salmon_alignment_based
 		    val attribute from attribute_quant_stats_salmon_alignment
 		    file total_processed_reads from mapping_stats_total_reads_alignment
+		    file total_processed_reads_star from mapping_stats_total_processed_reads_alignment_for_salmon
 		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty('.')
 
+
+
 		    output:
-		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
+		    file ('salmon_alignment_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute --star_processed $total_processed_reads_star -t salmon_alignment -o salmon_alignment_host_pathogen_total_reads.csv
 		    """
 		}
 
@@ -2664,7 +2655,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
+		    python $workflow.projectDir/bin/plot_mapping_statistics_salmon_alignment.py -i $stats
 		    """
 		}
 
