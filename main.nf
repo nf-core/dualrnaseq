@@ -205,16 +205,16 @@ Channel
 if(params.read_transcriptome_fasta_host_from_file){
 Channel
     .value(ch_transcriptome_host)
-    .set {host_transcriptome_to_combine}
+    .into {host_transcriptome_to_combine; transcriptome_host_to_split_q_table_salmon; transcriptome_host_to_split_table_salmon; transcriptome_host_to_split_q_table_salmon_alignment_based; transcriptome_host_to_split_table_salmon_alignment; transcriptome_fasta_host_ref_names}
 }
+
 
 
 if(params.read_transcriptome_fasta_pathogen_from_file){
 Channel
     .value(ch_transcriptome_pathogen)
-    .set {pathogen_transcriptome_to_combine}
+    .into {pathogen_transcriptome_to_combine; transcriptome_pathogen_to_split_table_salmon; transcriptome_pathogen_to_split_table_salmon_alignment; transcriptome_pathogen_to_split_q_table_salmon; transcriptome_pathogen_to_split_q_table_salmon_alignment_based;transcriptome_fasta_pathogen_ref_names}
 }
-
 
 
 if (!params.skipTrimming){
