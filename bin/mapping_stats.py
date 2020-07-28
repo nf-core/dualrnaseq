@@ -92,16 +92,16 @@ elif  args.tool == 'salmon_alignment':
     new_index1 = [sample.split('_NumReads')[0] for sample in combined_total_assigned_reads.index]
     combined_total_assigned_reads.index = new_index1
     combined_total_assigned_reads['total_assigned_reads'] = combined_total_assigned_reads.sum(axis=1)
-
-
+    #mapped reads - extracted from salmon log file
+    combined_total_mapped_reads = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['total_mapped_reads'])
+    print(combined_total_mapped_reads)
+    #read total number of processed reads 
+    processed_reads_star = pd.read_csv(args.star_processed,sep="\t",index_col=0, names=['processed_reads'])
     if args.total_no_raw_reads.endswith('.csv'):
           #read total number of raw reads
           total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
-          #mapped reads - extracted from salmon log file
-          combined_total_mapped_reads = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['total_mapped_reads'])
 
-          #read total number of processed reads 
-          processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
+
           results_df = pd.concat([processed_reads_star, total_reads, combined_total_assigned_reads, combined_total_mapped_reads], axis=1) 
        #   unmapped reads
           results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
@@ -109,8 +109,6 @@ elif  args.tool == 'salmon_alignment':
           results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads'] 
  
     else:
-          #read total number of processed reads 
-          processed_reads_star = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
           results_df = pd.concat([processed_reads_star, combined_total_assigned_reads,  combined_total_mapped_reads], axis=1)
           results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
           results_df['unassigned_reads'] = results_df['total_mapped_reads'] - results_df['total_assigned_reads']
