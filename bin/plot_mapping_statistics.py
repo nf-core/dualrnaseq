@@ -15,7 +15,7 @@ import numpy as np
 
 def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage):
     my_cmap2= matplotlib.cm.get_cmap('tab20')
-    color = [my_cmap2.colors[1], my_cmap2.colors[0],my_cmap2.colors[17],my_cmap2.colors[14]] 
+    color = [my_cmap2.colors[1], my_cmap2.colors[0],my_cmap2.colors[15],my_cmap2.colors[14]] 
     df_comb = df_comb.loc[reversed(df_comb.index)]
    # plt.yticks(yint)
     fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples * 2 + 3),legend=True,color = color, width = 0.8, fontsize=40)
@@ -53,19 +53,19 @@ if 'trimmed_reads' in df_stats.columns:
     ##percentage
     pathogen_percent = (df_stats['pathogen']/df_stats['total_raw_reads']) * 100
     host_percent = (df_stats['host']/df_stats['total_raw_reads']) * 100
-    unmapped_percent = (df_stats['unassigned_reads']/df_stats['total_raw_reads']) * 100
+    unmapped_percent = (df_stats['unmapped_reads']/df_stats['total_raw_reads']) * 100
 
     trimmed_percent = (df_stats['trimmed_reads']/df_stats['total_raw_reads']) * 100
     df_comb = pd.concat([host_percent,pathogen_percent,unmapped_percent, trimmed_percent], axis=1)
-    df_comb.columns = ['host','pathogen','unassigned reads','trimmed reads']
+    df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
 else:
     ##percentage
     pathogen_percent = (df_stats['pathogen']/df_stats['processed_reads']) * 100
     host_percent = (df_stats['host']/df_stats['processed_reads']) * 100
-    unmapped_percent = (df_stats['unassigned_reads']/df_stats['processed_reads']) * 100
+    unmapped_percent = (df_stats['unmapped_reads']/df_stats['processed_reads']) * 100
 
     df_comb = pd.concat([host_percent,pathogen_percent,unmapped_percent], axis=1)
-    df_comb.columns = ['host','pathogen','unassigned reads']
+    df_comb.columns = ['host','pathogen','unmapped reads']
 
 
 
@@ -74,8 +74,8 @@ plot_mapping_stats(df_comb,no_samples,'samples_percentage','[ % ]',np.arange(0, 
     
 ##total
 if 'trimmed_reads' in df_stats.columns:
-    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unassigned_reads'], df_stats['trimmed_reads']], axis=1)
-    df_comb.columns = ['host','pathogen','unassigned reads','trimmed reads']
+    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unmapped_reads'], df_stats['trimmed_reads']], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads','trimmed reads']
     no_samples = df_stats.shape[0]
     
     step = int(df_stats['total_raw_reads'].max()/50)
@@ -84,8 +84,8 @@ if 'trimmed_reads' in df_stats.columns:
 
     
 else:
-    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unassigned_reads']], axis=1)
-    df_comb.columns = ['host','pathogen','unassigned reads']
+    df_comb = pd.concat([df_stats['host'],df_stats['pathogen'],df_stats['unmapped_reads']], axis=1)
+    df_comb.columns = ['host','pathogen','unmapped reads']
     no_samples = df_stats.shape[0]
     
     step = int(df_stats['processed_reads'].max()/50)

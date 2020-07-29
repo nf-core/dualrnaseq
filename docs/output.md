@@ -1,13 +1,24 @@
 # nf-core/dualrnaseq: Output
 
+
+**Still to be completed**
+
+Things to add:
+ * Directory structure of expected files - based on run type
+ * Quantification and count files 
+ * Output from Nextflow - ie trace report, DAG
+ * Mapping statistics and associated plots
+ * Embed some example images
+<br><br>
+
+
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
 <!-- TODO nf-core: Write this documentation describing your workflow's output -->
 
 ## Pipeline overview
 
-The pipeline is built using [Nextflow](https://www.nextflow.io/)
-and processes data using the following steps:
+The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 * [FastQC](#fastqc) - read quality control
 * [cutadapt](#cutadapt) - adapter trimming
