@@ -61,7 +61,7 @@ if args.tool == 'salmon':
     combined_total_mapped_reads = pd.concat([pathogen_total_counts, host_total_counts], axis=1)
     new_index1 = [sample.split('_NumReads')[0] for sample in combined_total_mapped_reads.index]
     combined_total_mapped_reads.index = new_index1
-    combined_total_mapped_reads['total_assigned_reads'] = combined_total_mapped_reads.sum(axis=1)
+    combined_total_mapped_reads['total_mapped_reads'] = combined_total_mapped_reads.sum(axis=1)
     
 
     if args.total_no_raw_reads.endswith('.csv'):
@@ -71,17 +71,17 @@ if args.tool == 'salmon':
        processed_reads_salmon = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
        results_df = pd.concat([combined_total_mapped_reads, processed_reads_salmon, total_reads], axis=1) 
        #unmapped reads
-       results_df['unassigned_reads'] = results_df['processed_reads'] - results_df['total_assigned_reads']
+       results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
        results_df['trimmed_reads'] = results_df['total_raw_reads'] - results_df['processed_reads'] 
     else:
        #read total number of processed reads 
        processed_reads_salmon = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['processed_reads'])
        results_df = pd.concat([combined_total_mapped_reads, processed_reads_salmon], axis=1)
-       results_df['unassigned_reads'] = results_df['processed_reads'] - results_df['total_assigned_reads']
+       results_df['unmapped_reads'] = results_df['processed_reads'] - results_df['total_mapped_reads']
 
 
     results_df2 = results_df.sort_index()
-    results_df.to_csv(args.output_dir, sep='\t')
+    results_df2.to_csv(args.output_dir, sep='\t')
     
     
 elif  args.tool == 'salmon_alignment':
@@ -94,7 +94,6 @@ elif  args.tool == 'salmon_alignment':
     combined_total_assigned_reads['total_assigned_reads'] = combined_total_assigned_reads.sum(axis=1)
     #mapped reads - extracted from salmon log file
     combined_total_mapped_reads = pd.read_csv(args.total_no_processed_reads,sep="\t",index_col=0, names=['total_mapped_reads'])
-    print(combined_total_mapped_reads)
     #read total number of processed reads 
     processed_reads_star = pd.read_csv(args.star_processed,sep="\t",index_col=0, names=['processed_reads'])
     if args.total_no_raw_reads.endswith('.csv'):
@@ -114,7 +113,7 @@ elif  args.tool == 'salmon_alignment':
           results_df['unassigned_reads'] = results_df['total_mapped_reads'] - results_df['total_assigned_reads']
 
     results_df2 = results_df.sort_index()
-    results_df.to_csv(args.output_dir, sep='\t')
+    results_df2.to_csv(args.output_dir, sep='\t')
     
     
 elif args.tool == 'htseq':
@@ -134,7 +133,7 @@ elif args.tool == 'htseq':
     results_df['unassigned_pathogen_reads'] = results_df['pathogen_uniquely_mapped_reads'] - results_df['pathogen_assigned_reads']
 
     results_df2 = results_df.sort_index()
-    results_df.to_csv(args.output_dir, sep='\t')
+    results_df2.to_csv(args.output_dir, sep='\t')
    
 elif args.tool == 'star':
     #mapped reads
