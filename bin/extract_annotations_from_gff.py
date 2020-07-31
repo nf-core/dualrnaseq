@@ -52,14 +52,24 @@ def extract_gene_types_host(gff,gene_feature,feature):
 
 
 def extract_gene_types_pathogen(gff,gene_feature,feature):
-    gene_type_pathogen = []
-    for line in open(gff):
+    gene_type_pathogen = [] #create new list
+    for line in open(gff): #looping through GFF file
         d = line.rstrip()  #remove '\n'
-        if (not d.startswith('#') and (d != '')):
-              d = d.split('\t')
-              if d[2] in gene_feature:
-                d1 = d[8].split(';')
-                ID_pos_pathogen = [pos.split('=') for pos in d1 if pos.startswith(feature)][0][1]
+        if (not d.startswith('#') and (d != '')): #ignoring comments and blank lines
+              d = d.split('\t') #separating tabbed words into a list
+              if d[2] in gene_feature: #if values from 3rd col of GFF are in gene_feature
+                d1 = d[8].split(';') #split column 8 by ;
+                
+                #Error handler to ignore rows that don't contain the same format as other rows
+				#This is a common issue in bacterial GTFs/GFFs which are often composed with non-uniform rows
+                try:
+                    #further split contents from col 8 by '=', taking first occurance and 2nd value. 
+					#ie, ID=1234 becomes 'ID', '1234', and '1234' is stored
+                    ID_pos_pathogen = [pos.split('=') for pos in d1 if pos.startswith(feature)][0][1]
+                except Exception:
+                    continue
+                    
+                #Search for field 'Name/name' and store contents
                 if ('name' or 'Name' in d1):
                     feature_name = [pos.split('=') for pos in d1 if pos.startswith(tuple(['name','Name']))]
                     if feature_name:
@@ -68,7 +78,8 @@ def extract_gene_types_pathogen(gff,gene_feature,feature):
                         feature_name_pathogen = ''
                 else:
                     feature_name_pathogen = ''
-                     
+                
+                #Capture biotypes                     
                 if d[2] == 'sRNA':
                     g_type = 'sRNA'
                 elif d[2] == 'ncRNA':
@@ -104,8 +115,14 @@ args = parser.parse_args()
 gene_features = [feature.replace('[' , '').replace(']','').replace(',','')  for feature in args.gene_feature]
 if args.organism == 'pathogen': 
       gene_types = extract_gene_types_pathogen(args.gff,gene_features, args.gene_attribute)
+      #store identified gene types
       gene_annotations_pathogen_df = pd.DataFrame.from_dict(gene_types)
-      gene_annotations_pathogen_df.to_csv(args.output + '_' + args.gene_attribute + '_' + args.quantifier + ".csv",index =False, sep = '\t')     
+      #Check if df returned any values  
+      if gene_annotations_pathogen_df.empty:
+        print('No features matched the input criteria of: ', gene_features, ' and ', args.gene_attribute)
+      else:
+        gene_annotations_pathogen_df.to_csv(args.output + '_' + args.gene_attribute + '_' + args.quantifier + ".csv",index =False, sep = '\t')     
+        
 elif args.organism == 'host':
     #dictionary of annotations
     gene_types = extract_gene_types_host(args.gff,gene_features, args.gene_attribute)
