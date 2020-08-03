@@ -1111,7 +1111,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file(pathogen_tr_fa) from pathogen_transcriptome_to_combine
 
 	    output:
-	    file "host_pathogen_transcriptome.fasta" into host_pathogen_transciptom_fasta_index
+	    //file "host_pathogen_transcriptome.fasta" into host_pathogen_transciptom_fasta_index
 	    file "host_pathogen_transcriptome.fasta" into transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file "host_pathogen_transcriptome.fasta" into transcriptome_salmon_alignment_based_mode
 
