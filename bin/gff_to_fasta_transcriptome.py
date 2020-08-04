@@ -24,7 +24,7 @@ def create_transcriptome(fasta_records_dict, gff_files,feature, gene_attribute, 
                         description = [s.split("=")[1] for s in split_8]
                         #re-order ids from column 8
                         if not index_feature:
-                            print('lack of ' + gene_attribute + ' attribute for gene ID:' + split_8[0].split('=')[1] )
+                            print('lack of ' + gene_attribute + ' attribute for record:' + split_8[0].split('=')[1] )
                         else: 
                             #seq_col_8 = list(range(0,len(split_8)))
                             #indexes_without_feature = [x for x in seq_col_8 if x != index_feature[0]]
