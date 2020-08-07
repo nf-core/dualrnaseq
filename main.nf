@@ -427,7 +427,15 @@ if(params.mapping_statistics) {
 
 	    input:
 	    val(sample_name) from scatter_plots.collect()
-
+		
+	    /*
+ 	    * Need to think about the best way of picking up a TRUE and FALSE from the shell script
+	    * Currently T or F is passed to each of the six processes, and output is determined by value
+	    * The flag of 'optional true' was added to each *.pdf output, as when false, an errror occured
+	    * This may cause issues down the track when PDF files are not created, when in fact they should - giving no errors
+	    * An alternative may be to set up another process capturing T or F and then directing from there...
+ 	    */
+	    
 	    output:
 	    val(!{output}) into repl_scatter_plots_salmon_pathogen
 	    val(!{output}) into repl_scatter_plots_salmon_host
@@ -1722,7 +1730,7 @@ if(params.run_salmon_selective_alignment) {
 		    val replicates from repl_scatter_plots_salmon_pathogen
 
 		    output:
-		    file ('*.pdf')
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
@@ -1749,7 +1757,7 @@ if(params.run_salmon_selective_alignment) {
 		    val replicates from repl_scatter_plots_salmon_host
 
 		    output:
-		    file ('*.pdf') 
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
@@ -2567,7 +2575,7 @@ if (params.run_salmon_alignment_based_mode){
 		    val replicates from repl_scatter_plots_salmon_alignment_pathogen
 
 		    output:
-		    file ('*.pdf')
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
@@ -2593,7 +2601,7 @@ if (params.run_salmon_alignment_based_mode){
 		    val replicates from repl_scatter_plots_salmon_alignment_host
 
 		    output:
-		    file ('*.pdf') 
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
@@ -3406,7 +3414,7 @@ if(params.run_htseq_uniquely_mapped){
 		    val replicates from repl_scatter_plots_htseq_pathogen
 
 		    output:
-		    file ('*.pdf')
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
@@ -3432,7 +3440,7 @@ if(params.run_htseq_uniquely_mapped){
 		    val replicates from repl_scatter_plots_htseq_host
 
 		    output:
-		    file ('*.pdf') 
+		    file ('*.pdf') optional true
 
 		    when:
 		    $replicates==True
