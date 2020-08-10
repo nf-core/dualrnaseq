@@ -2033,7 +2033,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		output:
 		file "index/*" into star_index_transcriptome_alignment
-		file "index/*" into multiqc_star_index
+		//file "index/*" into multiqc_star_index
 
 		script:
 		"""
@@ -3830,7 +3830,7 @@ process multiqc {
 
     output:
     file "*multiqc_report.html" into ch_multiqc_report
-    file "multiqc_data"
+    file "*_data"
     file "multiqc_plots"
 
     script:
