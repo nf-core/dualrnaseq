@@ -3810,9 +3810,8 @@ if( params.run_htseq_multi_mapped){
  */
 
 process multiqc {
-    publishDir "${params.outdir}/MultiQC", mode: 'copy'
-    storeDir "${params.outdir}/MultiQC"
-
+    publishDir "${params.outdir}/MultiQC", mode: params.publish_dir_mode
+    
     label 'main_env'
 
     input:
