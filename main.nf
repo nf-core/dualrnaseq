@@ -1458,15 +1458,10 @@ if(params.run_salmon_selective_alignment) {
 	    file "transcripts_index" into salmon_index
 
 	    script:
-	    if (params.keepDuplicates){
-	    	"""
-	    	salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} --keepDuplicates
-	    	"""
-	    } else {
-	        """
-		salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus}
-		"""
-	    }
+	    keepDuplicates = params.keepDuplicates ? "--keepDuplicates" : ''
+	    """
+	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} $keepDuplicates
+	    """
 	}
 
 
