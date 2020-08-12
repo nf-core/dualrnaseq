@@ -101,7 +101,7 @@ if(params.read_transcriptome_fasta_pathogen_from_file){
 
  // parameters
 
-if (params.run_salmon_selective_alignment){
+if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode){
 	if (!params.libtype){
     exit 1, "Salmon: Please specify --libtype"
 } else if (params.libtype == 'A'){
