@@ -104,6 +104,8 @@ if(params.read_transcriptome_fasta_pathogen_from_file){
 if (params.run_salmon_selective_alignment){
 	if (!params.libtype){
     exit 1, "Salmon: Please specify --libtype"
+} else if (params.libtype == 'A'){
+  // continue
 } else if (params.single_end & (params.libtype != 'U' && params.libtype != 'SR' && params.libtype != 'SF')) {
 	    exit 1, "Salmon: Invalid library type --libtype ${params.libtype}! Library types available for single-end reads are:'U', 'SR', 'SF'."
 } else if (!params.single_end & (params.libtype != 'IU' && params.libtype != 'ISR' && params.libtype != 'ISF' && params.libtype != 'MU' && params.libtype != 'MSR' && params.libtype != 'MSF' && params.libtype != 'OU' && params.libtype != 'OSR' && params.libtype != 'OSF' )) {
