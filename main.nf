@@ -1506,8 +1506,8 @@ if(params.run_salmon_selective_alignment) {
 		sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 		writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 		"""
-		salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
-		"""
+		salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name
+ 		"""
 	    }
 	}
 
