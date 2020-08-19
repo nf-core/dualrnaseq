@@ -964,6 +964,8 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file "${outfile_name}*_salmon.csv" into tximport_annotations_salmon_alignment
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_salmon_alignment_based
+	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_gene_level_salmon
+	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_gene_level_salmon_alignment
 
 	    script:
 	    outfile_name = "host_gff_annotations"
@@ -1694,7 +1696,7 @@ if(params.run_salmon_selective_alignment) {
 		    file input_quantification from salmon_files_to_combine_gene_level.collect()
 
 		    output:
-		    file "host_combined_gene_level.csv"
+		    file "host_combined_gene_level.csv" into quant_gene_level_host_add_annotations_salmon
 
 		    script:
 		    """
@@ -1703,6 +1705,26 @@ if(params.run_salmon_selective_alignment) {
 		}
 
 
+		process combine_annotations_quant_gene_level_salmon {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "comb_annots_gene_host_salmon"
+
+		    label 'main_env'
+		    label 'process_high'
+		   
+		    input: 
+		    file quantification_table from quant_gene_level_host_add_annotations_salmon
+		    file annotation_table from annotation_host_combine_quant_gene_level_salmon
+
+		    output:
+		    file "host_combined_quant_gene_level_annotations.csv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a "gene_id -org host
+		    """
+		}
 
 
 
@@ -2322,13 +2344,36 @@ if (params.run_salmon_alignment_based_mode){
 	    val attribute from combine_annot_quant_host_salmon_alignment_based
 
 	    output:
-	    file "host_combined_quant_annotations.csv"
+	    file "host_combined_quant_annotations.csv" into quant_gene_level_host_add_annotations_salmon_alignment
 
 	    script:
 	    """
 	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
 	    """
 	}
+
+
+	process combine_annotations_quant_gene_level_salmon_alignment_mode {
+	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+	    storeDir "${params.outdir}/salmon_alignment_mode"
+	    tag "comb_annots_gene_host_salmn"
+
+	    label 'main_env'
+	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_gene_level_host_add_annotations_salmon_alignment
+	    file annotation_table from annotation_host_combine_quant_gene_level_salmon_alignment
+
+	    output:
+	    file "host_combined_quant_gene_level_annotations.csv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a "gene_id -org host
+	    """
+	}
+
 
 
 
