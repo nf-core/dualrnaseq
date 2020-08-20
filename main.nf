@@ -1722,7 +1722,7 @@ if(params.run_salmon_selective_alignment) {
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a "gene_id -org host
+		    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a gene_id -org host
 		    """
 		}
 
@@ -2244,7 +2244,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file input_quantification from salmon_files_to_combine_gene_level_alignment.collect()
 
 		    output:
-		    file "host_combined_gene_level.csv"
+		    file "host_combined_gene_level.csv" into quant_gene_level_host_add_annotations_salmon_alignment
 
 		    script:
 		    """
@@ -2344,7 +2344,7 @@ if (params.run_salmon_alignment_based_mode){
 	    val attribute from combine_annot_quant_host_salmon_alignment_based
 
 	    output:
-	    file "host_combined_quant_annotations.csv" into quant_gene_level_host_add_annotations_salmon_alignment
+	    file "host_combined_quant_annotations.csv"
 
 	    script:
 	    """
@@ -2370,7 +2370,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a "gene_id -org host
+	    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a gene_id -org host
 	    """
 	}
 
