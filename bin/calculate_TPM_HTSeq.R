@@ -10,21 +10,41 @@ table_htseq <- read.table(args[1], sep="\t", stringsAsFactors=F, header = T,row.
 pathogen_gff <- import(args[3])
 
 host_gff <- import(args[4])
-
-
+pathogen_gff <- import(args[3])
+  
 if(gene_attribute == 'gene_id'){
+  #find pathogen genes
   common_pathogen = intersect(rownames(table_htseq),pathogen_gff$gene_id)
   pathogen_table_htseq <- table_htseq[common_pathogen,]
   pathogen_gff_match <- match(common_pathogen,pathogen_gff$gene_id)
   pathogen_table_htseq <- cbind(length = pathogen_gff@ranges@width[pathogen_gff_match],pathogen_table_htseq) 
   
+  #find host genes
   common_host = intersect(rownames(table_htseq),host_gff$gene_id)
+  #extract quantification results of host genes
   host_table_htseq <- table_htseq[common_host,]
-  host_gff_match <- match(common_host,host_gff$gene_id)
-  host_table_htseq <- cbind(length = host_gff@ranges@width[host_gff_match],host_table_htseq) 
+  #find index of host genes in host_gff object
+  for(hosT_gene in common_host){
+    #find annotations that contain a host gene_id (hosT_gene)
+    inx_genes = which(host_gff$gene_id == hosT_gene)
+    h_gene <- host_gff[inx_genes]
+    # Filter quant features
+    quants <- h_gene[h_gene$type == "quant",]
+    ## reduce - merge overlapping features, so that the same bases are covered by a reduced collection of features.
+    g_length <- sum(width(reduce(quants)))
+    #add 'gene length' to the quantification table 
+    host_table_htseq <- cbind(length = g_length,host_table_htseq)
+  }
+  
 }
 
+# splitting up isoforms as preparation for the next step
+#tmp <- split(quants,as.character(quants$Parent))
+# for each isoform, calculate the sum of all reduced exons
+#Gene_length <- sum(width(reduce(tmp)))
+
 htseq_table_with_gene_length = rbind(pathogen_table_htseq,host_table_htseq)
+
 
 #tpm calculation
 tpm <- function(counts, lengths) {
