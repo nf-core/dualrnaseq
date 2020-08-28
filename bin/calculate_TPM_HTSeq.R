@@ -11,12 +11,6 @@ pathogen_gff <- import(args[3])
 host_gff <- import(args[4])
 pathogen_gff <- import(args[3])
   
-#table_htseq <- read.table("../../results_Hela_Salmonella_simulations_SingleEnd_75/HTSeq/uniquely_mapped/quantification_results_uniquely_mapped.csv", sep="\t", stringsAsFactors=F, header = T,row.names = 'transcript_id')
-#pathogen_gff <- import("../../results_Hela_Salmonella_simulations_SingleEnd_75/references/Salmonella_combined_BMG3_quant_feature_new_attribute.gff3")
-
-#host_gff <- import("../../results_Hela_Salmonella_simulations_SingleEnd_75/references/gencode.v33.chr_patch_hapl_scaff.annotation_with_tRNA_quant_feature.gff3")
-
-
 extract_gene_length <- function(x,host_gff){
   #find annotations that contain a host gene_id (hosT_gene)
   h_gene <- host_gff[host_gff$gene_id == x]
