@@ -10,6 +10,11 @@ pathogen_gff <- import(args[3])
 
 host_gff <- import(args[4])
 pathogen_gff <- import(args[3])
+  
+#table_htseq <- read.table("../../results_Hela_Salmonella_simulations_SingleEnd_75/HTSeq/uniquely_mapped/quantification_results_uniquely_mapped.csv", sep="\t", stringsAsFactors=F, header = T,row.names = 'transcript_id')
+#pathogen_gff <- import("../../results_Hela_Salmonella_simulations_SingleEnd_75/references/Salmonella_combined_BMG3_quant_feature_new_attribute.gff3")
+
+#host_gff <- import("../../results_Hela_Salmonella_simulations_SingleEnd_75/references/gencode.v33.chr_patch_hapl_scaff.annotation_with_tRNA_quant_feature.gff3")
 
 
 extract_gene_length <- function(x,host_gff){
@@ -20,6 +25,16 @@ extract_gene_length <- function(x,host_gff){
   ## reduce - merge overlapping features, so that the same bases are covered by a reduced collection of features.
   g_length <- sum(width(reduce(quants)))
   return(g_length)
+}
+
+extract_transcript_length <- function(x,host_gff){
+  #find annotations that contain a host gene_id (hosT_gene)
+  h_tr <- host_gff[host_gff$transcript_id == x]
+  # Filter quant features
+  quants <- h_tr[h_tr$type == "quant",]
+  ## reduce - merge overlapping features, so that the same bases are covered by a reduced collection of features.
+  t_length <- sum(width(reduce(quants)))
+  return(t_length)
 }
 
 
@@ -37,6 +52,24 @@ if(gene_attribute == 'gene_id'){
   #extract gene length
   gene_length <- sapply(common_host, extract_gene_length, host_gff=host_gff,simplify = TRUE)
   host_table_htseq <- cbind(length = gene_length,host_table_htseq)
+}else if(gene_attribute == 'transcript_id'){
+  common_pathogen = intersect(rownames(table_htseq),pathogen_gff$transcript_id)
+  pathogen_table_htseq <- table_htseq[common_pathogen,]
+  pathogen_gff_match <- match(common_pathogen,pathogen_gff$transcript_id)
+  pathogen_table_htseq <- cbind(length = pathogen_gff@ranges@width[pathogen_gff_match],pathogen_table_htseq) 
+  
+  #remove positions without transcript_id (eg. genes)
+  lack_of_trnascrip_id <- which(is.na(host_gff$transcript_id))
+  host_gff <- host_gff[-lack_of_trnascrip_id]
+  #find host transcripts
+  common_host = intersect(rownames(table_htseq),host_gff$transcript_id)
+  #extract quantification results of host genes
+  host_table_htseq <- table_htseq[common_host,]
+
+  #extract gene length
+  transcript_length <- sapply(common_host, extract_transcript_length, host_gff=host_gff,simplify = TRUE)
+  host_table_htseq <- cbind(length = transcript_length,host_table_htseq)
+  
 }
 
 

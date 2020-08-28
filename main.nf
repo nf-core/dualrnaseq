@@ -3331,6 +3331,7 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+
 	process htseq_uniquely_mapped_TPM {
 		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
