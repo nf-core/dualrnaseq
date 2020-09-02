@@ -14,6 +14,10 @@ Click [here](usage.md) for details on how to run the pipeline.
 
 ![nf-core/dualrnaseq](docs/images/Workflow_diagram_dualrnaseq.png)
 
+![nf-core/dualrnaseq](images/Workflow_diagram_dualrnaseq.png)
+
+![nf-core/dualrnaseq](/images/Workflow_diagram_dualrnaseq.png)
+
 <p align="center">
-    <img title="Workflow" src="docs/images/Workflow_diagram_dualrnaseq.png" width=40%>
+    <img title="Workflow" src="/images/Workflow_diagram_dualrnaseq.png" width=40%>
 </p>
