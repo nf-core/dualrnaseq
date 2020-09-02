@@ -19,13 +19,9 @@
 8. [Output files](#8-output-files)
 9. [Job resources](#9-job-resources-and-submission)
 
-
-
-
 ## 1. Running the pipeline
 
 We are assuming that you already have Nextflow installed, click [here](#https://nf-co.re/usage/installation) to install before continuing. 
-
 
 Once ready, a typical command for running the pipeline is as follows:
 
@@ -63,7 +59,6 @@ It's a good idea to specify a pipeline version when running on your data. This w
 
 To find the latest version number, go to the [nf-core/dualrnaseq releases page](https://github.com/nf-core/dualrnaseq/releases) - which will be a numeric value (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `nextflow run -r 1.3.1 nf-core/dualrnaseq/main.nf`.
 
-
 ## 2. Configuration profile
 
 #### `-profile`
@@ -96,8 +91,6 @@ Within nf-core/dualrnaseq, Docker, Singluarity and test configuration profiles a
   * A profile with a complete configuration for automated testing
   * Includes links to test data, requiring no other parameters
 
-
-
 ## 3. Input sequence reads
 
 `--reads`
@@ -117,7 +110,6 @@ Input files can be read as either .fastq or .fastq.gz. They should be named desc
 
 Once correctly named, instead of typing all files, the folder containing all files can be specified, such as `--reads "folder_to_files/*.fq.gz"`. Or, for paired-end `--reads "folder_to_files/*{1,2}.fastq.gz"`
 
-
 Please note the following requirements:
 
 1. The path must be enclosed in quotes
@@ -125,7 +117,6 @@ Please note the following requirements:
 3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
-
 
 **Additional parameters**
 
@@ -139,7 +130,6 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 > Note: it is not possible to run a mixture of single-end and paired-end files in one run.
 
-
 ## 4. Reference genomes and annotation
 
 ### 4.1 Genomes
@@ -152,9 +142,7 @@ The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gen
 
 The pipeline config files come bundled with paths to the Illumina iGenomes reference index files. If running with Docker or AWS, the configuration is set to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
 
-
 These parameters can be used in three ways: 
-
 
 **A) Using iGenomes**
 
@@ -191,7 +179,6 @@ Note:
  - If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
  - You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
 
-
 **B) Using an additional configuration file**
 
 If your genome of interest is not provided within iGenomes, you can create your own configuration file and save it here: `...conf/genomes.config`
@@ -215,7 +202,6 @@ Then to use this reference, within the user-defined set of parameters: `--genome
 Note:
  - The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
 
-
 **C) Using pipeline-specific parameters**
 
 If preferred, you can specify each parameter manually and link to appropriate files.
@@ -232,7 +218,6 @@ Host:
 
 `--transcriptome_host`
 
-
 Pathogen:
 
 `--fasta_pathogen`
@@ -243,12 +228,9 @@ Pathogen:
 
 `--transcriptome_pathogen`
 
-
 > Note: If using multiple specific parameters, it may be a good idea to choose this option if you observe clashes pipeline-specific parameters and those supplied in `igenomes.config`.
 
 `--igenomes_ignore`
-
-
 
 ### 4.2 Annotation
 
@@ -276,12 +258,9 @@ Pathogen:
 
 `--pathogen_gff_attribute "locus_tag"`
 
-
 We recommend using iGenomes (as discussed above) and the corresponding annotation files (.gff and .gtf) where available. 
 
 However, we realise that many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. In these instances, we recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`. 
-
-
 
 ## 5. Read mapping and quantification
 
@@ -293,15 +272,12 @@ The nf-core/dualrnaseq pipeline provides three strategies to map and quantify yo
 
 3) The Third strategy utilises alignment-based mapping executed with **STAR**, counting unique aligned reads with **HTSeq**. `--run_star` and `--run_htseq_uniquely_mapped`
 
-
 ### 5.1 Salmon - Selective alignment
 
 Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.     
 To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotatated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
 
 > Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match - which increases the accuracy of the tool. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information. 
- 
-
 
 ### 5.2 Salmon - quantification in alignment-based mode
 
@@ -313,12 +289,9 @@ In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-i
 
 > When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required. 
 
-
 ### 5.3 STAR - alignment-based genome mapping
 
 STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions. Therefore, the paths to host and pathogen genomes and annotative files must be provided either through iGenomes, or directly using the appropriate parameters:  `--genome_host`, `--genome_pathogen`, `--gff_host` and `--gff_pathogen`.
-
-
 
 ## 6. Mapping statistics
 
@@ -333,17 +306,15 @@ This will create the following:
 
 For more information about how to change the various RNA-class statistics, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics). 
 
-
-
 ## 7. Example usage
 
 There are various combinations of how to run this workflow as discussed above in the [Read mapping and quantification section](#52-salmon---quantification-in-alignment-based-mode)
 
 **Example 1**
- * Using Docker
- * Single end reads
- * Pre-defined iGenomes references
- * Salmon - Selective alignment
+* Using Docker
+* Single end reads
+* Pre-defined iGenomes references
+* Salmon - Selective alignment
 
 ```bash
 nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
@@ -354,11 +325,11 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 ```
 
 **Example 2**
- * Using Docker
- * Paired-end reads (unstranded)
- * Pre-defined iGenomes references
- * Salmon - quantification in alignment-based mode
- * Custom kmer length
+* Using Docker
+* Paired-end reads (unstranded)
+* Pre-defined iGenomes references
+* Salmon - quantification in alignment-based mode
+* Custom kmer length
  
  ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
@@ -369,10 +340,10 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 ```
  
 **Example 3**
- * Using Singularity
- * Single end reads
- * Custom pathogen reference - iGenomes Host reference
- * STAR - alignment-based genome mapping
+* Using Singularity
+* Single end reads
+* Custom pathogen reference - iGenomes Host reference
+* STAR - alignment-based genome mapping
  
  ```bash
 nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
@@ -383,11 +354,11 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 ```
 
 **Example 4**
- * Run on a SGE cluster
- * Using Singularity
- * Single end reads
- * Custom host and pathogen genomes defined through `genomes.conf`
- * All three modes with custom gene attributes
+* Run on a SGE cluster
+* Using Singularity
+* Single end reads
+* Custom host and pathogen genomes defined through `genomes.conf`
+* All three modes with custom gene attributes
  
 ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,cluster \
@@ -401,15 +372,11 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,clus
 --gene_feature_gff_to_quantify_pathogen "[locus_tag, sRNA, tRNA, rRNA]" 
 ```
 
-
-
 ## 8. Output files
 
 Click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/output.md) for a description on output files.
 
-
 ## 9. Job resources and submission
-
 
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus the Nextflow process (dualrnaseq) must run until the pipeline is finished. To achieve this, we recommend running in the background through `screen` / `tmux` or a similar tool. Alternatively, you can run dualrnaseq submitted by your job scheduler on a cluster.
 
@@ -418,7 +385,6 @@ It is also recommended to limit the Nextflow Java virtual machines memory. This 
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
-
 
 ### Automatic resubmission
 
