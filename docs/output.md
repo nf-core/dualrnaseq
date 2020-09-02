@@ -2,7 +2,8 @@
 
 ## Still to be completed
 
-Things to add:
+Things to add
+
 * Directory structure of expected files, based on run type
 
 * Quantification and count files
