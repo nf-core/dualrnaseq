@@ -18,6 +18,8 @@
 
 > All of the parameters listed here can be found in either the main configuration file `nextflow.config`, `base.config` or genome specific files such as `igenomes.conf` or  `genomes.conf`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir /path_to_file/file`.
 
+## 1. Nextflow
+
 ### 1. Nextflow
 
 > Note: most of the core Nextflow parameters only require a single hyphen
