@@ -10,7 +10,4 @@ The workflow diagram below gives a simplified visual overview of how dualrnaseq 
 
 Click [here](usage.md) for details on how to run the pipeline.
 
-
 <img src="https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/images/Workflow_diagram_dualrnaseq.png" width="1000">
-
-
