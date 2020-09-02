@@ -16,7 +16,7 @@
 
 ### General comment
 
-> All of the parameters listed here can be found in either the main configuration file `nextflow.config`, `base.config` or genome specific files such as `igenomes.conf` or  `genomes.conf`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir /path_to_file/file`. 
+> All of the parameters listed here can be found in either the main configuration file `nextflow.config`, `base.config` or genome specific files such as `igenomes.conf` or  `genomes.conf`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir /path_to_file/file`.
 
 ### 1. Nextflow
 
@@ -30,22 +30,21 @@ This is used in the MultiQC report and in the summary HTML / e-mail.
 #### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will used cached results where the inputs are the same, continuing from where it ran to previously.
-Alternatively, you can supply a run name to resume a specific run: `-resume [run-name]`. 
+Alternatively, you can supply a run name to resume a specific run: `-resume [run-name]`.
   
 If unsure of the run name, you can use the `nextflow log` command to show previous run names.
 
 #### `-c`
 
 Specify the path to a specific config file.
- 
-Note: you can use this to override pipeline defaults.
 
+Note: you can use this to override pipeline defaults.
 
 #### `--custom_config_version`
 
 Provide git commit id for custom institutional configs hosted at `nf-core/configs`. 
- 
-This was implemented for reproducibility purposes. Default: `master`.
+
+This was implemented for reproducibility purposes. Default: `master`
 
 ```bash
 ## Download and use config file with following git commit id
@@ -96,7 +95,7 @@ By default, Nextflow will locate and use the file `genomes.config` or `igenomes.
 
 To ignore all genome-based references in the igenomes configuration file
 
-The following nine parameters are all set as `False`. If specified, the folder/file should be enclosed by quotations `"..."`. 
+The following nine parameters are all set as `False`. If specified, the folder/file should be enclosed by quotations `"..."`.
 
 #### `--fasta_host` 'path to file'
 
@@ -142,24 +141,24 @@ An option to not run FastQC
 > Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
  
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
-To learn more on cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
+To learn more on cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
 
-By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq) 
+By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq)
 
-#### `--skipTrimming False` 
+#### `--skipTrimming False`
 
 Will skip the trimming stage
- 
+
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
  
-For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types) 
+For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types)
 
 #### `--A "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"`
- 
+
 For paired-end data, the adapter sequence for the second reads can be defined here. For more information, see [`trimming paired-end reads.`](https://cutadapt.readthedocs.io/en/stable/guide.html#trimming-paired-end-reads)
 
 #### `--quality_cutoff 10` or `--quality-cutoff 10,15`
- 
+
 Cutadapt can also remove low-quality read ends. By default, the 3’ end of each read is trimmed using a cutoff of 10. For more information on cutoff values, see [`quality trimming.`](https://cutadapt.readthedocs.io/en/stable/guide.html#quality-trimming)
 
 If you specify two comma-separated cutoffs, the first value represents the 5’ cutoff, and the second one the 3’ cutoff.
@@ -174,7 +173,7 @@ To learn more on library types available in Salmon, please read [_`What’s this
 
 #### `--kmer_length 21`
 
-To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)). 
+To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)).
 
 #### `--writeUnmappedNames True`
 
@@ -182,22 +181,22 @@ By default the pipeline saves names of unmapped reads. You can learn more about 
 
 #### `--softclipOverhangs True`
 
-By default, the pipeline allows soft-clipping of reads. 
+By default, the pipeline allows soft-clipping of reads.
 
-_"Soft-clipping allows reads that overhang the beginning or ends of the transcript. In this case, the overhanging section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_. 
+_"Soft-clipping allows reads that overhang the beginning or ends of the transcript. In this case, the overhanging section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_.
 If it is set to `False`, the end-to-end alignment of the entire read is forced, so that the occurance of any overhangings may affect the alignment score.
 
 #### `--incompatPrior 0.0`
 
-By default, this is set to `0.0`, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon. You can find more information on this parameter in the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#incompatprior) 
+By default, this is set to `0.0`, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon. You can find more information on this parameter in the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#incompatprior)
 
 #### `--dumpEq True`
 
-By default, to save the equivalence classes and their counts this option is set to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information. 
+By default, to save the equivalence classes and their counts this option is set to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information.
 
 #### `--writeMappings False`
 
-If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings) 
+If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings)
 
 ### 6. Salmon - Selective alignment
 
@@ -205,29 +204,29 @@ If set to `True`, the pipeline will create a `mapping.sam` file containing mappi
 
 To run Salmon with Selective alignment
 
-#### `--gene_feature_gff_to_create_transcriptome_host ["exon", "tRNA"]` 
+#### `--gene_feature_gff_to_create_transcriptome_host ["exon", "tRNA"]`
 
 The pipeline uses gene features from the 3rd column of the host annotative file (gff/gtf) to extract the coordinates of transcripts to be quantified.
 
-By default, the pipeline uses `exon` from the `--gff_host` file and `tRNA` from the `--gff_host_tRNA` file. 
+By default, the pipeline uses `exon` from the `--gff_host` file and `tRNA` from the `--gff_host_tRNA` file.
 
-#### `--gene_feature_gff_to_create_transcriptome_pathogen ["gene", "sRNA", "tRNA", "rRNA"]` 
+#### `--gene_feature_gff_to_create_transcriptome_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
 
-The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff/gtf) to extract the coordinates of transcripts to be quantified. 
+The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff/gtf) to extract the coordinates of transcripts to be quantified.
 
-By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file. 
+By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file.
 
 #### `--gene_attribute_gff_to_create_transcriptome_host ["transcript_id"]`
 
-This flag defines the gene attribute from the 9th column of the host annotative (gff/gtf) file, where the transcript names are extracted. 
+This flag defines the gene attribute from the 9th column of the host annotative (gff/gtf) file, where the transcript names are extracted.
 
 By default, the pipeline extracts `transcript_id` from the `--gff_host` file. 
 
 #### `--gene_attribute_gff_to_create_transcriptome_pathogen ["locus_tag"]`
 
-This flag defines the gene attribute from the 9th column of the pathogen annotative (gff/gtf) file, where transcript, genes or CDS regions are extracted. 
+This flag defines the gene attribute from the 9th column of the pathogen annotative (gff/gtf) file, where transcript, genes or CDS regions are extracted.
 
-By default, the pipeline extracts `locus_tag` from the `--gff_pathogen` file. 
+By default, the pipeline extracts `locus_tag` from the `--gff_pathogen` file.
 
 ### 7. STAR and Salmon - alignment based mode
 
@@ -241,25 +240,25 @@ Option to run STAR
 
 #### `--outWigType "None"`
 
-Used to generate signal outputs, such as "wiggle" and "bedGraph". To view all available signal types, please see the [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf). 
+Used to generate signal outputs, such as "wiggle" and "bedGraph". To view all available signal types, please see the [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf).
 
 By default, the pipeline does not generate any of these files.
 
 #### `--outWigStrand "Stranded"`
 
-Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information. 
+Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--outSAMunmapped "Within"`
 
 By default, the pipeline saves unmapped reads within the main BAM file. If you want to switch off this option, set the `--outSAMunmapped` flag to `None`.  See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more details.
 
-For paired-end reads, the `KeepPairs` parameter will record the unmapped mates for each alignment, and will keep it adjacent to its mapped read (only affects multi-mapping reads). 
+For paired-end reads, the `KeepPairs` parameter will record the unmapped mates for each alignment, and will keep it adjacent to its mapped read (only affects multi-mapping reads).
 
 #### `--outSAMattributes "Standard"`
 
 To specify the attributes of the output BAm file. The default value is `Standard`, but there are a range of options if needed. Please see the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for the full list.
 
-By default, the pipeline uses `Standard` option to keep NH HI AS nM SAM attributes. 
+By default, the pipeline uses `Standard` option to keep NH HI AS nM SAM attributes.
 
 #### `--outFilterMultimapNmax 20`
 
@@ -268,7 +267,7 @@ By default, this  option is set to 20 in the pipeline (ENCODE standard options f
 
 #### `--outFilterType "BySJout"`
 
-By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 #### `--quantTranscriptomeBan "Singleend"`
 
@@ -327,7 +326,7 @@ A parameter for the library type. Options include `"yes"` or `"no"`.
 
 The four parameters above are used to extract gene features from both the host and pathogen. These values may need to be changed, especially for the pathogen, as many different names exist, such as `ID`, `Gene`, `Name`, `locus_tag` etc etc.
 
-A good idea is to view the accompanying annotative file and examine the fields within. 
+A good idea is to view the accompanying annotative file and examine the fields within.
 
 > Note: If a `tRNA.gff` file is included, it is assumed that it has the same gene atribute as the annotative file (gff/gtf), i.e. `gene_id`
 
@@ -338,8 +337,8 @@ A good idea is to view the accompanying annotative file and examine the fields w
 Option to generate mapping statistics. This will create the following:
  
 * Count the total number of reads before and after trimming
-* Scatterplots comparing all replicates (separate for both host and pathogen reads) 
-* Plots of the % of mapped/quantified reads 
+* Scatterplots comparing all replicates (separate for both host and pathogen reads)
+* Plots of the % of mapped/quantified reads
 * Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
 
 #### `--RNA_classes_to_replace_host "$baseDir/data/RNA_classes_to_replace.csv"`
