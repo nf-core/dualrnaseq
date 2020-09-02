@@ -177,11 +177,11 @@ params {
 
 Note:
 
-- The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_host_from_file```
+* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_host_from_file```
 
-- If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
+* If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
 
-- You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
+* You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
 
 #### B) Using an additional configuration file
 
