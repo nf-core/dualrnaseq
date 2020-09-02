@@ -1,6 +1,6 @@
 # ![nf-core/dualrnaseq](docs/images/nf-core-dualrnaseq_logo.png)
 
-**Dual RNA-seq pipeline**
+## Dual RNA-seq pipeline
 
 [![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
