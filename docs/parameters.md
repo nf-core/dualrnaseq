@@ -1,6 +1,6 @@
 # nf-core/dualrnaseq: Parameters
 
-Table of contents
+## Table of contents
 
 1. [Nextflow](#1-nextflow)
 2. [Genome references and annotation](#2-genome-references-and-annotation)
@@ -10,13 +10,15 @@ Table of contents
 6. [Salmon - selective alignment](#6-salmon---selective-alignment)
 7. [STAR and Salmon - alignment based mode](#7-star-and-salmon---alignment-based-mode)
 8. [HTSeq](#8-htseq)
-9. [RNA mapping statistics](#9-RNA-mapping-statistics)
+9. [RNA mapping statistics](#9-rna-mapping-statistics)
 10. [Reports](#10-reports)
 11. [Other](#11-other)
 
+### General comment
+
 > All of the parameters listed here can be found in either the main configuration file `nextflow.config`, `base.config` or genome specific files such as `igenomes.conf` or  `genomes.conf`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir /path_to_file/file`. 
 
-## 1. Nextflow
+### 1. Nextflow
 
 > Note: most of the core Nextflow parameters only require a single hyphen
 
@@ -85,7 +87,7 @@ Use to set the max number of CPUs for each process.
 
 Where results will be saved (should be enclosed by quotation marks `"..."`) .
 
-## 2. Genome references and annotation
+### 2. Genome references and annotation
 
 By default, Nextflow will locate and use the file `genomes.config` or `igenomes.config` to associate predefined genome references and annotations. If wishing to specify these manually, the following commands can be used.
 > Note: we always recommend adding associated genome-based files to configuration files - to avoid clashes between user defined parameters and those supplied in configuration files.
@@ -114,7 +116,7 @@ The following nine parameters are all set as `False`. If specified, the folder/f
 
 #### `--transcriptome_pathogen`
 
-## 3. Input sequence reads
+### 3. Input sequence reads
 
 #### `--reads`
 
@@ -122,22 +124,22 @@ Input files can be read as either .fastq or .fastq.gz. They should be named desc
 
 Please note the following requirements:
 
- * The path must be enclosed in quotes
- * The path must have at least one `*` wildcard character
- * When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
- * If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
+* The path must be enclosed in quotes
+* The path must have at least one `*` wildcard character
+* When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
+* If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
 
 It is not possible to run a mixture of single-end and paired-end files in one run.
 
-## 4. FastQC and adapter trimming
+### 4. FastQC and adapter trimming
 
 #### `--skipFastqc False`
 
 An option to not run FastQC
 
- > Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
+> Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
  
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
 To learn more on cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html) 
@@ -162,7 +164,7 @@ Cutadapt can also remove low-quality read ends. By default, the 3’ end of each
 
 If you specify two comma-separated cutoffs, the first value represents the 5’ cutoff, and the second one the 3’ cutoff.
 
-## 5. Salmon - general
+### 5. Salmon - general
 
 #### `--libtype SF`
 
@@ -197,7 +199,7 @@ By default, to save the equivalence classes and their counts this option is set 
 
 If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings) 
 
-## 6. Salmon - Selective alignment
+### 6. Salmon - Selective alignment
 
 #### `--run_salmon_selective_alignment False`
 
@@ -227,7 +229,7 @@ This flag defines the gene attribute from the 9th column of the pathogen annotat
 
 By default, the pipeline extracts `locus_tag` from the `--gff_pathogen` file. 
 
-## 7. STAR and Salmon - alignment based mode
+### 7. STAR and Salmon - alignment based mode
 
 #### `--run_salmon_alignment_based_mode FALSE`
 
@@ -301,7 +303,7 @@ The maximum intron length is set to 1,000,000 (ENCODE standard options for long 
 
 The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-## 8. HTSeq
+### 8. HTSeq
 
 #### `--run_htseq_uniquely_mapped False`
 
@@ -329,16 +331,16 @@ A good idea is to view the accompanying annotative file and examine the fields w
 
 > Note: If a `tRNA.gff` file is included, it is assumed that it has the same gene atribute as the annotative file (gff/gtf), i.e. `gene_id`
 
-## 9. RNA mapping statistics
+### 9. RNA mapping statistics
 
 #### `--mapping_statistics False`
 
 Option to generate mapping statistics. This will create the following:
  
- * Count the total number of reads before and after trimming
- * Scatterplots comparing all replicates (separate for both host and pathogen reads) 
- * Plots of the % of mapped/quantified reads 
- * Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
+* Count the total number of reads before and after trimming
+* Scatterplots comparing all replicates (separate for both host and pathogen reads) 
+* Plots of the % of mapped/quantified reads 
+* Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
 
 #### `--RNA_classes_to_replace_host "$baseDir/data/RNA_classes_to_replace.csv"`
 
@@ -346,7 +348,7 @@ Located within the `data/` folder of dualrnaseq, this tab delimited file contain
 
 Initially, the user can run the pipeline without this table (or remove the 'others' column because they may be interested in scRNAs). Depending on the requirements, the user can decide which types should be included/excluded or grouped together.  
 
-## 10. Reports
+### 10. Reports
 
 #### `--email`
 
@@ -372,9 +374,9 @@ Set to disable colourful command line output and live life in monochrome.
 
 Specify path to a custom MultiQC configuration file.
 
-## 11. Other
+### 11. Other
 
-### AWS Batch specific parameters
+**AWS Batch specific parameters**
 
 Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
 
