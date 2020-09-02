@@ -1,11 +1,11 @@
 # nf-core/dualrnaseq: Running the pipeline
 
-**Table of contents**
+## Table of contents
 
 1. [Running the pipeline](#1-running-the-pipeline)
    * [Updating the pipeline](#11-updating-the-pipeline)
    * [Reproducibility](#12-reproducibility)
-2. [Configuration profile](#2-configuration-profile)   
+2. [Configuration profile](#2-configuration-profile)
 3. [Input sequence reads](#3-input-sequence-reads)
 4. [Reference genomes and annotation](#4-reference-genomes-and-annotation)
    * [Genomes](#41-genomes)
@@ -13,7 +13,7 @@
 5. [Read mapping and quantification](#5-read-mapping-and-quantification)
    * [Salmon - Selective alignment](#51-salmon---selective-alignment)
    * [Salmon - quantification in alignment-based mode](#52-salmon---quantification-in-alignment-based-mode)
-   * [STAR - alignment-based genome mapping](#53-star---alignment-based-genome-mapping)   
+   * [STAR - alignment-based genome mapping](#53-star---alignment-based-genome-mapping)
 6. [Mapping statistics](#6-mapping-statistics)
 7. [Example usage](#7-example-usage)
 8. [Output files](#8-output-files)
@@ -21,7 +21,7 @@
 
 ## 1. Running the pipeline
 
-We are assuming that you already have Nextflow installed, click [here](#https://nf-co.re/usage/installation) to install before continuing. 
+We are assuming that you already have Nextflow installed, click [here](#https://nf-co.re/usage/installation) to install before continuing.
 
 Once ready, a typical command for running the pipeline is as follows:
 
@@ -30,11 +30,11 @@ nextflow run nf-core/dualrnaseq/main.nf -profile docker \
 --reads '/folder_to_reads/*_R{1,2}.fq.gz \
 --fasta_host host.fa.gz --fasta_pathogen pathogen.fa.gz \
 --gff_host host.gff --gff_pathogen pathogen.gff \
---run_star --outdir results' 
+--run_star --outdir results'
 ```
 
 This will launch the pipeline with the `docker` configuration profile (click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles).
-It takes all compressed .fq files in the specified folder and will map the reads (using STAR) to the supplied host and pathogen genomes. 
+It takes all compressed .fq files in the specified folder and will map the reads (using STAR) to the supplied host and pathogen genomes.
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -61,7 +61,7 @@ To find the latest version number, go to the [nf-core/dualrnaseq releases page](
 
 ## 2. Configuration profile
 
-#### `-profile`
+**`-profile`**
 
 Use this parameter to choose a configuration profile, which can define specific presets for different compute environments.
 
@@ -75,7 +75,7 @@ Note that multiple profiles can be loaded, for example: `-profile test,docker` (
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
-Within nf-core/dualrnaseq, Docker, Singluarity and test configuration profiles are available: 
+Within nf-core/dualrnaseq, Docker, Singluarity and test configuration profiles are available:
 
 * `docker`
   * A generic configuration profile to be used with [Docker](http://docker.com/)
@@ -118,15 +118,15 @@ Please note the following requirements:
 
 If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
-**Additional parameters**
+### Additional parameters
 
 The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values
 
 `single_end False`
 
 `stranded "yes"`
- 
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. 
+
+By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched.
 
 > Note: it is not possible to run a mixture of single-end and paired-end files in one run.
 
@@ -142,13 +142,13 @@ The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gen
 
 The pipeline config files come bundled with paths to the Illumina iGenomes reference index files. If running with Docker or AWS, the configuration is set to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
 
-These parameters can be used in three ways: 
+These parameters can be used in three ways:
 
-**A) Using iGenomes**
+#### A) Using iGenomes
 
 There are a range of different species supported with [iGenomes references](https://ewels.github.io/AWS-iGenomes/). To run the pipeline, you must specify which one you would like to use, with `--genome_host`.
 
-You can find the keys to specify the genomes in the iGenomes config file `../conf/igenomes.config`. 
+You can find the keys to specify the genomes in the iGenomes config file `../conf/igenomes.config`.
 
 Common host genomes that are supported are:
 
@@ -172,14 +172,15 @@ params {
           }
         }
 ```
-> Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`. 
+
+> Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
 
 Note:
- - The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_host_from_file```
- - If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
- - You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
+- The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_host_from_file```
+- If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
+- You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
 
-**B) Using an additional configuration file**
+#### B) Using an additional configuration file
 
 If your genome of interest is not provided within iGenomes, you can create your own configuration file and save it here: `...conf/genomes.config`
 
@@ -197,12 +198,12 @@ params {
         }
 ```
 
-Then to use this reference, within the user-defined set of parameters: `--genome_pathogen SL1344`  
+Then to use this reference, within the user-defined set of parameters: `--genome_pathogen SL1344`
 
 Note:
- - The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
+- The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
 
-**C) Using pipeline-specific parameters**
+#### C) Using pipeline-specific parameters
 
 If preferred, you can specify each parameter manually and link to appropriate files.
 
@@ -222,7 +223,7 @@ Pathogen:
 
 `--fasta_pathogen`
 
-`--gff_pathogen` 
+`--gff_pathogen`
 
 `--read_transcriptome_fasta_pathogen_from_file`
 
@@ -234,7 +235,7 @@ Pathogen:
 
 ### 4.2 Annotation
 
-Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotations (.gff or .gtf), main features are defined as genes and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others. 
+Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotations (.gff or .gtf), main features are defined as genes and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others.
 
 We have defined four parameters for both the host and pathogen to account for these differences in convensions - and should be modified when needed. Default values are shown below:
 
@@ -258,13 +259,13 @@ Pathogen:
 
 `--pathogen_gff_attribute "locus_tag"`
 
-We recommend using iGenomes (as discussed above) and the corresponding annotation files (.gff and .gtf) where available. 
+We recommend using iGenomes (as discussed above) and the corresponding annotation files (.gff and .gtf) where available.
 
-However, we realise that many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. In these instances, we recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`. 
+However, we realise that many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. In these instances, we recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
 
 ## 5. Read mapping and quantification
 
-The nf-core/dualrnaseq pipeline provides three strategies to map and quantify your dual RNA-seq data. 
+The nf-core/dualrnaseq pipeline provides three strategies to map and quantify your dual RNA-seq data.
 
 1) The first approach **Salmon with Selective alignment**, performs mapping using the Selective alignment algorithm which quantifies the reads. `--run_salmon_selective_alignment`
 
@@ -274,20 +275,20 @@ The nf-core/dualrnaseq pipeline provides three strategies to map and quantify yo
 
 ### 5.1 Salmon - Selective alignment
 
-Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.     
+Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
 To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotatated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
 
-> Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match - which increases the accuracy of the tool. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information. 
+> Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match - which increases the accuracy of the tool. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
 
 ### 5.2 Salmon - quantification in alignment-based mode
 
-In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) 
+In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 > Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md).
 
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome fasta files and annotative (gff/gtf) files.
 
-> When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required. 
+> When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
 
 ### 5.3 STAR - alignment-based genome mapping
 
@@ -295,25 +296,29 @@ STAR is a splice-aware alignment tool which aligns reads to a reference genome. 
 
 ## 6. Mapping statistics
 
-To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, change the following parameter to True `--mapping_statistics False`.   
+To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, change the following parameter to True `--mapping_statistics False`.
 
 This will create the following:
- 
- * Count the total number of reads before and after trimming
- * Scatterplots comparing all replicates (separate for both host and pathogen reads) 
- * Plots of the % of mapped/quantified reads 
- * Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
 
-For more information about how to change the various RNA-class statistics, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics). 
+* Count the total number of reads before and after trimming
+* Scatterplots comparing all replicates (separate for both host and pathogen reads) 
+* Plots of the % of mapped/quantified reads 
+* Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
+
+For more information about how to change the various RNA-class statistics, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics).
 
 ## 7. Example usage
 
 There are various combinations of how to run this workflow as discussed above in the [Read mapping and quantification section](#52-salmon---quantification-in-alignment-based-mode)
 
-**Example 1**
+### Example 1
+
 * Using Docker
+
 * Single end reads
+
 * Pre-defined iGenomes references
+
 * Salmon - Selective alignment
 
 ```bash
@@ -324,11 +329,16 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 --run_salmon_selective_alignment \
 ```
 
-**Example 2**
+### Example 2
+
 * Using Docker
+
 * Paired-end reads (unstranded)
+
 * Pre-defined iGenomes references
+
 * Salmon - quantification in alignment-based mode
+
 * Custom kmer length
  
  ```bash
@@ -339,10 +349,14 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 --run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
 ```
  
-**Example 3**
+### Example 3
+
 * Using Singularity
+
 * Single end reads
+
 * Custom pathogen reference - iGenomes Host reference
+
 * STAR - alignment-based genome mapping
  
  ```bash
@@ -353,13 +367,18 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 --run_star --run_htseq_uniquely_mapped \
 ```
 
-**Example 4**
+### Example 4
+
 * Run on a SGE cluster
+
 * Using Singularity
+
 * Single end reads
+
 * Custom host and pathogen genomes defined through `genomes.conf`
+
 * All three modes with custom gene attributes
- 
+
 ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,cluster \
 --genome_host "Human_custom" --genome_pathogen "Pathogen_custom" \
@@ -369,7 +388,7 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,clus
 --run_salmon_selective_alignment \
 --run_star --run_htseq_uniquely_mapped \
 --gene_feature_gff_to_create_transcriptome_pathogen "[ID, sRNA, tRNA, rRNA]" \
---gene_feature_gff_to_quantify_pathogen "[locus_tag, sRNA, tRNA, rRNA]" 
+--gene_feature_gff_to_quantify_pathogen "[locus_tag, sRNA, tRNA, rRNA]"
 ```
 
 ## 8. Output files
