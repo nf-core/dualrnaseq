@@ -312,13 +312,13 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 
 A parameter for the library type. Options include `"yes"` or `"no"`.
 
-#### Host:
+#### Host
 
 #### `--gene_feature_gff_to_quantify_host ["exon","tRNA"]`
 
 #### `--host_gff_atribute "gene_id"`
 
-#### Pathogen:
+#### Pathogen
 
 #### `--gene_feature_gff_to_quantify_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
 
