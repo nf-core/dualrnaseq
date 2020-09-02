@@ -1,4 +1,4 @@
-name: nf-core-dualrnaseq-1.0
+name: nf-core-dualrnaseq-1.0dev
 
 channels:
   - conda-forge
@@ -17,7 +17,7 @@ dependencies:
   - bioconda::htseq=0.12.4
   - bioconda::bioconductor-rtracklayer=1.48.0
   - bioconda::bioconductor-tximport=1.16.0
-  - conda-forge::python 3.7.6
+  - conda-forge::python=3.7.6
   - conda-forge::r-plyr=1.8.6
   - conda-forge::markdown=3.1.1
   - conda-forge::pymdown-extensions=6.0
