@@ -42,7 +42,7 @@ Note: you can use this to override pipeline defaults.
 
 #### `--custom_config_version`
 
-Provide git commit id for custom institutional configs hosted at `nf-core/configs`. 
+Provide git commit id for custom institutional configs hosted at `nf-core/configs`.
 
 This was implemented for reproducibility purposes. Default: `master`
 
@@ -139,7 +139,7 @@ It is not possible to run a mixture of single-end and paired-end files in one ru
 An option to not run FastQC
 
 > Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
- 
+
 To remove adapter sequences that were introduced during the library preparation the pipeline utilizes cutadapt.
 To learn more on cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
 
@@ -150,7 +150,7 @@ By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`
 Will skip the trimming stage
 
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
- 
+
 For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types)
 
 #### `--A "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"`
@@ -220,7 +220,7 @@ By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from
 
 This flag defines the gene attribute from the 9th column of the host annotative (gff/gtf) file, where the transcript names are extracted.
 
-By default, the pipeline extracts `transcript_id` from the `--gff_host` file. 
+By default, the pipeline extracts `transcript_id` from the `--gff_host` file.
 
 #### `--gene_attribute_gff_to_create_transcriptome_pathogen ["locus_tag"]`
 
@@ -291,7 +291,7 @@ Here, you can define a threshold for a ratio of mismatches to *read* length. The
 
 #### `--alignIntronMin 20`
 
-By default, the nf-core dualrnaseq pipeline uses 20 as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion. 
+By default, the nf-core dualrnaseq pipeline uses 20 as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion.
 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignIntronMax 1000000`
@@ -312,13 +312,13 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 
 A parameter for the library type. Options include `"yes"` or `"no"`.
 
-**Host**
+#### Host:
 
 #### `--gene_feature_gff_to_quantify_host ["exon","tRNA"]`
 
 #### `--host_gff_atribute "gene_id"`
 
-**Pathogen**
+#### Pathogen:
 
 #### `--gene_feature_gff_to_quantify_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
 
@@ -335,7 +335,7 @@ A good idea is to view the accompanying annotative file and examine the fields w
 #### `--mapping_statistics False`
 
 Option to generate mapping statistics. This will create the following:
- 
+
 * Count the total number of reads before and after trimming
 * Scatterplots comparing all replicates (separate for both host and pathogen reads)
 * Plots of the % of mapped/quantified reads
@@ -375,7 +375,7 @@ Specify path to a custom MultiQC configuration file.
 
 ### 11. Other
 
-**AWS Batch specific parameters**
+#### AWS Batch specific parameters
 
 Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
 
