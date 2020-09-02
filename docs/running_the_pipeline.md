@@ -176,8 +176,11 @@ params {
 > Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
 
 Note:
+
 - The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_host_from_file```
+
 - If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
+
 - You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
 
 #### B) Using an additional configuration file
@@ -201,7 +204,7 @@ params {
 Then to use this reference, within the user-defined set of parameters: `--genome_pathogen SL1344`
 
 Note:
-- The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
+The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, or through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
 
 #### C) Using pipeline-specific parameters
 
@@ -285,9 +288,7 @@ To avoid spurious mapping of reads that originate from unannotated locus to sequ
 In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 > Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md).
-
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome fasta files and annotative (gff/gtf) files.
-
 > When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
 
 ### 5.3 STAR - alignment-based genome mapping
@@ -301,8 +302,8 @@ To summarise the mapping statistics including total mapped reads, unmapped reads
 This will create the following:
 
 * Count the total number of reads before and after trimming
-* Scatterplots comparing all replicates (separate for both host and pathogen reads) 
-* Plots of the % of mapped/quantified reads 
+* Scatterplots comparing all replicates (separate for both host and pathogen reads)
+* Plots of the % of mapped/quantified reads
 * Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
 
 For more information about how to change the various RNA-class statistics, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics).
@@ -340,7 +341,7 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 * Salmon - quantification in alignment-based mode
 
 * Custom kmer length
- 
+
  ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 --genome_host "GRCm38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
@@ -348,7 +349,7 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
 ```
- 
+
 ### Example 3
 
 * Using Singularity
@@ -358,7 +359,7 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 * Custom pathogen reference - iGenomes Host reference
 
 * STAR - alignment-based genome mapping
- 
+
  ```bash
 nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 --genome_host "GRCH38" --genome_pathogen "Pathogen_custom" \
