@@ -29,6 +29,8 @@ nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institut
 
 iv. Start running your own analysis!
 
+<!-- TODO nf-core: Update the default command above used to run the pipeline -->
+
 ```bash
 nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
 ```
@@ -48,6 +50,8 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
+<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
+
 ## Credits
 
 nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz.
@@ -59,6 +63,9 @@ If you would like to contribute to this pipeline, please see the [contributing g
 For further information or help, don't hesitate to get in touch on [Slack](https://nfcore.slack.com/channels/dualrnaseq) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Citation
+
+<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi. -->
+<!-- If you use  nf-core/dualrnaseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 You can cite the `nf-core` publication as follows:
 
