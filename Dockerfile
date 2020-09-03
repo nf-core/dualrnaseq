@@ -1,4 +1,4 @@
-FROM nfcore/base:1.9 #FROM nfcore/base:1.10.2, but errors with this line
+FROM nfcore/base:1.9
 LABEL authors="Bozena Mika-Gospodorz, Regan Hayward" \
       description="Docker image containing all software requirements for the nf-core/dualrnaseq pipeline"
 
