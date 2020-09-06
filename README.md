@@ -2,12 +2,17 @@
 
 ## Dual RNA-seq pipeline
 
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
+[![nf-core](https://img.shields.io/badge/nf--core-pipeline-brightgreen.svg)](https://nf-co.re/)
+
 [![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 
+[![Docker Container available](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/dualrnaseq/dualrnaseq/)
+[![Docker Container available](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/dualrnaseq/dualrnaseq/)
+[![Install with Singularity](https://img.shields.io/badge/use%20with-singularity-purple.svg)](https://www.sylabs.io/docs/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/dualrnaseq/dualrnaseq)
+
 
 ## Introduction
 
