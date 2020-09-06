@@ -1,0 +1,33 @@
+name: BarquistLab-Dual_RNA_seq
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - defaults
+dependencies:
+  - python 3.7.6
+
+  - fastqc 0.11.9
+  - star 2.7.3a
+  - samtools 1.9
+  - gffread 0.11.7
+
+  - r-plyr=1.8.6
+  - bioconductor-rtracklayer=1.48.0
+  - bioconductor-tximport=1.16.0
+
+  - conda-forge::markdown=3.1.1
+  - conda-forge::pymdown-extensions=6.0
+
+  - pip 
+
+  - pip:
+    - biopython==1.76
+    - numpy==1.18.2
+    - pandas==1.0.2
+    - htseq==0.11.3
+    - pysam==0.15.4
+    - cutadapt==2.8
+    - multiqc==1.8
+    - matplotlib==3.1.1
+    - seaborn==0.10.0
