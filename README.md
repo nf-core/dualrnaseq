@@ -9,7 +9,6 @@
 [![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 
 [![Docker Container available](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/dualrnaseq/dualrnaseq/)
-[![Docker Container available](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/dualrnaseq/dualrnaseq/)
 [![Install with Singularity](https://img.shields.io/badge/use%20with-singularity-purple.svg)](https://www.sylabs.io/docs/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 
