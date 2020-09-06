@@ -7,7 +7,7 @@
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/nfcore/dualrnaseq)
+[![Docker](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/dualrnaseq/dualrnaseq)
 
 ## Introduction
 
@@ -50,11 +50,9 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 4. [Output and how to interpret the results](docs/output.md)
 5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
-
 ## Credits
 
-nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz.
+nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz with support from Regan Hayward.
 
 ## Contributions and Support
 
