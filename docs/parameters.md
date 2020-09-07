@@ -177,13 +177,13 @@ To learn more on library types available in Salmon, please read [_`What’s this
 
 To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)).
 
-#### `--writeUnmappedNames True`
+#### `--writeUnmappedNames False`
 
-By default the pipeline saves names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to false.
+By default the pipeline does not save names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to false.
 
-#### `--softclipOverhangs True`
+#### `--softclipOverhangs False`
 
-By default, the pipeline allows soft-clipping of reads.
+By default, the pipeline does not allow soft-clipping of reads.
 
 _"Soft-clipping allows reads that overhang the beginning or ends of the transcript. In this case, the overhanging section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_.
 If it is set to `False`, the end-to-end alignment of the entire read is forced, so that the occurance of any overhangings may affect the alignment score.
@@ -192,13 +192,17 @@ If it is set to `False`, the end-to-end alignment of the entire read is forced, 
 
 By default, this is set to `0.0`, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon. You can find more information on this parameter in the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#incompatprior)
 
-#### `--dumpEq True`
+#### `--dumpEq False`
 
-By default, to save the equivalence classes and their counts this option is set to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information.
+To save the equivalence classes and their counts, change this option to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information.
 
 #### `--writeMappings False`
 
 If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings)
+
+#### `--keepDuplicates False`
+
+Option to remove/collapse identical transcripts during the indexing stage
 
 ### 6. Salmon - Selective alignment
 
@@ -303,6 +307,14 @@ The maximum intron length is set to 1,000,000 (ENCODE standard options for long 
 #### `--alignMatesGapMax 1000000`
 
 The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+
+#### `--quantTranscriptomeBan`
+
+Option to enable or prohitit various alignment types. Default is `Singleend` which prohibits single-end alignments. Other option is `IndelSoftclipSingleend`, which prohibits indels, soft clipping and single-end alignments - but is compatible with RSEM.
+
+#### `--limitBAMsortRAM`
+
+Option to limit RAM when sorting BAM file. If `0`, will be set to the genome index size, which can be quite large when running on a desktop or laptop.
 
 ### 8. HTSeq
 
