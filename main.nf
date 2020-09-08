@@ -335,12 +335,13 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
 
 
-
+/*
 --------------------------------------------------------------------
 
 SET UP CHANNELS
 
 --------------------------------------------------------------------
+*/
 
 //----------
 // Create a channel for input read files and whether PE or SE
@@ -518,11 +519,14 @@ Channel
 
 
 
+/*
 --------------------------------------------------------------------
 
 HEADER LOG INFO
 
 --------------------------------------------------------------------
+*/
+
 
 log.info nfcoreHeader()
 def summary = [:]
@@ -586,12 +590,14 @@ Channel.from(summary.collect{ [it.key, it.value] })
 
 
 
-
+/*
 --------------------------------------------------------------------
 
 PARSE SOFTWARE VERSION NUMBERS
 
 --------------------------------------------------------------------
+*/
+
 
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
@@ -627,13 +633,13 @@ process get_software_versions {
 
 
 
-
+/*
 --------------------------------------------------------------------
 
 Workflow - Processes
 
 --------------------------------------------------------------------
-
+*/
 
 if(params.mapping_statistics) {
 
@@ -3915,7 +3921,7 @@ if( params.run_htseq_multi_mapped){
 
 	/*
 	 * HTseq - quantification - multi mapping
-	 */
+	 
 
 	process HTseq_multi_mapping {
 	    storeDir "${params.outdir}/HTSeq/multi_mapped"
@@ -3940,7 +3946,7 @@ if( params.run_htseq_multi_mapped){
 	    host_attr = host_attribute
 	    """
 	    htseq-count -t quant --nonunique all -f bam -r pos $st $gff -i $host_attr -s $stranded > $name_file2
-	    sed -i '1{h;s/.*/ '"$sample_name"'/;G}' "$name_file2"
+	    
 	    """
 	}
 
@@ -3949,7 +3955,7 @@ if( params.run_htseq_multi_mapped){
 
 	/*
 	 * htseq - combine quantification results
-	 */
+	 
 
 	htseq_files_to_combine_m_m
 	    .last()
@@ -4169,7 +4175,6 @@ workflow.onComplete {
     email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
     email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
 
-    // TODO nf-core: If not using MultiQC, strip out this code (including params.max_multiqc_email_size)
     // On success try attach the multiqc report
     def mqc_report = null
     try {
