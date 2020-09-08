@@ -501,7 +501,7 @@ if(params.run_htseq_uniquely_mapped | params.run_star){
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_m_m; host_gff_attribute_htseq_TPM; atr_scatter_plot_pathogen_htseq_u_m; atr_scatter_plot_host_htseq_u_m}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_TPM; atr_scatter_plot_pathogen_htseq_u_m; atr_scatter_plot_host_htseq_u_m}
 }
 
 
@@ -630,7 +630,7 @@ process get_software_versions {
 
 --------------------------------------------------------------------
 
-[  ]
+Workflow - Processes
 
 --------------------------------------------------------------------
 
@@ -717,7 +717,7 @@ process combine_pathogen_host_fasta_genome {
  * chimeric gff file
  */
 
-if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run_star) {
+if(params.run_htseq_uniquely_mapped | params.run_star) {
 
 	/*
 	 * combine host genome and tRNA gff files
@@ -738,7 +738,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 		    output:
 		    file "${outfile_name}" into gff_host_genome_htseq
 		    file "${outfile_name}" into split_tab_host_genome_gff_htseq
-//		    file "${outfile_name}" into split_tab_host_genome_gff_htseq_m_m
+		    //file "${outfile_name}" into split_tab_host_genome_gff_htseq_m_m
 		    file "${outfile_name}" into extract_annotations_host_gff_htseq
 
 		    script:
@@ -837,7 +837,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	    output:
 	    file "host_pathogen_htseq.gff" into quantification_gff_u_m
-	    file "host_pathogen_htseq.gff" into quantification_gff_m_m
+	    //file "host_pathogen_htseq.gff" into quantification_gff_m_m
 	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_alignment_gff
 	    file "host_pathogen_htseq.gff" into gff_host_pathogen_star_htseq_alignment_gff
 
@@ -910,7 +910,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 if(params.run_star | params.run_salmon_alignment_based_mode) {
 
-	if(params.mapping_statistics | params.run_htseq_multi_mapped) {
+	if(params.mapping_statistics) {
 	
 		/*
 		* extract reference names from genome fasta files - mapping stats
@@ -3200,7 +3200,9 @@ if(params.run_star) {
 	}
 
 
-	if(params.run_htseq_multi_mapped | params.mapping_statistics) {
+
+
+	if(params.mapping_statistics) {
 
 		/*
 		 * remove_cross_mapped_reads
@@ -3222,7 +3224,7 @@ if(params.run_star) {
 
 		    output:
 		    set val(sample_name), file("${bam_file_without_crossmapped}") into alignment_multi_mapping_stats
-		    set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
+		    //set val(sample_name), file("${bam_file_without_crossmapped}") into without_crossmapped_m_m
 		    file "${cross_mapped_reads}" into count_crossmapped_reads
 
 		    script:
@@ -3908,6 +3910,7 @@ if(params.run_htseq_uniquely_mapped){
 
 
 
+/*
 if( params.run_htseq_multi_mapped){
 
 	/*
@@ -3973,7 +3976,7 @@ if( params.run_htseq_multi_mapped){
 		}
 
 
-
+*/
 	/*
 	 * htseq - split quantification tables into host and pathogen results
 	 */
