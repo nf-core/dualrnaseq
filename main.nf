@@ -234,17 +234,24 @@ if (params.help) {
 
 
 /*
- * SET UP CONFIGURATION VARIABLES
+--------------------------------------------------------------------
+
+SET UP CONFIGURATIONs AND IDENTIFY USER-SPECIFIED VARIABLES
+
+--------------------------------------------------------------------
  */
 
+//----------
 // Check if genome exists in the config file
+//----------
 if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
     exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
 }
 
 
-// reference genomes
-
+//----------
+// Reference genomes, annotation files and transcriptomes
+//----------
 params.fasta_host = params.genome_host ? params.genomes[ params.genome_host ].fasta_host ?: false : false
 if (params.fasta_host) { ch_fasta_host = file(params.fasta_host, checkIfExists: true) }
 
@@ -260,7 +267,6 @@ if (params.gff_host_genome) { ch_gff_host_genome = file(params.gff_host_genome, 
 params.gff_pathogen = params.genome_pathogen ? params.genomes[ params.genome_pathogen ].gff_pathogen ?: false : false
 if (params.gff_pathogen) { ch_gff_pathogen = file(params.gff_pathogen, checkIfExists: true) }
 
-
 if(params.read_transcriptome_fasta_host_from_file){
     params.transcriptome_host = params.genome_host ? params.genomes[ params.genome_host ].transcriptome_host ?: false : false
     if (params.transcriptome_host) { ch_transcriptome_host = file(params.transcriptome_host, checkIfExists: true) }
@@ -272,9 +278,9 @@ if(params.read_transcriptome_fasta_pathogen_from_file){
 }
 
 
-
- // parameters
-
+//----------
+// Salmon library type
+//----------
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode){
 	if (!params.libtype){
     exit 1, "Salmon: Please specify --libtype"
@@ -287,19 +293,28 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 } 
 }
 
-
+//----------
+// Mapping stats
+//----------
 if(params.mapping_statistics) {
 	if (params.RNA_classes_to_replace_host) { ch_RNA_classes = file(params.RNA_classes_to_replace_host, checkIfExists: true) }
 }
 
 
+//----------
 // Has the run name been specified by the user?
-//  this has the bonus effect of catching both -name and --name
+//----------
+
+//  This has the bonus effect of catching both -name and --name
 custom_runName = params.name
 if (!(workflow.runName ==~ /[a-z]+_[a-z]+/)) {
     custom_runName = workflow.runName
 }
 
+
+//----------
+// AWS
+//----------
 if (workflow.profile.contains('awsbatch')) {
     // AWSBatch sanity checking
     if (!params.awsqueue || !params.awsregion) exit 1, "Specify correct --awsqueue and --awsregion parameters on AWSBatch!"
@@ -310,7 +325,10 @@ if (workflow.profile.contains('awsbatch')) {
     if (params.tracedir.startsWith('s3:')) exit 1, "Specify a local tracedir or run without trace! S3 cannot be used for tracefiles."
 }
 
+
+//----------
 // Stage config files
+//----------
 ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
 ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
@@ -318,10 +336,15 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
 
 
+--------------------------------------------------------------------
 
-/*
- * Create a channel for input read files
- */
+SET UP CHANNELS
+
+--------------------------------------------------------------------
+
+//----------
+// Create a channel for input read files and whether PE or SE
+//----------
 if (params.readPaths) {
     if (params.single_end) {
         Channel
@@ -345,9 +368,9 @@ if (params.readPaths) {
 
 
 
-
-
-
+//----------
+// Channel for host and pathogen fasta files
+//----------
 Channel
     .value( ch_fasta_pathogen)
     .collect()
@@ -358,7 +381,9 @@ Channel
     .into { genome_fasta_host_to_combine; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
 
 
-
+//----------
+// Channel for host GFF and/or tRNA-based files
+//----------
 if(params.gff_host_tRNA){
 	Channel
 	    .value(ch_gff_host_tRNA)
@@ -373,18 +398,23 @@ if(params.gff_host_tRNA){
 	    .into {gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq}
 }
 
+
+//----------
+// Channel for pathogen GFF files
+//----------
 Channel
     .value(ch_gff_pathogen)
     .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome; gff_feature_quant_pathogen_htseq; extract_annotations_pathogen_gff_htseq}
 
 
+//----------
+// Channel for host and pathogen transcriptomes
+//----------
 if(params.read_transcriptome_fasta_host_from_file){
 Channel
     .value(ch_transcriptome_host)
     .into {host_transcriptome_to_combine; transcriptome_host_to_split_q_table_salmon; transcriptome_host_to_split_table_salmon; transcriptome_host_to_split_q_table_salmon_alignment_based; transcriptome_host_to_split_table_salmon_alignment; transcriptome_fasta_host_ref_names}
 }
-
-
 
 if(params.read_transcriptome_fasta_pathogen_from_file){
 Channel
@@ -393,6 +423,9 @@ Channel
 }
 
 
+//----------
+// Channel to capture Cutadapt-based params
+//----------
 if (!params.skipTrimming){
 	if(params.single_end){
 		Channel
@@ -410,7 +443,9 @@ if (!params.skipTrimming){
 }
 
 
-
+//----------
+// Channel to capture Cutadapt-based params
+//----------
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 	Channel
 	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
@@ -441,8 +476,10 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 }
 
 
-
-if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run_star){
+//----------
+// Channel to capture Cutadapt-based params
+//----------
+if(params.run_htseq_uniquely_mapped | params.run_star){
 
 	Channel
 	    .value(params.gene_feature_gff_to_quantify_host)
@@ -460,7 +497,7 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 
 	Channel
 	    .value(params.stranded)
-	    .into { stranded_htseq_unique; stranded_htseq_multi}
+	    .into { stranded_htseq_unique}
 
 	Channel
 	    .value(params.host_gff_attribute)
@@ -468,31 +505,30 @@ if(params.run_htseq_uniquely_mapped | params.run_htseq_multi_mapped | params.run
 }
 
 
-
+//----------
+// Channel to capture if mapping stats are required
+//----------
 if(params.mapping_statistics) {
 
 Channel
     .value(ch_RNA_classes)
     .into { RNA_classes_to_replace; RNA_classes_to_replace_alignment; RNA_classes_to_replace_htseq_uniquely_mapped}
-
-
 }
 
 
 
 
+--------------------------------------------------------------------
 
-// Header log info
+HEADER LOG INFO
+
+--------------------------------------------------------------------
+
 log.info nfcoreHeader()
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
 
-
-
-
-
-// TODO nf-core: Report custom parameters here
 summary['Reads']            = params.reads
 summary['Host fasta Ref']        = params.fasta_host
 summary['Pathogen fasta Ref']        = params.fasta_pathogen
@@ -507,12 +543,15 @@ summary['Launch dir']       = workflow.launchDir
 summary['Working dir']      = workflow.workDir
 summary['Script dir']       = workflow.projectDir
 summary['User']             = workflow.userName
+
 if (workflow.profile.contains('awsbatch')) {
     summary['AWS Region']   = params.awsregion
     summary['AWS Queue']    = params.awsqueue
     summary['AWS CLI']      = params.awscli
 }
+
 summary['Config Profile'] = workflow.profile
+
 if (params.config_profile_description) summary['Config Description'] = params.config_profile_description
 if (params.config_profile_contact)     summary['Config Contact']     = params.config_profile_contact
 if (params.config_profile_url)         summary['Config URL']         = params.config_profile_url
@@ -521,6 +560,7 @@ if (params.email || params.email_on_fail) {
     summary['E-mail on failure'] = params.email_on_fail
     summary['MultiQC maxsize']   = params.max_multiqc_email_size
 }
+
 log.info summary.collect { k,v -> "${k.padRight(18)}: $v" }.join("\n")
 log.info "-\033[2m--------------------------------------------------\033[0m-"
 
@@ -547,11 +587,11 @@ Channel.from(summary.collect{ [it.key, it.value] })
 
 
 
+--------------------------------------------------------------------
 
+PARSE SOFTWARE VERSION NUMBERS
 
-/*
- * Parse software version numbers
- */
+--------------------------------------------------------------------
 
 process get_software_versions {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy',
@@ -585,6 +625,14 @@ process get_software_versions {
 }
 
 
+
+
+
+--------------------------------------------------------------------
+
+[  ]
+
+--------------------------------------------------------------------
 
 
 if(params.mapping_statistics) {
