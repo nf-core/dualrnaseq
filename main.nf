@@ -8,7 +8,7 @@ nf-core/dualrnaseq
 ==========================================
 
 ------------------------------------------
-Authors: B. Mika-Gospodorz and . Hayward
+Authors: B.Mika-Gospodorz and R.Hayward
 
 Homepage: https://github.com/nf-core/dualrnaseq
 ------------------------------------------
@@ -230,6 +230,8 @@ if (params.help) {
     helpMessage()
     exit 0
 }
+
+
 
 /*
  * SET UP CONFIGURATION VARIABLES
