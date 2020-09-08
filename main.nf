@@ -1,16 +1,31 @@
 #!/usr/bin/env nextflow
 /*
-========================================================================================
-                         nf-core/dualrnaseq
-========================================================================================
- nf-core/dualrnaseq Analysis Pipeline.
- #### Homepage / Documentation
- https://github.com/nf-core/dualrnaseq
-----------------------------------------------------------------------------------------
+
+==========================================
+
+nf-core/dualrnaseq
+
+==========================================
+
+------------------------------------------
+Authors: B. Mika-Gospodorz and . Hayward
+
+Homepage: https://github.com/nf-core/dualrnaseq
+------------------------------------------
+
+
+Brief description: 
+------------------------------------------
+Extract host and pathogen expression using three methods, with options for various statistical outputs.
+1) STAR + HTSeq
+2) Salmon selective alignment
+3) STAR + Salmon - alignment-based mode
+
 */
 
+
+
 def helpMessage() {
-    // TODO nf-core: Add to this help message with new command line parameters
     log.info nfcoreHeader()
     log.info"""
 
@@ -21,30 +36,186 @@ def helpMessage() {
     nextflow run nf-core/dualrnaseq --reads '*_R{1,2}.fastq.gz' -profile docker
 
     Mandatory arguments:
-      --reads [file]                Path to input data (must be surrounded with quotes)
-      -profile [str]                Configuration profile to use. Can use multiple (comma separated)
-                                    Available: conda, docker, singularity, test, awsbatch, <institute> and more
+      --reads     [file]    Path to input data (must be surrounded with quotes)
+      -profile    [str]     Configuration profile to use. Can use multiple (comma separated)
+                            Available: conda, docker, singularity, test, awsbatch, <institute> and more
+    Pipeline options:
+      --outdir    [file]    The output directory where the results will be saved
+       -name      [str]     Name for the pipeline run. If not specified, Nextflow will automatically 
+                            generate a random mnemonic
 
-    Options:
-      --genome [str]                  Name of iGenomes reference
-      --single_end [bool]             Specifies that the input is single-end reads
+    References and annotative files can be specified in the configuration file.
+    Alternatively, the following params can be edited directly.
+    
+    Library type and genome files:
+      --single_end      [bool]  Specifies that the input is single-end reads (default: false)
+      --fasta_host      [file]  Host genome ("folder/file.fa")
+      --fasta_pathogen  [file]  Pathogen genome
+      
+    Annotation files:
+      --gff_host        [file]   Host GFF
+      --gff_pathogen    [file]   Pathogen GFF
+      --gff_host_tRNA   [file]   Host tRNA (optional)
 
-    References                        If not specified in the configuration file or you wish to overwrite any of the references
-      --fasta [file]                  Path to fasta reference
+    The pipeline will automatically generate transcriptome files for both the host and pathogen.
+    These parameters should only be used when using custom transcriptome files 
 
+    Transcriptome files:
+      --read_transcriptome_fasta_host_from_file        [bool]   Include custom host transcriptome
+                                                                (Default: false)
+      --read_transcriptome_fasta_pathogen_from_file    [bool]   Include custom pathogen transcriptome
+                                                                (Default: false)
+      --transcriptome_host                             [file]    Custom host transcriptome
+                                                                (Default: "")
+      --transcriptome_pathogen                         [file]    Custom pathogen transcriptome
+                                                                (Default: "")  
+      
+    Trimming is performed by Cutadapt with the following related options
+    
     Trimming:
-      --a [str]                           adapter sequence for single-end reads or first reads of paired-end data
-      --A [str]                           adapter sequence for second reads of paired-end data
-      --quality-cutoff              cutoff to remove low-quality ends of reads. A single cutoff value is used to trim the 3’ end of reads. If two comma-separated cutoffs defined, the first value reprerents 5’ cutoff, and the second value defines 3’ cutoff.
-      --skipTrimming                Skip trimming step
+      --a               [str]   Adapter sequence for single-end reads or first reads of paired-end data
+                                (Default: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA")
+      --A               [str]   Adapter sequence for second reads of paired-end data
+                                (Default: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT")
+      --quality-cutoff  [int]   Cutoff to remove low-quality ends of reads. (Default: 10)
+                                A single cutoff value is used to trim the 3’ end of reads. 
+                                If two comma-separated cutoffs are defined, the first value reprerents 5’ cutoff, 
+                                and the second value defines the 3’ cutoff.
+      --skipTrimming    [bool]  To skip the trimming step (Default: false)
 
+    Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
+    
+    FastQC:
+      --skipFastqc      [bool]  Option to skip running FastQC
+      
+    The following options are related to the three main methods to extract gene expression:
+    
+    Salmon:
+      --libtype             [str]     To define the type of sequencing library of your data 
+                                      (Default:'')
+      --kmer_length         [int]     To define the k-mer length (-k parameter in Salmon)
+                                      (Default: 21)
+      --writeUnmappedNames  [bool]    By default the pipeline does not save names of unmapped reads
+                                      (Default: false)
+      --softclipOverhangs   [bool]    By default, the pipeline does not allow soft-clipping of reads 
+                                      (Default: false)
+      --incompatPrior       [int]     This is set to 0.0, to ensure that only mappings or alignments that 
+                                      are compatible with the specified library type are considered by Salmon 
+                                      (Default: 0.0)
+      --dumpEq              [bool]    To save the equivalence classes and their counts, change this option to True 
+                                      (Default: false)
+      --writeMappings       [bool]    If set to True, the pipeline will create a files named mapping.sam 
+                                      containing mapping information
+                                      (Default: false)
+      --keepDuplicates      [bool]    Option to remove/collapse identical transcripts during the indexing stage 
+                                      (Default: false)
+      
+    Salmon selective alignment:
+      --run_salmon_selective_alignment                      [bool]   Run this mode
+                                                                     (Default: false)
+      --gene_attribute_gff_to_create_transcriptome_host     [str]    Host transcriptome  - gene attributes
+                                                                     (Default: transcript_id) 
+      --gene_feature_gff_to_create_transcriptome_host       [str]    Host transcriptome  - gene feature
+                                                                     (Default: ["exon", "tRNA"])
+      --gene_attribute_gff_to_create_transcriptome_pathogen [str]    Pathogen transcriptome - gene attribute
+                                                                     (Default: locus_tag)
+      --gene_feature_gff_to_create_transcriptome_pathogen   [str]    Pathogen transcriptome - gene features
+                                                                     (Default: ["gene","sRNA","tRNA","rRNA"] )
+      
+    STAR + Salmon - alignment-based mode:
+      --run_salmon_alignment_based_mode   [bool]   Option to run Salmn in alignment mode
+                                                   (Default: false)
+      --run_star                          [bool]   Run STAR
+                                                   (Default: false)
+      --outWigType                        [str]    Used to generate signal outputs, such as "wiggle" and "bedGraph"
+                                                   (Default: None)
+      --outWigStrand                      [str]    Options are Stranded or Unstranded when defining 
+                                                   the strandedness of wiggle/bedGraph output
+                                                   (Default: Stranded)
+      --outSAMunmapped                    [str]    By default, the pipeline saves unmapped reads 
+                                                   within the main BAM file. If you want to switch off this option, 
+                                                   set the --outSAMunmapped flag to None
+                                                   (Default: Within)
+      --outSAMattributes                  [str]    To specify the attributes of the output BAm file
+                                                   (Default: Standard)
+      --outFilterMultimapNmax             [int]    To specify the maximum number of loci a read is allowed to map to
+                                                   (Default: 20)
+      --outFilterType                     [str]    By default, the pipeline keeps reads containing junctions that 
+                                                   passed filtering into the file SJ.out.tab. This option reduces 
+                                                   the number of ”spurious” junctions
+                                                   (Default: BySJout)
+      --alignSJoverhangMin                [int]    The number of minimum overhang for unannotated junctions
+                                                   (Default: 8)
+      --alignSJDBoverhangMin              [int]    The number of minimum overhang for annotated junctions
+                                                   (Default: 1)
+      --outFilterMismatchNmax             [int]    To define a threshold for the number of mismatches to be allowed.
+                                                   The pipeline uses a large number to switch this filter off 
+                                                   (Default: 999)
+      --outFilterMismatchNoverReadLmax    [int]    Here, you can define a threshold for a ratio of mismatches to 
+                                                   read length. The alignment will be considered if the ratio is 
+                                                   less than or equal to this value. For 2x100b, max number of 
+                                                   mismatches is 0.04x200=8 for paired-end reads
+                                                   (Default: 0.04)
+      --alignIntronMin                    [int]    By default, the nf-core dualrnaseq pipeline uses 20 as a 
+                                                   minimum intron length. If the genomic gap is smaller than this
+                                                   value, it is considered as a deletion
+                                                   (Default: 20)
+      --alignIntronMax                    [int]    The maximum intron length
+                                                   (Default: 1000000)
+      --alignMatesGapMax                  [int]    The maximum genomic distance between mates is 1,000,000
+                                                   (Default: 1000000)
+      --quantTranscriptomeBan             [str]    The nf-core/dualrnaseq pipeline runs STAR to generate a 
+                                                   transcriptomic alignments. By default, it allows for insertions, 
+                                                   deletions and soft-clips (Singleend option). To prohibit this 
+                                                   behaviour, specify IndelSoftclipSingleend
+                                                   (Default: Singleend)
+      --limitBAMsortRAM                   [int]    Option to limit RAM when sorting BAM file. 
+                                                   If 0, will be set to the genome index size, which can be quite 
+                                                   large when running on a desktop or laptop
+                                                   (Default: 0)
+      
+    HTSeq:
+      --run_htseq_uniquely_mapped               [bool]   Option to run HTSeq
+                                                         (Default: false)
+      --stranded                                [char]   Is library type stranded (yes/no)
+                                                         (Default: yes)
+      --gene_feature_gff_to_quantify_host       [str]    Host - gene features to quantify from GFF
+                                                         (Default: ["exon","tRNA"] )
+      --gene_feature_gff_to_quantify_pathogen   [str]    Pathogen - gene features to quantify from GFF
+                                                         (Default: ["gene", "sRNA", "tRNA", "rRNA"] )
+      --host_gff_attribute                      [str]    Host - attribute from GFF
+                                                         (Default: gene_id )
+      --pathogen_gff_attribute                  [str]    Pathogen - attribute from GFF
+                                                         (Default: locus_tag)
 
-    Other options:
-      --outdir [file]                 The output directory where the results will be saved
-      --email [email]                 Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits
-      --email_on_fail [email]         Same as --email, except only send mail if the workflow is not successful
-      --max_multiqc_email_size [str]  Theshold size for MultiQC report to be attached in notification email. If file generated by pipeline exceeds the threshold, it will not be attached (Default: 25MB)
-      -name [str]                     Name for the pipeline run. If not specified, Nextflow will automatically generate a random mnemonic
+    RNA mapping statistics:
+      --mapping_statistics               [bool]   Option to generate mapping statistics. This will create the following:
+                                                  - Count the total number of reads before and after trimming
+                                                  - Scatterplots comparing all replicates (separate for both host and pathogen reads)
+                                                  - Plots of the % of mapped/quantified reads
+                                                  - Plots of RNA-class statistics (as many types can be identified, 
+                                                    the parameter below --RNA_classes_to_replace_host can help to summarise these)
+                                                  (Default: false)
+      --RNA_classes_to_replace_host      [file]   Located within the data/ directory, this tab delimited file contains headers which 
+                                                  groups similar types of RNA classes together. This helps to keep the RNA-class 
+                                                  names simplified for plotting purposes.
+                                                  (Default: $baseDir/data/RNA_classes_to_replace.csv)
+   
+    Report options:
+      --email                   [email]   Set this parameter to your e-mail address to get a summary e-mail with details of the 
+                                          run sent to you when the workflow exits
+                                          (Default: false)
+      --email_on_fail           [email]   Same as --email, except only send mail if the workflow is not successful
+                                          (Default: false)  
+      --max_multiqc_email_size  [str]     Theshold size for MultiQC report to be attached in notification email. 
+                                          If file generated by pipeline exceeds the threshold, it will not be attached
+                                          (Default: 25MB)
+      --plaintext_email         [bool]    Set to receive plain-text e-mails instead of HTML formatted
+                                          (Default: false)
+      --monochrome_logs         [bool]    Set to disable colourful command line output and live life in monochrome
+                                          (Default: false)
+      --multiqc_config          [bool]    Specify path to a custom MultiQC configuration file.
+                                          (Default: false)
 
     AWSBatch options:
       --awsqueue [str]                The AWSBatch JobQueue that needs to be set when running on AWSBatch
@@ -52,6 +223,7 @@ def helpMessage() {
       --awscli [str]                  Path to the AWS CLI tool
     """.stripIndent()
 }
+
 
 // Show help message
 if (params.help) {
