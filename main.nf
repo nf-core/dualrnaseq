@@ -2325,6 +2325,7 @@ if (params.run_salmon_alignment_based_mode){
 	    alignIntronMin = params.alignIntronMin
 	    alignIntronMax = params.alignIntronMax
 	    alignMatesGapMax = params.alignMatesGapMax
+	    limitBAMsortRAM = params.limitBAMsortRAM
 	    readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    
 	    if (params.single_end){
