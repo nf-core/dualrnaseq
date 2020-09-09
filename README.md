@@ -10,18 +10,15 @@
 [![Install with Singularity](https://img.shields.io/badge/use%20with-singularity-purple.svg)](https://www.sylabs.io/docs/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 
-# Contents
-
-1. [Dual RNA-seq pipeline](introduction.md)
-2. [Dual RNA-seq pipeline](introduction.md)
-3. [Dual RNA-seq pipeline](introduction.md)
-4. [Dual RNA-seq pipeline](introduction.md)
-5. [Dual RNA-seq pipeline](introduction.md)
-6. [Dual RNA-seq pipeline](introduction.md)
-
 ## Dual RNA-seq pipeline
 
-Description of the pipeline and why important
+**Description**
+
+Description of the pipeline and why important - to be completed
+
+**Nextflow**
+
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with Docker containers making installation trivial and results highly reproducible.
 
 ## Documentation
 
@@ -37,12 +34,6 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 4. [Running the pipeline](usage.md)
 5. [Output and how to interpret the results](output.md)
 6. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
-
-## Nextflow
-
-### Introduction
-
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 ## Credits
 
