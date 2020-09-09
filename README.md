@@ -24,15 +24,15 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
-1. [Introduction](introduction.md)
+1. [Introduction](docs/introduction.md)
 2. [Installation](https://nf-co.re/usage/installation)
 3. Pipeline configuration
     * [Local installation](https://nf-co.re/usage/local_installation)
     * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
     * [Reference genomes](https://nf-co.re/usage/reference_genomes)
-    * [Parameters](parameters.md)
-4. [Running the pipeline](usage.md)
-5. [Output and how to interpret the results](output.md)
+    * [Parameters](docs/parameters.md)
+4. [Running the pipeline](docs/usage.md)
+5. [Output and how to interpret the results](docs/output.md)
 6. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 ## Credits
