@@ -1,7 +1,5 @@
 # ![nf-core/dualrnaseq](docs/images/nf-core-dualrnaseq_logo.png)
 
-## Dual RNA-seq pipeline
-
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 [![nf-core](https://img.shields.io/badge/nf--core-pipeline-brightgreen.svg)](https://nf-co.re/)
 
@@ -12,47 +10,39 @@
 [![Install with Singularity](https://img.shields.io/badge/use%20with-singularity-purple.svg)](https://www.sylabs.io/docs/)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
 
+# Contents
 
-## Introduction
+1. [Dual RNA-seq pipeline](introduction.md)
+2. [Dual RNA-seq pipeline](introduction.md)
+3. [Dual RNA-seq pipeline](introduction.md)
+4. [Dual RNA-seq pipeline](introduction.md)
+5. [Dual RNA-seq pipeline](introduction.md)
+6. [Dual RNA-seq pipeline](introduction.md)
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+## Dual RNA-seq pipeline
 
-## Quick Start
-
-i. Install [`nextflow`](https://nf-co.re/usage/installation)
-
-ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) for full pipeline reproducibility (please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))
-
-iii. Download the pipeline and test it on a minimal dataset with a single command
-
-```bash
-nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institute>
-```
-
-> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
-
-iv. Start running your own analysis!
-
-<!-- TODO nf-core: Update the default command above used to run the pipeline -->
-
-```bash
-nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
-```
-
-See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+Description of the pipeline and why important
 
 ## Documentation
 
 The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
-1. [Installation](https://nf-co.re/usage/installation)
-2. Pipeline configuration
+1. [Introduction](introduction.md)
+2. [Installation](https://nf-co.re/usage/installation)
+3. Pipeline configuration
     * [Local installation](https://nf-co.re/usage/local_installation)
     * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
     * [Reference genomes](https://nf-co.re/usage/reference_genomes)
-3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
-5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+    * [Parameters](parameters.md)
+4. [Running the pipeline](usage.md)
+5. [Output and how to interpret the results](output.md)
+6. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+
+## Nextflow
+
+### Introduction
+
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 ## Credits
 
