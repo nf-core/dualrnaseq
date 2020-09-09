@@ -3,8 +3,10 @@
 ## Table of contents
 
 1. [Running the pipeline](#1-running-the-pipeline)
-   * [Updating the pipeline](#11-updating-the-pipeline)
-   * [Reproducibility](#12-reproducibility)
+   * [Quick start](#11-quick-start)
+   * [Basic run](#12-basic-run)
+   * [Updating the pipeline](#13-updating-the-pipeline)
+   * [Reproducibility](#14-reproducibility)
 2. [Configuration profile](#2-configuration-profile)
 3. [Input sequence reads](#3-input-sequence-reads)
 4. [Reference genomes and annotation](#4-reference-genomes-and-annotation)
@@ -21,7 +23,29 @@
 
 ## 1. Running the pipeline
 
-We are assuming that you already have Nextflow installed, click [here](https://nf-co.re/usage/installation) to install before continuing.
+### 1.1 Quick Start
+
+i. Install [`nextflow`](https://nf-co.re/usage/installation)
+
+ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) for full pipeline reproducibility (please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))
+
+iii. Download the pipeline and test it on a minimal dataset with a single command
+
+```bash
+nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institute>
+```
+
+> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+
+iv. Start running your own analysis!
+
+```bash
+nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
+```
+
+See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+
+### 1.2 Basic run
 
 Once ready, a basic command for running the pipeline would be the following:
 
@@ -45,7 +69,7 @@ results         # Finished results (configurable, see below)
 # Other nextflow hidden files, eg. history of pipeline runs and logs.
 ```
 
-### 1.1 Updating the pipeline
+### 1.3 Updating the pipeline
 
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. Subsequent runs will use the cached version if available - even if the pipeline has since been updated. To make sure that you're running the latest version, make sure that you regularly run this command so the cached version is the most recent:
 
@@ -53,7 +77,7 @@ When you run the above command, Nextflow automatically pulls the pipeline code f
 nextflow pull nf-core/dualrnaseq
 ```
 
-### 1.2 Reproducibility
+### 1.4 Reproducibility
 
 It's a good idea to specify a pipeline version when running on your data. This will ensure results can be reproduced more easily, and can be easily referenced or referred to, particularly when multiple versions are available. If a version number was't strictly defined in a previous run, it can be found in the various reports in the `results` directory.
 
