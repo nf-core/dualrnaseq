@@ -240,6 +240,10 @@ Pathogen:
 
 > Note: If using pipeline-specific parameters, it may be a good idea to disable the iGenomes configuration file (`--igenomes_ignore`), to avoid chashes between pipeline-specific parameters and those supplied in `igenomes.config`.
 
+**Host tRNA**
+
+We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
+
 ### 4.2 Annotation
 
 Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotation files, main features are defined as genes, transcripts and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others.
@@ -268,6 +272,13 @@ Pathogen:
 `--pathogen_gff_attribute "locus_tag"`
 
 However, we realise that many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. In these instances, we recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
+
+#### Features within pathogen annotation files
+
+As previously mentioned, bacterial annotative files can be challenging to work with due to the non-uniformity. We find that summarising the contents of the GFF can help to identify which features you may want to examine. The following bash script can do this easily:
+```
+awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
+```
 
 ## 5. Read mapping and quantification
 
