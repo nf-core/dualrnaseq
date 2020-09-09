@@ -137,6 +137,8 @@ The first two parameters are set to `False`. If supplying custom transcriptome f
 
 Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions.
 
+#### `--reads`
+
 Please note the following requirements:
 
 * The path must be enclosed in quotes
@@ -146,10 +148,6 @@ Please note the following requirements:
 * It is not possible to run a mixture of single-end and paired-end files in one run
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
-
-### Parameter
-
-#### `--reads`
 
 ## 4. FastQC and adapter trimming
 
@@ -377,7 +375,7 @@ A good idea is to view the accompanying annotative file and examine the fields w
 
 ## 8. RNA mapping statistics
 
-### Parameters
+### Parameters and files
 
 #### `--mapping_statistics False`
 
