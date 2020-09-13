@@ -300,12 +300,12 @@
                 },
                 "writeUnmappedNames": {
                     "type": "string",
-                    "default": "true",
+                    "default": "false",
                     "description": "By default the pipeline saves names of unmapped reads"
                 },
                 "softclipOverhangs": {
                     "type": "string",
-                    "default": "true",
+                    "default": "false",
                     "description": "By default, the pipeline allows soft-clipping of reads"
                 },
                 "incompatPrior": {
@@ -314,12 +314,17 @@
                 },
                 "dumpEq": {
                     "type": "string",
-                    "default": "true",
+                    "default": "false",
                     "description": "To save the equivalence classes and their counts (Salmon)"
                 },
                 "writeMappings": {
                     "type": "string",
                     "description": "f set to True, the pipeline will create a mapping.sam file containing mapping information"
+                },
+                "generate_salmon_uniq_ambig": {
+                    "type": "string",
+                    "default": "false",
+                    "description": "To extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes"
                 },
                 "keepDuplicates": {
                     "type": "string",
