@@ -91,24 +91,27 @@ def helpMessage() {
     The following options are related to the three main methods to extract gene expression:
     
     Salmon:
-      --libtype             [str]     To define the type of sequencing library of your data 
-                                      (Default:'')
-      --kmer_length         [int]     To define the k-mer length (-k parameter in Salmon)
-                                      (Default: 21)
-      --writeUnmappedNames  [bool]    By default the pipeline does not save names of unmapped reads
-                                      (Default: false)
-      --softclipOverhangs   [bool]    By default, the pipeline does not allow soft-clipping of reads 
-                                      (Default: false)
-      --incompatPrior       [int]     This is set to 0.0, to ensure that only mappings or alignments that 
-                                      are compatible with the specified library type are considered by Salmon 
-                                      (Default: 0.0)
-      --dumpEq              [bool]    To save the equivalence classes and their counts, change this option to True 
-                                      (Default: false)
-      --writeMappings       [bool]    If set to True, the pipeline will create a files named mapping.sam 
-                                      containing mapping information
-                                      (Default: false)
-      --keepDuplicates      [bool]    Option to remove/collapse identical transcripts during the indexing stage 
-                                      (Default: false)
+      --libtype                     [str]   To define the type of sequencing library of your data 
+                                            (Default:'')
+      --kmer_length                 [int]   To define the k-mer length (-k parameter in Salmon)
+                                            (Default: 21)
+      --writeUnmappedNames          [bool]  By default the pipeline does not save names of unmapped reads
+                                            (Default: false)
+      --softclipOverhangs           [bool]  By default, the pipeline does not allow soft-clipping of reads 
+                                            (Default: false)
+      --incompatPrior               [int]   This is set to 0.0, to ensure that only mappings or alignments that 
+                                            are compatible with the specified library type are considered by Salmon 
+                                            (Default: 0.0)
+      --dumpEq                      [bool]  To save the equivalence classes and their counts, change this option to True 
+                                            (Default: false)
+      --writeMappings               [bool]  If set to True, the pipeline will create a files named mapping.sam 
+                                            containing mapping information
+                                            (Default: false)
+      --keepDuplicates              [bool]  Option to remove/collapse identical transcripts during the indexing stage 
+                                            (Default: false)
+      --generate_salmon_uniq_ambig  [bool]  Option to extract all of the unique and ambigious reads after quantification
+                                            Works for both Selective alignment and alignment-based modes 
+                                            (Default: false)					      
       
     Salmon selective alignment:
       --run_salmon_selective_alignment                      [bool]   Run this mode
@@ -1189,7 +1192,9 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats
 	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats_salmon_alignment
 	    file "${outfile_name}*_salmon.csv" into tximport_annotations
-	    file "${outfile_name}*_salmon.csv" into tximport_annotations_salmon_alignment
+	    file "${outfile_name}*_salmon.csv" into host_annotations_uniq_ambig
+            file "${outfile_name}*_salmon.csv" into tximport_annotations_salmon_alignment
+	    file "${outfile_name}*_salmon.csv" into host_annotations_uniq_ambig_AB
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_salmon_alignment_based
 	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_gene_level_salmon
@@ -1716,6 +1721,7 @@ if(params.run_salmon_selective_alignment) {
 
 	    output:
 	    set val(sample_name), file("${sample_name}") into split_table
+	    set val(sample_name), file("${sample_name}") into split_table_uniq_ambig
 	    file("${sample_name}") into salmon_files_to_combine
 	    file("${sample_name}") into multiqc_salmon_quant
 	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts
@@ -1770,7 +1776,91 @@ if(params.run_salmon_selective_alignment) {
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host  salmon/*/quant.sf ".sf"
             """
         }
+	
+	
+	
+	
+    if(params.generate_salmon_uniq_ambig) {
 
+    /*
+     * Extract and combine the ambig and unique counts
+     */
+    process extract_ambig_uniq_transcripts_genes {
+            publishDir "${params.outdir}/salmon/${sample_name}/aux_info", mode: 'copy'
+            storeDir "${params.outdir}/salmon/${sample_name}/aux_info"
+            tag "extract_ambig_uniq_transcripts_genes ${sample_name}"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            set val(sample_name), file("salmon/*") from split_table_uniq_ambig
+            file (annotations) from host_annotations_uniq_ambig
+
+
+            output:
+            file "${sample_name}_host_quant_ambig_uniq.sf"
+            file "${sample_name}_pathogen_quant_ambig_uniq.sf"
+            file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
+            set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb
+            set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
+            """
+        }
+
+    /*
+     * Combine the host ambig and unique counts
+     */
+        process host_comb_ambig_uniq {
+            publishDir "${params.outdir}/salmon", mode: 'copy'
+            storeDir "${params.outdir}/salmon"
+            tag "host_comb_ambig_uniq"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            file("salmon/*") from host_files_comb.collect()
+
+            output:
+            file "host_quant_combined_ambig_uniq.tsv"
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
+            """
+        }
+
+    /*
+     * Combine the pathogen ambig and unique counts
+     */
+        process pathogen_comb_ambig_uniq {
+            publishDir "${params.outdir}/salmon", mode: 'copy'
+            storeDir "${params.outdir}/salmon"
+            tag "pathogen_comb_ambig_uniq"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            file("salmon/*") from path_files_comb.collect()
+
+            output:
+            file "pathogen_quant_combined_ambig_uniq.tsv"
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
+            """
+        }
+
+    }
+    
+    
+    
 
 	/*
 	 * salmon - combine quantification results
@@ -2396,6 +2486,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    output:
 	    set val(sample_name), file("${sample_name}") into split_table_alignment_based
+	    set val(sample_name), file("${sample_name}") into split_table_uniq_ambig_ab
 	    file("${sample_name}") into salmon_files_to_combine_alignment_mode
 	    file("${sample_name}") into multiqc_salmon_alignment_quant
 	    set val(sample_name), file("${sample_name}") into collect_processed_read_counts_alignment_based
@@ -2420,6 +2511,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    input:
 	    set val(sample_name), file ("salmon/*") from split_table_alignment_based
+	    set val(sample_name), file ("salmon/*") from split_table_alignment_based_uniq_ambig
 	    file transcriptome_pathogen from transcriptome_pathogen_to_split_q_table_salmon_alignment_based
 	    file transcriptome_host from transcriptome_host_to_split_q_table_salmon_alignment_based
 
@@ -2432,6 +2524,95 @@ if (params.run_salmon_alignment_based_mode){
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host salmon/*/quant.sf ".sf"
             """
 	}
+
+
+
+
+     if(params.generate_salmon_uniq_ambig) {
+
+    /*
+     * Extract and combine the ambig and unique counts
+     */
+   	 process extract_ambig_uniq_transcripts_genes_alignment_based {
+            publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info", mode: 'copy'
+            storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info"
+            tag "extract_ambig_uniq_transcripts_genes_AB ${sample_name}"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            set val(sample_name), file("salmon/*") from split_table_alignment_based_uniq_ambig
+            file (annotations) from host_annotations_uniq_ambig_AB
+
+
+            output:
+            file "${sample_name}_host_quant_ambig_uniq.sf"
+            file "${sample_name}_pathogen_quant_ambig_uniq.sf"
+            file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
+            set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb_uniq_ambig_AB
+            set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb_uniq_ambig_AB
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
+            """
+        }
+
+    /*
+     * Combine the host ambig and unique counts
+     */
+        process host_comb_ambig_uniq_alignment_based {
+            publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+            storeDir "${params.outdir}/salmon_alignment_mode"
+            tag "host_comb_ambig_uniq_AB"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            file("salmon/*") from host_files_comb_uniq_ambig_AB.collect()
+
+            output:
+            file "host_quant_combined_ambig_uniq.tsv"
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
+            """
+        }
+
+    /*
+     * Combine the pathogen ambig and unique counts
+     */
+        process pathogen_comb_ambig_uniq_alignment_based {
+            publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+            storeDir "${params.outdir}/salmon_alignment_mode"
+            tag "pathogen_comb_ambig_uniq_AB"
+
+            label 'main_env'
+            label 'process_high'
+
+            input: 
+            file("salmon/*") from path_files_comb_uniq_ambig_AB.collect()
+
+            output:
+            file "pathogen_quant_combined_ambig_uniq.tsv"
+
+            script:
+            """
+            $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
+            """
+        }
+
+    }
+
+
+
+
+
+
+
 
 
 
