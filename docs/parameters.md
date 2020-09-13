@@ -221,6 +221,10 @@ To save the equivalence classes and their counts, change this option to `True`. 
 
 If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings)
 
+#### `--generate_salmon_uniq_ambig False`
+
+Option to extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes
+
 #### `--keepDuplicates False`
 
 Option to remove/collapse identical transcripts during the indexing stage
