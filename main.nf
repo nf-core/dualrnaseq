@@ -165,7 +165,7 @@ def helpMessage() {
                                                    large when running on a desktop or laptop
                                                    (Default: 0)
       --winAnchorMultimapNmax             [int]    By default, the nf-core dualrnaseq pipeline uses 999 as a 
-                                                   maximum number of loci anchors that are allowed to map to.
+                                                   maximum number of loci anchors that are allowed to map to
                                                    (Default: 999)
       --sjdbOverhang                      [int]    To specify the length of the donor/acceptor sequence on each side of the junctions
                                                    used in constructing the splice junctions database.
@@ -195,6 +195,16 @@ def helpMessage() {
                                                          (Default: false)
       --stranded                                [char]   Is library type stranded (yes/no)
                                                          (Default: yes)
+      --max_reads_in_buffer                     [int]    To define the number of maximum reads allowed to
+                                                         stay in memory until the mates are found
+                                                         Has an effect for paired-end reads
+                                                         (Default: 30000000) 
+      --minaqual                                [int]    To specify a threshold for a minimal MAPQ alignment quality. 
+                                                         Reads with the MAPQ alignment quality below the given number will be removed
+                                                         (Default: 10)
+
+
+
       --gene_feature_gff_to_quantify_host       [str]    Host - gene features to quantify from GFF
                                                          (Default: ["exon","tRNA"] )
       --gene_feature_gff_to_quantify_pathogen   [str]    Pathogen - gene features to quantify from GFF
@@ -3723,12 +3733,13 @@ if(params.run_htseq_uniquely_mapped){
 	    script:
 	    name_file2 = sample_name + "_count_u_m"
 	    host_attr = host_attribute
+	    max_reads_in_buffer = params.max_reads_in_buffer
+	    minaqual = params.minaqual
 	    """
-	    htseq-count -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded > $name_file2
+	    htseq-count -n $task.cpus -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded --max-reads-in-buffer=<$max_reads_in_buffer> -a $minaqual > $name_file2
 	    sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$name_file2"
 	    """
 	}
-
 
 
 	/*
