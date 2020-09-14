@@ -125,16 +125,9 @@ def helpMessage() {
       --gene_feature_gff_to_create_transcriptome_pathogen   [str]    Pathogen transcriptome - gene features
                                                                      (Default: ["gene","sRNA","tRNA","rRNA"] )
       
-    STAR + Salmon - alignment-based mode:
-      --run_salmon_alignment_based_mode   [bool]   Option to run Salmn in alignment mode
-                                                   (Default: false)
+    STAR - general options available for both modes, genome mapping with HTSeq quantification and salmon - alignment-based mode:
       --run_star                          [bool]   Run STAR
                                                    (Default: false)
-      --outWigType                        [str]    Used to generate signal outputs, such as "wiggle" and "bedGraph"
-                                                   (Default: None)
-      --outWigStrand                      [str]    Options are Stranded or Unstranded when defining 
-                                                   the strandedness of wiggle/bedGraph output
-                                                   (Default: Stranded)
       --outSAMunmapped                    [str]    By default, the pipeline saves unmapped reads 
                                                    within the main BAM file. If you want to switch off this option, 
                                                    set the --outSAMunmapped flag to None
@@ -142,7 +135,7 @@ def helpMessage() {
       --outSAMattributes                  [str]    To specify the attributes of the output BAm file
                                                    (Default: Standard)
       --outFilterMultimapNmax             [int]    To specify the maximum number of loci a read is allowed to map to
-                                                   (Default: 20)
+                                                   (Default: 999)
       --outFilterType                     [str]    By default, the pipeline keeps reads containing junctions that 
                                                    passed filtering into the file SJ.out.tab. This option reduces 
                                                    the number of ”spurious” junctions
@@ -167,16 +160,36 @@ def helpMessage() {
                                                    (Default: 1000000)
       --alignMatesGapMax                  [int]    The maximum genomic distance between mates is 1,000,000
                                                    (Default: 1000000)
+      --limitBAMsortRAM                   [int]    Option to limit RAM when sorting BAM file. 
+                                                   If 0, will be set to the genome index size, which can be quite 
+                                                   large when running on a desktop or laptop
+                                                   (Default: 0)
+      --winAnchorMultimapNmax             [int]    By default, the nf-core dualrnaseq pipeline uses 999 as a 
+                                                   maximum number of loci anchors that are allowed to map to.
+                                                   (Default: 999)
+      --sjdbOverhang                      [int]    To specify the length of the donor/acceptor sequence on each side of the junctions
+                                                   used in constructing the splice junctions database.
+                                                   ideally = (mate length - 1)
+                                                   (Default: 100)
+      
+    STAR - additional options available only for genome mapping with HTSeq quantification mode
+      --outWigType                        [str]    Used to generate signal outputs, such as "wiggle" and "bedGraph"
+                                                   (Default: None)
+      --outWigStrand                      [str]    Options are Stranded or Unstranded when defining 
+                                                   the strandedness of wiggle/bedGraph output
+                                                   (Default: Stranded)
+      
+    STAR - additional options available only for Salmon - alignment-based mode:
       --quantTranscriptomeBan             [str]    The nf-core/dualrnaseq pipeline runs STAR to generate a 
                                                    transcriptomic alignments. By default, it allows for insertions, 
                                                    deletions and soft-clips (Singleend option). To prohibit this 
                                                    behaviour, specify IndelSoftclipSingleend
                                                    (Default: Singleend)
-      --limitBAMsortRAM                   [int]    Option to limit RAM when sorting BAM file. 
-                                                   If 0, will be set to the genome index size, which can be quite 
-                                                   large when running on a desktop or laptop
-                                                   (Default: 0)
       
+    Salmon - alignment-based mode:
+      --run_salmon_alignment_based_mode   [bool]   Option to run Salmn in alignment mode
+                                                   (Default: false)
+     
     HTSeq:
       --run_htseq_uniquely_mapped               [bool]   Option to run HTSeq
                                                          (Default: false)
