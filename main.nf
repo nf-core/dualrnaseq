@@ -2511,7 +2511,7 @@ if (params.run_salmon_alignment_based_mode){
 
 	    input:
 	    set val(sample_name), file ("salmon/*") from split_table_alignment_based
-	    set val(sample_name), file ("salmon/*") from split_table_alignment_based_uniq_ambig
+	    //set val(sample_name), file ("salmon/*") from split_table_alignment_based_uniq_ambig
 	    file transcriptome_pathogen from transcriptome_pathogen_to_split_q_table_salmon_alignment_based
 	    file transcriptome_host from transcriptome_host_to_split_q_table_salmon_alignment_based
 
@@ -2542,7 +2542,7 @@ if (params.run_salmon_alignment_based_mode){
             label 'process_high'
 
             input: 
-            set val(sample_name), file("salmon/*") from split_table_alignment_based_uniq_ambig
+            set val(sample_name), file("salmon/*") from split_table_uniq_ambig_ab
             file (annotations) from host_annotations_uniq_ambig_AB
 
 
