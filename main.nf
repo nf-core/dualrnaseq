@@ -2238,12 +2238,15 @@ if(params.run_salmon_selective_alignment) {
 		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen
 		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined
 		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_combined_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_boolean
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen -p salmon
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen -p salmon 2>&1)
+		    '''
 		}
+
 
 
 		/*
@@ -2270,12 +2273,16 @@ if(params.run_salmon_selective_alignment) {
 		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined
 		    file "host_RNA_classes_sum_counts_salmon.csv"
 		    file "host_gene_types_groups_*"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_combined_boolean
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host -p salmon
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host -p salmon 2>&1)
+		    '''
 		}
+
+
 
 
 
@@ -2289,9 +2296,13 @@ if(params.run_salmon_selective_alignment) {
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen
+		    val plot_results from plot_RNA_stats_pathogen_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -2309,9 +2320,13 @@ if(params.run_salmon_selective_alignment) {
 
 		    input:
 		    file stats_table from plot_RNA_stats_host
+		    val plot_results from plot_RNA_stats_host_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -2330,9 +2345,13 @@ if(params.run_salmon_selective_alignment) {
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_combined
+		    val plot_results from plot_RNA_stats_pathogen_combined_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_pathogen.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -2351,9 +2370,13 @@ if(params.run_salmon_selective_alignment) {
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_combined
+		    val plot_results from plot_RNA_stats_host_combined_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_host.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -3194,12 +3217,17 @@ if (params.run_salmon_alignment_based_mode){
 		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_alignment
 		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined_alignment
 		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_alignment_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_combined_alignment_boolean
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool salmon -org pathogen -p salmon
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen -p salmon 2>&1)
+		    '''
 		}
+
+
+
 
 
 		process RNA_class_statistics_salmon_host_alignment_based {
@@ -3221,11 +3249,13 @@ if (params.run_salmon_alignment_based_mode){
 		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined_alignment
 		    file "host_RNA_classes_sum_counts_salmon.csv"
 		    file "host_gene_types_groups_*"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_alignment_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_combined_alignment_boolean
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool salmon -org host -p salmon
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host -p salmon 2>&1)
+		    '''
 		}
 
 
@@ -3240,9 +3270,13 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_alignment
+		    val plot_results from plot_RNA_stats_pathogen_alignment_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -3260,9 +3294,13 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_alignment
+		    val plot_results from plot_RNA_stats_host_alignment_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -3281,9 +3319,13 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_combined_alignment
+		    val plot_results from plot_RNA_stats_pathogen_combined_alignment_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_pathogen.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -3302,9 +3344,13 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_combined_alignment
+		    val plot_results from plot_RNA_stats_host_combined_alignment_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_host.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -3996,12 +4042,13 @@ if(params.run_htseq_uniquely_mapped){
 		    file "pathogen_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_pathogen_htseq_u_m
 		    file "pathogen_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_pathogen_combined_htseq_u_m
 		    file "pathogen_RNA_classes_sum_counts_uniquely_mapped.csv"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_htseq_u_m_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_pathogen_combined_htseq_u_m_boolean
 
-
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -q_tool htseq -org pathogen -p uniquely_mapped
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool htseq -org pathogen -p uniquely_mapped 2>&1)
+		    '''
 		}
 
 
@@ -4024,11 +4071,13 @@ if(params.run_htseq_uniquely_mapped){
 		    file "host_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_host_combined_htseq_u_m
 		    file "host_RNA_classes_sum_counts_uniquely_mapped.csv"
 		    file "host_gene_types_groups_*"
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_htseq_u_m_boolean
+		    val(!{plot_RNAclasses}) into plot_RNA_stats_host_combined_htseq_u_m_boolean
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/RNA_class_content.py -q $quant_table -a $attribute -annotations $gene_annotations -rna $rna_classes_to_replace -q_tool htseq -org host -p uniquely_mapped
-		    """
+		    shell:
+		    '''
+		    plot_RNAclasses=$(python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool htseq -org host -p uniquely_mapped 2>&1)
+		    '''
 		}
 
 
@@ -4042,9 +4091,13 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_htseq_u_m
+		    val plot_results from plot_RNA_stats_pathogen_htseq_u_m_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -4062,9 +4115,13 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_htseq_u_m
+		    val plot_results from plot_RNA_stats_host_htseq_u_m_boolean
 
 		    output:
 		    file "*.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -4083,9 +4140,13 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_combined_htseq_u_m
+		    val plot_results from plot_RNA_stats_pathogen_combined_htseq_u_m_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_pathogen.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
@@ -4104,9 +4165,13 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_combined_htseq_u_m
+		    val plot_results from plot_RNA_stats_host_combined_htseq_u_m_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_host.pdf"
+
+		    when:
+		    plot_results==True
 
 		    script:
 		    """
