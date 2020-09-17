@@ -683,14 +683,7 @@ if(params.mapping_statistics) {
 
 	    input:
 	    val(sample_name) from scatter_plots.collect()
-		
-	    /*
- 	    * Need to think about the best way of picking up a TRUE and FALSE from the shell script
-	    * Currently T or F is passed to each of the six processes, and output is determined by value
-	    * The flag of 'optional true' was added to each *.pdf output, as when false, an errror occured
-	    * This may cause issues down the track when PDF files are not created, when in fact they should - giving no errors
-	    * An alternative may be to set up another process capturing T or F and then directing from there...
- 	    */
+
 	    
 	    output:
 	    stdout repl_scatter_plots_salmon_pathogen
