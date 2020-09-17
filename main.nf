@@ -693,20 +693,21 @@ if(params.mapping_statistics) {
  	    */
 	    
 	    output:
-	    val(!{output}) into repl_scatter_plots_salmon_pathogen
-	    val(!{output}) into repl_scatter_plots_salmon_host
-	    val(!{output}) into repl_scatter_plots_salmon_alignment_host
-	    val(!{output}) into repl_scatter_plots_salmon_alignment_pathogen
-	    val(!{output}) into repl_scatter_plots_htseq_pathogen
-	    val(!{output}) into repl_scatter_plots_htseq_host
+	    stdout repl_scatter_plots_salmon_pathogen
+	    stdout repl_scatter_plots_salmon_host
+	    stdout repl_scatter_plots_salmon_alignment_host
+	    stdout repl_scatter_plots_salmon_alignment_pathogen
+	    stdout repl_scatter_plots_htseq_pathogen
+	    stdout repl_scatter_plots_htseq_host
 
 	    shell:
 	    '''
-	    output=$(python !{workflow.projectDir}/bin/check_replicates.py -s !{sample_name} 2>&1)
+	    python !{workflow.projectDir}/bin/check_replicates.py -s !{sample_name} 2>&1
 	    '''
 	}
 
 }
+
 
 
 /*
@@ -2088,17 +2089,16 @@ if(params.run_salmon_selective_alignment) {
 		    val replicates from repl_scatter_plots_salmon_pathogen
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """
 		    python $workflow.projectDir/bin/scatter_plots.py -q $quant_table -a $attribute -org pathogen 
 		    """
 		}
-
 
 
 		process scatter_plot_host_salmon {
@@ -2115,10 +2115,10 @@ if(params.run_salmon_selective_alignment) {
 		    val replicates from repl_scatter_plots_salmon_host
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """
@@ -3072,10 +3072,10 @@ if (params.run_salmon_alignment_based_mode){
 		    val replicates from repl_scatter_plots_salmon_alignment_pathogen
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """
@@ -3098,10 +3098,10 @@ if (params.run_salmon_alignment_based_mode){
 		    val replicates from repl_scatter_plots_salmon_alignment_host
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """
@@ -3226,7 +3226,6 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
-
 		process RNA_class_statistics_salmon_host_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host"
@@ -3254,6 +3253,7 @@ if (params.run_salmon_alignment_based_mode){
 		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host -p salmon 2>&1
 		    '''
 		}
+
 
 		process plot_RNA_class_salmon_pathogen_each_alignment_based{
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
@@ -3935,10 +3935,10 @@ if(params.run_htseq_uniquely_mapped){
 		    val replicates from repl_scatter_plots_htseq_pathogen
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """
@@ -3961,10 +3961,10 @@ if(params.run_htseq_uniquely_mapped){
 		    val replicates from repl_scatter_plots_htseq_host
 
 		    output:
-		    file ('*.pdf') optional true
+		    file ('*.pdf')
 
 		    when:
-		    $replicates==True
+		    replicates.toBoolean()
 
 		    script:
 		    """

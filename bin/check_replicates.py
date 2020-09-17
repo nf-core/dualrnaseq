@@ -17,5 +17,8 @@ suffix_rep = [name.rsplit('_', 2)[1] for name in sample_names] #captures R1, R2
 
 #Prints either True or False
 #Looking for R1 and R2, or r1 and r2
-print("R1" in suffix_rep and "R2" in suffix_rep or "r1" in suffix_read and "r2" in suffix_read)
+if ("R1" in suffix_rep and "R2" in suffix_rep or "r1" in suffix_read and "r2" in suffix_read):
+	print('true')
+else:
+	print('false')
 
