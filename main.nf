@@ -3265,7 +3265,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_alignment
-		    val plot_results from plot_RNA_stats_pathogen_alignment_boolean
+		    val plot_rna from plot_RNA_stats_pathogen_alignment_boolean
 
 		    output:
 		    file "*.pdf"
@@ -3289,7 +3289,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_alignment
-		    val plot_results from plot_RNA_stats_host_alignment_boolean
+		    val plot_rna from plot_RNA_stats_host_alignment_boolean
 
 		    output:
 		    file "*.pdf"
@@ -3314,7 +3314,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_combined_alignment
-		    val plot_results from plot_RNA_stats_pathogen_combined_alignment_boolean
+		    val plot_rna from plot_RNA_stats_pathogen_combined_alignment_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_pathogen.pdf"
@@ -3339,7 +3339,7 @@ if (params.run_salmon_alignment_based_mode){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_combined_alignment
-		    val plot_results from plot_RNA_stats_host_combined_alignment_boolean
+		    val plot_rna from plot_RNA_stats_host_combined_alignment_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_host.pdf"
@@ -4087,7 +4087,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_htseq_u_m
-		    val plot_results from plot_RNA_stats_pathogen_htseq_u_m_boolean
+		    val plot_rna from plot_RNA_stats_pathogen_htseq_u_m_boolean
 
 		    output:
 		    file "*.pdf"
@@ -4111,7 +4111,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_htseq_u_m
-		    val plot_results from plot_RNA_stats_host_htseq_u_m_boolean
+		    val plot_rna from plot_RNA_stats_host_htseq_u_m_boolean
 
 		    output:
 		    file "*.pdf"
@@ -4136,7 +4136,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_pathogen_combined_htseq_u_m
-		    val plot_results from plot_RNA_stats_pathogen_combined_htseq_u_m_boolean
+		    val plot_rna from plot_RNA_stats_pathogen_combined_htseq_u_m_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_pathogen.pdf"
@@ -4161,7 +4161,7 @@ if(params.run_htseq_uniquely_mapped){
 
 		    input:
 		    file stats_table from plot_RNA_stats_host_combined_htseq_u_m
-		    val plot_results from plot_RNA_stats_host_combined_htseq_u_m_boolean
+		    val plot_rna from plot_RNA_stats_host_combined_htseq_u_m_boolean
 
 		    output:
 		    file "RNA_class_stats_combined_host.pdf"
