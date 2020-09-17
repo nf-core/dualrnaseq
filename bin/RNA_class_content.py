@@ -113,9 +113,9 @@ def RNA_classes_for_each_sample(quantification_table_path,gene_types,set_RNA_cla
     df_RNA_classes_sum_counts_all_samples = df_RNA_classes_sum_counts_all_samples.dropna()
     non_zero = df_RNA_classes_sum_counts_all_samples.any()
     if non_zero.any():
-        print(True)
+        print('true')
     else: 
-        print(False) 
+        print('false') 
     df_RNA_classes_sum_counts_all_samples.to_csv(organism + "_RNA_classes_sum_counts_" + profile + ".csv", sep = '\t')  
     df_percentage_RNA_all_samples.to_csv(organism + "_RNA_classes_percentage_" + profile + ".csv", sep = '\t')  
        
