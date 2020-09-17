@@ -151,7 +151,7 @@ def helpMessage() {
                                                    read length. The alignment will be considered if the ratio is 
                                                    less than or equal to this value. For 2x100b, max number of 
                                                    mismatches is 0.04x200=8 for paired-end reads
-                                                   (Default: 0.04)
+                                                   (Default: 1)
       --alignIntronMin                    [int]    By default, the nf-core dualrnaseq pipeline uses 20 as a 
                                                    minimum intron length. If the genomic gap is smaller than this
                                                    value, it is considered as a deletion
