@@ -96,7 +96,7 @@ def extract_gene_types_pathogen(gff,gene_feature,gene_attribute):
                     g_type = r_pos_host[0][1]
                 else:
                     g_type = d[2]
-                gene_type_pathogen.append({feature: ID_pos_pathogen, 'name':feature_name_pathogen,'gene_type':g_type})   
+                gene_type_pathogen.append({gene_attribute: ID_pos_pathogen, 'name':feature_name_pathogen,'gene_type':g_type})   
     return gene_type_pathogen
     
 

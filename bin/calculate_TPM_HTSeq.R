@@ -22,8 +22,8 @@ library(rtracklayer)
 
 args = commandArgs(trailingOnly=TRUE)
 # read quantification table
-table_htseq <- read.table(args[1], sep="\t", stringsAsFactors=F, header = T,row.names = gene_attribute) 
 gene_attribute <- args[2]
+table_htseq <- read.table(args[1], sep="\t", stringsAsFactors=F, header = T,row.names = gene_attribute) 
 pathogen_gff <- import(args[3])
 host_gff <- import(args[4])
 
