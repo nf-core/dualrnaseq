@@ -1894,7 +1894,7 @@ if(params.run_salmon_selective_alignment) {
 		    val gene_attribute from host_atr_collect_data_salmon
 
 		    output:
-		    file "combined_quant.csv" into split_table_salmon 
+		    file "combined_quant.tsv" into split_table_salmon 
 
 		    script:
 		    """
@@ -2028,7 +2028,7 @@ if(params.run_salmon_selective_alignment) {
 		    file input_quantification from salmon_files_to_combine_gene_level.collect()
 
 		    output:
-		    file "host_combined_gene_level.csv" into quant_gene_level_host_add_annotations_salmon
+		    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon
 
 		    script:
 		    """
@@ -2691,7 +2691,7 @@ if (params.run_salmon_alignment_based_mode){
 		    file input_quantification from salmon_files_to_combine_gene_level_alignment.collect()
 
 		    output:
-		    file "host_combined_gene_level.csv" into quant_gene_level_host_add_annotations_salmon_alignment
+		    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon_alignment
 
 		    script:
 		    """
@@ -2714,7 +2714,7 @@ if (params.run_salmon_alignment_based_mode){
 	    val gene_attribute from host_atr_collect_data_salmon_alignment_mode
 
 	    output:
-	    file "combined_quant.csv" into split_table_salmon_salmon_alignment
+	    file "combined_quant.tsv" into split_table_salmon_salmon_alignment
 
 	    script:
 	    """
@@ -3791,12 +3791,12 @@ if(params.run_htseq_uniquely_mapped){
 		    val(host_attribute) from host_gff_attribute_htseq_combine
 
 		    output:
-		    file "quantification_stats_uniquely_mapped.csv" 
-		    file "quantification_results_uniquely_mapped.csv" into htseq_result_quantification_TPM
+		    file "quantification_stats_*.tsv" 
+		    file "quantification_results_*.tsv" into htseq_result_quantification_TPM
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute -p uniquely_mapped
+		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute 
 		    """
 		}
 
