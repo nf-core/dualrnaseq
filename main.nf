@@ -1579,12 +1579,12 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    file(fastq) from raw_read_count_file.collect()
 
 	    output:
-	    file "total_raw_reads_fastq.csv" into to_collect_total_reads
+	    file "total_raw_reads_fastq.tsv" into to_collect_total_reads
 
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.csv
+	    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.tsv
 	    """
 	}
 
@@ -1600,23 +1600,22 @@ if (!params.single_end){
 	    label 'process_high'
 
 	    input:
-	    file(txt) from to_collect_total_reads.collect()
+	    file(tsv) from to_collect_total_reads.collect()
 
 	    output:
-	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_salmon
-	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_salmon_alignment
-//	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_htseq_uniquely_mapped
-	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_star
-	    file "total_raw_reads_fastq2.csv" into collect_total_reads_raw_star_for_salmon
+	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon
+	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon_alignment
+	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star
+	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star_for_salmon
 
 	    script:
 	    """
-	    $workflow.projectDir/bin/collect_total_raw_pair_reads.py -i $txt
+	    $workflow.projectDir/bin/collect_total_raw_read_pairs.py -i $tsv
 	    """
 	}
 }else{
    to_collect_total_reads
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_htseq_uniquely_mapped; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
 }
 
 
@@ -1651,7 +1650,7 @@ if (!params.single_end){
 
 }else{
    Channel.empty()
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon; collect_total_reads_raw_htseq_uniquely_mapped}
+          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
 }
 
 
@@ -3818,9 +3817,9 @@ if(params.run_htseq_uniquely_mapped){
 		    file gff_pathogen from gff_pathogen_to_TPM
 
 		    output:
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" 
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" into split_table_htseq_host
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.csv" into split_table_htseq_pathogen
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" 
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_host
+		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_pathogen
 
 		    script:
 		    """
