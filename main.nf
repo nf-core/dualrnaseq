@@ -1957,7 +1957,7 @@ if(params.run_salmon_selective_alignment) {
 		    val attribute from combine_annot_quant_pathogen
 
 		    output:
-		    file "pathogen_combined_quant_annotations.csv"
+		    file "pathogen_combined_quant_annotations.tsv"
 
 		    script:
 		    """
@@ -1980,7 +1980,7 @@ if(params.run_salmon_selective_alignment) {
 		    val attribute from combine_annot_quant_host
 
 		    output:
-		    file "host_combined_quant_annotations.csv"
+		    file "host_combined_quant_annotations.tsv"
 
 		    script:
 		    """
@@ -2768,7 +2768,7 @@ if (params.run_salmon_alignment_based_mode){
 	    val attribute from combine_annot_quant_pathogen_salmon_alignment_based
 
 	    output:
-	    file "pathogen_combined_quant_annotations.csv"
+	    file "pathogen_combined_quant_annotations.tsv"
 
 	    script:
 	    """
@@ -2791,7 +2791,7 @@ if (params.run_salmon_alignment_based_mode){
 	    val attribute from combine_annot_quant_host_salmon_alignment_based
 
 	    output:
-	    file "host_combined_quant_annotations.csv"
+	    file "host_combined_quant_annotations.tsv"
 
 	    script:
 	    """
@@ -2912,7 +2912,7 @@ if (params.run_salmon_alignment_based_mode){
 			    file stats from STAR_for_salmon_mapping_stats_unique.collect()
 
 			    output:
-			    file "uniquely_mapped_reads_star.csv" into mapping_stats_uniquely_mapped_star_for_salmon
+			    file "uniquely_mapped_reads_star.tsv" into mapping_stats_uniquely_mapped_star_for_salmon
 
 			    script:
 			    """
@@ -2936,15 +2936,9 @@ if (params.run_salmon_alignment_based_mode){
                     file "cross_mapped_reads_sum.txt" into STAR_mapping_stats_cross_mapped_for_salmon
 		    
 		    script:
-		    if (params.single_end){
 		    	"""
 		    	$workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
 		    	"""
-		    } else {
-		    	"""
-		    	$workflow.projectDir/bin/count_cross_mapped_read_pairs.sh $cross_mapped_reads
-		    	"""
-		    }
 		}
 
 		process multi_mapping_stats_for_salmon {
@@ -2990,7 +2984,7 @@ if (params.run_salmon_alignment_based_mode){
 			    file stats from STAR_mapping_stats_multi_for_salmon.collect()
 
 			    output:
-			    file "multi_mapped_reads_star.csv" into mapping_stats_multi_mapped_star_for_salmon
+			    file "multi_mapped_reads_star.tsv" into mapping_stats_multi_mapped_star_for_salmon
 
 			    script:
 			    """
@@ -3577,7 +3571,7 @@ if(params.run_star) {
 			    file stats from STAR_mapping_stats_unique.collect()
 
 			    output:
-			    file "uniquely_mapped_reads_star.csv" into mapping_stats_uniquely_mapped_star
+			    file "uniquely_mapped_reads_star.tsv" into mapping_stats_uniquely_mapped_star
 
 			    script:
 			    """
@@ -3604,15 +3598,9 @@ if(params.run_star) {
                     file "cross_mapped_reads_sum.txt" into STAR_mapping_stats_cross_mapped
 		    
 		    script:
-		    if (params.single_end){
 		    """
 		    $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
 		    """
-		    } else {
-		    """
-		    $workflow.projectDir/bin/count_cross_mapped_read_pairs.sh $cross_mapped_reads
-		    """
-		    }
 		}
 
 
@@ -3662,7 +3650,7 @@ if(params.run_star) {
 			    file stats from STAR_mapping_stats_multi.collect()
 
 			    output:
-			    file "multi_mapped_reads_star.csv" into mapping_stats_multi_mapped_star
+			    file "multi_mapped_reads_star.tsv" into mapping_stats_multi_mapped_star
 
 			    script:
 			    """
@@ -3879,7 +3867,7 @@ if(params.run_htseq_uniquely_mapped){
 		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
 
 		    output:
-		    file "pathogen_combined_quant_annotations.csv"
+		    file "pathogen_combined_quant_annotations.tsv"
 
 		    script:
 		    """
@@ -3902,7 +3890,7 @@ if(params.run_htseq_uniquely_mapped){
 		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
 
 		    output:
-		    file "host_combined_quant_annotations.csv"
+		    file "host_combined_quant_annotations.tsv"
 
 		    script:
 		    """

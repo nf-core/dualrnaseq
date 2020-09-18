@@ -13,7 +13,7 @@ Description: Used to identify if there are replicates
 
 import argparse
 parser = argparse.ArgumentParser(description="""Are there replicates?""")
-parser.add_argument("-s", "--sample_names", metavar='<input_files>', nargs='+')
+parser.add_argument("-s", "--sample_names", metavar='<sample_names>', nargs='+')
 args = parser.parse_args()
 
 sample_names = [feature.replace('[' , '').replace(']','').replace(',','') for feature in args.sample_names] #format input file names

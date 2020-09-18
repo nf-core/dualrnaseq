@@ -73,11 +73,11 @@ def collect_quantification_data_salmon(input_files, gene_attribute, organism):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="""Merges counts for all samples""")
+    parser = argparse.ArgumentParser(description="""Combine counts from all samples""")
     parser.add_argument("-i", "--input_files", metavar='<input_files>', nargs='+',help="Path to quantification results ")
     parser.add_argument("-q", "--quantifier", metavar='<quantifier>',help="name of quantifier")
-    parser.add_argument("-a", "--gene_attribute", help="gene attribute")
-    parser.add_argument("-org", "--organism", help="host, pathogen, both, host_gene_level - option avaiable for Salmon")
+    parser.add_argument("-a", "--gene_attribute", metavar='<gene_attribute>',help="gene attribute")
+    parser.add_argument("-org", "--organism", metavar='<organism>', help="host, pathogen, both, host_gene_level - option avaiable for Salmon")
 
     args = parser.parse_args()
 
