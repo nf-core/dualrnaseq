@@ -225,7 +225,7 @@ def helpMessage() {
       --RNA_classes_to_replace_host      [file]   Located within the data/ directory, this tab delimited file contains headers which 
                                                   groups similar types of RNA classes together. This helps to keep the RNA-class 
                                                   names simplified for plotting purposes.
-                                                  (Default: $baseDir/data/RNA_classes_to_replace.csv)
+                                                  (Default: $baseDir/data/RNA_classes_to_replace.tsv)
    
     Report options:
       --email                   [email]   Set this parameter to your e-mail address to get a summary e-mail with details of the 
@@ -890,9 +890,9 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	    val(pathogen_attribute) from pathogen_gff_attribute_to_extract_annotations_htseq
 
 	    output:
-	    file "${outfile_name}*_htseq.csv" into pathogen_annotations_RNA_class_stats_htseq
-	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_combine_quant_htseq_u_m
-	    file "${outfile_name}*_htseq.csv" into annotation_pathogen_split_quant_htseq
+	    file "${outfile_name}*_htseq.tsv" into pathogen_annotations_RNA_class_stats_htseq
+	    file "${outfile_name}*_htseq.tsv" into annotation_pathogen_combine_quant_htseq_u_m
+	    file "${outfile_name}*_htseq.tsv" into annotation_pathogen_split_quant_htseq
 
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"")
@@ -916,9 +916,9 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	    val(host_attribute) from host_gff_attribute_to_extract_annotations_htseq
 
 	    output:
-	    file "${outfile_name}*_htseq.csv" into host_annotations_RNA_class_stats_htseq
-	    file "${outfile_name}*_htseq.csv" into annotation_host_combine_quant_htseq
-	    file "${outfile_name}*_htseq.csv" into annotation_host_split_quant_htseq
+	    file "${outfile_name}*_htseq.tsv" into host_annotations_RNA_class_stats_htseq
+	    file "${outfile_name}*_htseq.tsv" into annotation_host_combine_quant_htseq
+	    file "${outfile_name}*_htseq.tsv" into annotation_host_split_quant_htseq
 
 	    script:
 	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"")
@@ -1179,10 +1179,10 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    val(features) from gene_feature_to_extract_annotations_pathogen
 
 	    output:
-	    file "${outfile_name}*_salmon.csv" into pathogen_annotations_RNA_class_stats
-	    file "${outfile_name}*_salmon.csv" into pathogen_annotations_RNA_class_stats_salmon_alignment
-	    file "${outfile_name}*_salmon.csv" into annotation_pathogen_combine_quant
-	    file "${outfile_name}*_salmon.csv" into annotation_pathogen_combine_quant_salmon_alignment_based
+	    file "${outfile_name}*_salmon.tsv" into pathogen_annotations_RNA_class_stats
+	    file "${outfile_name}*_salmon.tsv" into pathogen_annotations_RNA_class_stats_salmon_alignment
+	    file "${outfile_name}*_salmon.tsv" into annotation_pathogen_combine_quant
+	    file "${outfile_name}*_salmon.tsv" into annotation_pathogen_combine_quant_salmon_alignment_based
 
 	    script:
 	    outfile_name = "pathogen_gff_annotations"
@@ -1204,16 +1204,16 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file gff from extract_annotations_host_gff_salmon
 
 	    output:
-	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats
-	    file "${outfile_name}*_salmon.csv" into host_annotations_RNA_class_stats_salmon_alignment
-	    file "${outfile_name}*_salmon.csv" into tximport_annotations
-	    file "${outfile_name}*_salmon.csv" into host_annotations_uniq_ambig
-            file "${outfile_name}*_salmon.csv" into tximport_annotations_salmon_alignment
-	    file "${outfile_name}*_salmon.csv" into host_annotations_uniq_ambig_AB
-	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant
-	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_salmon_alignment_based
-	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_gene_level_salmon
-	    file "${outfile_name}*_salmon.csv" into annotation_host_combine_quant_gene_level_salmon_alignment
+	    file "${outfile_name}*_salmon.tsv" into host_annotations_RNA_class_stats
+	    file "${outfile_name}*_salmon.tsv" into host_annotations_RNA_class_stats_salmon_alignment
+	    file "${outfile_name}*_salmon.tsv" into tximport_annotations
+	    file "${outfile_name}*_salmon.tsv" into host_annotations_uniq_ambig
+            file "${outfile_name}*_salmon.tsv" into tximport_annotations_salmon_alignment
+	    file "${outfile_name}*_salmon.tsv" into host_annotations_uniq_ambig_AB
+	    file "${outfile_name}*_salmon.tsv" into annotation_host_combine_quant
+	    file "${outfile_name}*_salmon.tsv" into annotation_host_combine_quant_salmon_alignment_based
+	    file "${outfile_name}*_salmon.tsv" into annotation_host_combine_quant_gene_level_salmon
+	    file "${outfile_name}*_salmon.tsv" into annotation_host_combine_quant_gene_level_salmon_alignment
 
 	    script:
 	    outfile_name = "host_gff_annotations"
@@ -2228,15 +2228,15 @@ if(params.run_salmon_selective_alignment) {
 		    file gene_annotations from pathogen_annotations_RNA_class_stats
 
 		    output:
-		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen
-		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined
-		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen_combined
+		    file "pathogen_RNA_classes_sum_counts_*.tsv"
 		    stdout plot_RNA_stats_pathogen_boolean
 		    stdout plot_RNA_stats_pathogen_combined_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen -p salmon 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen 2>&1
 		    '''
 		}
 
@@ -2261,16 +2261,16 @@ if(params.run_salmon_selective_alignment) {
 		    file rna_classes_to_replace from RNA_classes_to_replace
 
 		    output:
-		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host
-		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined
-		    file "host_RNA_classes_sum_counts_salmon.csv"
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_combined
+		    file "host_RNA_classes_sum_counts_*.tsv"
 		    file "host_gene_types_groups_*"
 		    stdout plot_RNA_stats_host_combined_boolean
 		    stdout plot_RNA_stats_host_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host -p salmon 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host 2>&1
 		    '''
 		}
 
@@ -3206,15 +3206,15 @@ if (params.run_salmon_alignment_based_mode){
 		    file gene_annotations from pathogen_annotations_RNA_class_stats_salmon_alignment
 
 		    output:
-		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_alignment
-		    file "pathogen_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_pathogen_combined_alignment
-		    file "pathogen_RNA_classes_sum_counts_salmon.csv"
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen_alignment
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen_combined_alignment
+		    file "pathogen_RNA_classes_sum_counts_*.tsv"
 		    stdout plot_RNA_stats_pathogen_alignment_boolean
 		    stdout plot_RNA_stats_pathogen_combined_alignment_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen -p salmon 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool salmon -org pathogen 2>&1
 		    '''
 		}
 
@@ -3234,16 +3234,16 @@ if (params.run_salmon_alignment_based_mode){
 		    file rna_classes_to_replace from RNA_classes_to_replace_alignment
 
 		    output:
-		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_alignment
-		    file "host_RNA_classes_percentage_salmon.csv" into plot_RNA_stats_host_combined_alignment
-		    file "host_RNA_classes_sum_counts_salmon.csv"
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_alignment
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_combined_alignment
+		    file "host_RNA_classes_sum_counts_*.tsv"
 		    file "host_gene_types_groups_*"
 		    stdout plot_RNA_stats_host_alignment_boolean
 		    stdout plot_RNA_stats_host_combined_alignment_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host -p salmon 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool salmon -org host 2>&1
 		    '''
 		}
 
@@ -3766,7 +3766,7 @@ if(params.run_htseq_uniquely_mapped){
 	    max_reads_in_buffer = params.max_reads_in_buffer
 	    minaqual = params.minaqual
 	    """
-	    htseq-count -n $task.cpus -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded --max-reads-in-buffer=<$max_reads_in_buffer> -a $minaqual > $name_file2
+	    htseq-count -n $task.cpus -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded --max-reads-in-buffer=$max_reads_in_buffer -a $minaqual > $name_file2
 	    sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$name_file2"
 	    """
 	}
@@ -4027,15 +4027,15 @@ if(params.run_htseq_uniquely_mapped){
 
 
 		    output:
-		    file "pathogen_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_pathogen_htseq_u_m
-		    file "pathogen_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_pathogen_combined_htseq_u_m
-		    file "pathogen_RNA_classes_sum_counts_uniquely_mapped.csv"
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen_htseq_u_m
+		    file "pathogen_RNA_classes_percentage_*.tsv" into plot_RNA_stats_pathogen_combined_htseq_u_m
+		    file "pathogen_RNA_classes_sum_counts_*.tsv"
 		    stdout plot_RNA_stats_pathogen_htseq_u_m_boolean
 		    stdout plot_RNA_stats_pathogen_combined_htseq_u_m_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool htseq -org pathogen -p uniquely_mapped 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -q_tool htseq -org pathogen 2>&1
 		    '''
 		}
 
@@ -4056,16 +4056,16 @@ if(params.run_htseq_uniquely_mapped){
 		    file rna_classes_to_replace from RNA_classes_to_replace_htseq_uniquely_mapped
 
 		    output:
-		    file "host_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_host_htseq_u_m
-		    file "host_RNA_classes_percentage_uniquely_mapped.csv" into plot_RNA_stats_host_combined_htseq_u_m
-		    file "host_RNA_classes_sum_counts_uniquely_mapped.csv"
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_htseq_u_m
+		    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_combined_htseq_u_m
+		    file "host_RNA_classes_sum_counts_*.tsv"
 		    file "host_gene_types_groups_*"
 		    stdout plot_RNA_stats_host_htseq_u_m_boolean
 		    stdout plot_RNA_stats_host_combined_htseq_u_m_boolean
 
 		    shell:
 		    '''
-		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool htseq -org host -p uniquely_mapped 2>&1
+		    python !{workflow.projectDir}/bin/RNA_class_content.py -q !{quant_table} -a !{attribute} -annotations !{gene_annotations} -rna !{rna_classes_to_replace} -q_tool htseq -org host 2>&1
 		    '''
 		}
 

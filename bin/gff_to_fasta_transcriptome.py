@@ -3,7 +3,7 @@
 """
 Created on Tue Apr 16 11:26:46 2019
 
-@author: Bozena and R. Hayward
+@author: B. Mika-Gospodorz and R. Hayward
 
 Input files: Fasta and GFF
 Output file: Fasta
