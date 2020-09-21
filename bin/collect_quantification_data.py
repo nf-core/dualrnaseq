@@ -31,10 +31,10 @@ def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
 
     # extract last 5 rows of HTSeq quantification table that contain statistics and save results
     alignment_stats = quant_merged_table['__no_feature':'__alignment_not_unique']
-    alignment_stats.to_csv("quantification_stats_" + profile + ".csv", sep='\t')
+    alignment_stats.to_csv("quantification_stats_" + profile + ".tsv", sep='\t')
     # remove statistics from quantification results and save quant_merged_table
     quant_merged_table = quant_merged_table.drop(['__no_feature','__ambiguous','__too_low_aQual','__not_aligned','__alignment_not_unique'])
-    quant_merged_table.to_csv("quantification_results_" + profile + ".csv",sep='\t')
+    quant_merged_table.to_csv("quantification_results_" + profile + ".tsv",sep='\t')
 
 
 # function to merge Salmon quantification results
