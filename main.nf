@@ -1870,18 +1870,18 @@ if(params.run_salmon_selective_alignment) {
             file transcriptome_host from transcriptome_host_to_split_table_salmon
 
             output:
-            file 'host_quant_salmon.csv' into host_quantification_mapping_stats_salmon 
-            file 'pathogen_quant_salmon.csv' into pathogen_quantification_mapping_stats_salmon
-            file 'host_quant_salmon.csv' into host_quantification_RNA_stats_salmon 
-            file 'pathogen_quant_salmon.csv' into pathogen_quantification_RNA_stats_salmon
-            file 'host_quant_salmon.csv' into quant_host_add_annotations 
-            file 'pathogen_quant_salmon.csv' into quant_pathogen_add_annotations
-            file 'host_quant_salmon.csv' into quant_scatter_plot_host
-            file 'pathogen_quant_salmon.csv' into quant_scatter_plot_pathogen
+            file 'host_quant_salmon.tsv' into host_quantification_mapping_stats_salmon 
+            file 'pathogen_quant_salmon.tsv' into pathogen_quantification_mapping_stats_salmon
+            file 'host_quant_salmon.tsv' into host_quantification_RNA_stats_salmon 
+            file 'pathogen_quant_salmon.tsv' into pathogen_quantification_RNA_stats_salmon
+            file 'host_quant_salmon.tsv' into quant_host_add_annotations 
+            file 'pathogen_quant_salmon.tsv' into quant_pathogen_add_annotations
+            file 'host_quant_salmon.tsv' into quant_scatter_plot_host
+            file 'pathogen_quant_salmon.tsv' into quant_scatter_plot_pathogen
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.csv"
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.tsv"
             """
         }
 
@@ -1997,7 +1997,7 @@ if(params.run_salmon_selective_alignment) {
 		    file annotation_table from annotation_host_combine_quant_gene_level_salmon
 
 		    output:
-		    file "host_combined_quant_gene_level_annotations.csv"
+		    file "host_combined_quant_gene_level_annotations.tsv"
 
 		    script:
 		    """
@@ -2099,11 +2099,11 @@ if(params.run_salmon_selective_alignment) {
 			    file process_reads from collect_results.collect()
 
 			    output:
-			    file "processed_reads_salmon.csv" into mapping_stats_total_reads
+			    file "processed_reads_salmon.tsv" into mapping_stats_total_reads
 
 			    script:
 			    """
-			    cat $process_reads > processed_reads_salmon.csv
+			    cat $process_reads > processed_reads_salmon.tsv
 			    """
 			}
 
@@ -2124,11 +2124,11 @@ if(params.run_salmon_selective_alignment) {
 		    file total_raw_reads from collect_total_reads_raw_salmon.ifEmpty('.')
 
 		    output:
-		    file ('salmon_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot
+		    file ('salmon_host_pathogen_total_reads.tsv') into salmon_mapped_stats_to_plot
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute -t salmon -o salmon_host_pathogen_total_reads.tsv
 		    """
 		}
 
@@ -2648,18 +2648,18 @@ if (params.run_salmon_alignment_based_mode){
 	    file transcriptome_host from transcriptome_host_to_split_table_salmon_alignment
 
 	    output:
-	    file 'host_quant_salmon.csv' into host_quantification_mapping_stats_salmon_alignment_based
-	    file 'pathogen_quant_salmon.csv' into pathogen_quantification_mapping_stats_salmon_alignment_based
-	    file 'host_quant_salmon.csv' into host_quantification_RNA_stats_salmon_alignment_based
-	    file 'pathogen_quant_salmon.csv' into pathogen_quantification_RNA_stats_salmon_alignment_based
-	    file 'host_quant_salmon.csv' into quant_host_add_annotations_salmon_alignment_based
-	    file 'pathogen_quant_salmon.csv' into quant_pathogen_add_annotations_alignment_based
-	    file 'host_quant_salmon.csv' into quant_scatter_plot_host_salmon_alignment_based
-	    file 'pathogen_quant_salmon.csv' into quant_scatter_plot_pathogen_salmon_alignment_based
+	    file 'host_quant_salmon.tsv' into host_quantification_mapping_stats_salmon_alignment_based
+	    file 'pathogen_quant_salmon.tsv' into pathogen_quantification_mapping_stats_salmon_alignment_based
+	    file 'host_quant_salmon.tsv' into host_quantification_RNA_stats_salmon_alignment_based
+	    file 'pathogen_quant_salmon.tsv' into pathogen_quantification_RNA_stats_salmon_alignment_based
+	    file 'host_quant_salmon.tsv' into quant_host_add_annotations_salmon_alignment_based
+	    file 'pathogen_quant_salmon.tsv' into quant_pathogen_add_annotations_alignment_based
+	    file 'host_quant_salmon.tsv' into quant_scatter_plot_host_salmon_alignment_based
+	    file 'pathogen_quant_salmon.tsv' into quant_scatter_plot_pathogen_salmon_alignment_based
 
             script:
             """
-            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.csv"
+            $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "_salmon.tsv"
             """
 	}
 
@@ -2723,7 +2723,7 @@ if (params.run_salmon_alignment_based_mode){
 	    file annotation_table from annotation_host_combine_quant_gene_level_salmon_alignment
 
 	    output:
-	    file "host_combined_quant_gene_level_annotations.csv"
+	    file "host_combined_quant_gene_level_annotations.tsv"
 
 	    script:
 	    """
@@ -2770,11 +2770,11 @@ if (params.run_salmon_alignment_based_mode){
 			    file process_reads from collect_results_star_for_salmon.collect()
 
 			    output:
-			    file "processed_reads_star.csv" into mapping_stats_total_processed_reads_alignment_for_salmon
+			    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment_for_salmon
 
 			    script:
 			    """
-			    cat $process_reads > processed_reads_star.csv
+			    cat $process_reads > processed_reads_star.tsv
 			    """
 			}
 
@@ -2868,10 +2868,10 @@ if (params.run_salmon_alignment_based_mode){
 		    file process_reads from collect_results_alignment_based.collect()
 
 		    output:
-		    file "processed_reads_salmon_alignment.csv" into mapping_stats_total_reads_alignment
+		    file "processed_reads_salmon_alignment.tsv" into mapping_stats_total_reads_alignment
 		    script:
 		    """
-		    cat $process_reads > processed_reads_salmon_alignment.csv
+		    cat $process_reads > processed_reads_salmon_alignment.tsv
 		    """
 		}
 
@@ -2894,11 +2894,11 @@ if (params.run_salmon_alignment_based_mode){
 		    file total_raw_reads from collect_total_reads_raw_salmon_alignment.ifEmpty('.')
 
 		    output:
-		    file ('salmon_alignment_host_pathogen_total_reads.csv') into salmon_mapped_stats_to_plot_alignment
+		    file ('salmon_alignment_host_pathogen_total_reads.tsv') into salmon_mapped_stats_to_plot_alignment
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute --star_processed $total_processed_reads_star -t salmon_alignment -o salmon_alignment_host_pathogen_total_reads.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -total_processed $total_processed_reads -total_raw $total_raw_reads -a $attribute --star_processed $total_processed_reads_star -t salmon_alignment -o salmon_alignment_host_pathogen_total_reads.tsv
 		    """
 		}
 
@@ -3139,8 +3139,6 @@ if(params.run_star) {
 	    file(index) from star_index_genome_alignment.collect()
 
 	    output:
-//	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p
-//	    file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_h_p2
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into star_aligned_u_m
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_unique_mapping_stats
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned*.out.bam") into alignment_crossmapped_extract
@@ -3258,12 +3256,12 @@ if(params.run_star) {
 			    file process_reads from collect_results_star.collect()
 
 			    output:
-			    file "processed_reads_star.csv" into mapping_stats_total_processed_reads_alignment
-			    file "processed_reads_star.csv" into mapping_stats_htseq_total_processed_reads_alignment
+			    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment
+			    file "processed_reads_star.tsv" into mapping_stats_htseq_total_processed_reads_alignment
 
 			    script:
 			    """
-			    cat $process_reads > processed_reads_star.csv
+			    cat $process_reads > processed_reads_star.tsv
 			    """
 			}
 
@@ -3314,7 +3312,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.csv -s uniquely_mapped_reads
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.tsv -s uniquely_mapped_reads
 			    """
 			}
 
@@ -3393,7 +3391,7 @@ if(params.run_star) {
 
 			    script:
 			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.csv -s multi_mapped_reads
+			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o multi_mapped_reads_star.tsv -s multi_mapped_reads
 			    """
 			}
 
@@ -3414,12 +3412,12 @@ if(params.run_star) {
 		    file cross_mapped_reads from STAR_mapping_stats_cross_mapped
 
 		    output:
-		    file ('star_mapping_stats.csv') into star_mapped_stats_to_plot
-		    file ('star_mapping_stats.csv') into mapping_stats_star_htseq_stats
+		    file ('star_mapping_stats.tsv') into star_mapped_stats_to_plot
+		    file ('star_mapping_stats.tsv') into mapping_stats_star_htseq_stats
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -total_raw $total_raw_reads -total_processed $total_processed_reads -m_u $uniquely_mapped_reads -m_m $multi_mapped_reads -c_m $cross_mapped_reads -t star -o star_mapping_stats.tsv
 		    """
 		}
 
@@ -3573,20 +3571,20 @@ if(params.run_htseq_uniquely_mapped){
 		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
 
 		    output:
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_quantification_stats_htseq_total
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into host_htseq_quantification_RNA_stats
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_host_add_annotations_htseq_u_m
-		    file 'host_quantification_uniquely_mapped_htseq.csv' into quant_scatter_plot_host_htseq_u_m
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_quantification_stats_htseq_total
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into pathogen_htseq_quantification_RNA_stats
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_pathogen_add_annotations_htseq_u_m
-		    file 'pathogen_quantification_uniquely_mapped_htseq.csv' into quant_scatter_plot_pathogen_htseq_u_m
+		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq
+		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq_total
+		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_htseq_quantification_RNA_stats
+		    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_host_add_annotations_htseq_u_m
+		    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_host_htseq_u_m
+		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq
+		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq_total
+		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_htseq_quantification_RNA_stats
+		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_pathogen_add_annotations_htseq_u_m
+		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_pathogen_htseq_u_m
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.csv
+		    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.tsv
 		    """
 		}
 
@@ -3708,11 +3706,11 @@ if(params.run_htseq_uniquely_mapped){
 		    file star_stats from mapping_stats_star_htseq_stats
 
 		    output:
-		    file ('htseq_uniquely_mapped_reads_stats.csv') into htseq_mapped_stats_to_plot
+		    file ('htseq_uniquely_mapped_reads_stats.tsv') into htseq_mapped_stats_to_plot
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_reads_stats.csv
+		    python $workflow.projectDir/bin/mapping_stats.py -q_p $quant_table_pathogen -q_h $quant_table_host -a $attribute  -star $star_stats -t htseq -o htseq_uniquely_mapped_reads_stats.tsv
 		    """
 		}
 

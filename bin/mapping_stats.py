@@ -64,7 +64,7 @@ if args.tool == 'salmon':
     combined_total_mapped_reads['total_mapped_reads'] = combined_total_mapped_reads.sum(axis=1)
     
 
-    if args.total_no_raw_reads.endswith('.csv'):
+    if args.total_no_raw_reads.endswith('.tsv'):
        #read total number of raw reads
        total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
        #read total number of processed reads 
@@ -97,7 +97,7 @@ elif  args.tool == 'salmon_alignment':
 
     #read total number of processed reads 
     processed_reads_star = pd.read_csv(args.star_processed,sep="\t",index_col=0, names=['processed_reads'])
-    if args.total_no_raw_reads.endswith('.csv'):
+    if args.total_no_raw_reads.endswith('.tsv'):
           #read total number of raw reads
           total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
 
@@ -145,7 +145,7 @@ elif args.tool == 'star':
      combined_total_mapped_reads = pd.concat([mapped_uniquely, mapped_multi, cross_mapped ], axis=1)
      combined_total_mapped_reads['total_mapped_reads'] = combined_total_mapped_reads.sum(axis=1)
 
-     if args.total_no_raw_reads.endswith('.csv'):
+     if args.total_no_raw_reads.endswith('.tsv'):
           #read total number of raw reads
           total_reads = pd.read_csv(args.total_no_raw_reads,sep="\t",index_col=0, names=['total_raw_reads'])
           #read total number of processed reads 
