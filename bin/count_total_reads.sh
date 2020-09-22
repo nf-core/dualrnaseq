@@ -6,7 +6,7 @@
 # Script to count number of reads in fastq files
 #
 # Created by B. Mika-Gospodorz
-# Date: 6th May 2020
+# Date: 2nd April 2020
 #
 # Input files:  list of fastq files
 # Output: name of sample followed by number of reads

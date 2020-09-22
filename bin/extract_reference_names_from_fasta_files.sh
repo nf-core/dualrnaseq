@@ -6,7 +6,7 @@
 # Script to extract chromosome and plasmid names from genome fasta files
 #
 # Created by B. Mika-Gospodorz
-# Date: 6th May 2020
+# Date: 5th September 2019
 #
 # Input files:  $1 name of output file, eg. reference_host_names.txt
 # 		$@ list of fasta files

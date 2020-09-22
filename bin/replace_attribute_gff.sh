@@ -6,7 +6,7 @@
 # Script to replace gene attributes in 9th column of gff file, e.g. locus_tag with transcript_id, transcript_id with parent
 #
 # Created by B. Mika-Gospodorz
-# Date: 9th June 2020
+# Date: 20th April 2020
 #
 # Input files:  $1 gff file
 # 		$2 output file name

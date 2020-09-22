@@ -1878,7 +1878,7 @@ if(params.run_salmon_selective_alignment) {
             file 'pathogen_quant_salmon.tsv' into quant_pathogen_add_annotations
             file 'host_quant_salmon.tsv' into quant_scatter_plot_host
             file 'pathogen_quant_salmon.tsv' into quant_scatter_plot_pathogen
-f
+
             script:
             """
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "quant_salmon.tsv"

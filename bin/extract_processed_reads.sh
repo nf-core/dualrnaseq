@@ -6,7 +6,7 @@
 # Script to extract information on processed reads by Salmon and STAR
 #
 # Created by B. Mika-Gospodorz
-# Date: 25th May 2020
+# Date: 8th April 2020
 #
 # Input files:  $1 log file which contains information about processed reads by a tool: meta_info.json for Salmon or *Log.final.out for STAR
 # 		$2 sample name

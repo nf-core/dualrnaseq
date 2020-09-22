@@ -6,7 +6,7 @@
 # Script to replace feature in 3rd column of gff file with "quant"
 #
 # Created by B. Mika-Gospodorz
-# Date: 6th May 2020
+# Date: 19th March 2020
 #
 # Input files:  $1 gff file
 # 		$2 output file name
