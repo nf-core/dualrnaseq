@@ -67,8 +67,8 @@ parser.add_argument("-p_ref", "--pathogen_reference_names", metavar='<pathogen_r
 args = parser.parse_args()
 
 # create list of host and pathogen chromosome/plasmid names
-host_reference_names = [line.rstrip() for line in open(args.host_reference_name)]
-pathogen_reference_names = [line.rstrip() for line in open(args.pathogen_reference_name)]
+host_reference_names = [line.rstrip() for line in open(args.host_reference_names)]
+pathogen_reference_names = [line.rstrip() for line in open(args.pathogen_reference_names)]
 
 
 # identify and extract cross-mapped reads
