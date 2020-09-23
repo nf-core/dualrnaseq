@@ -2149,7 +2149,7 @@ if(params.run_salmon_selective_alignment) {
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/plot_mapping_statistics.py -i $stats
+		    python $workflow.projectDir/bin/plot_mapping_statistics_salmon.py -i $stats
 		    """
 		}
 
