@@ -124,7 +124,7 @@ else:
 	    m = 6
     else:                   # define label ticks if number of reads is smaller than 10^6
 	    step = int(df_stats['processed_reads'].max()/20)
-	    array_labels = np.arange(0, df_stats['total_raw_reads'].max() + step, step=step)
+	    array_labels = np.arange(0, df_stats['processed_reads'].max() + step, step=step)
 	    array_labels2= np.around(array_labels)
 	    # set m value to specify format of scientific format of x label ticks
 	    m = 0
