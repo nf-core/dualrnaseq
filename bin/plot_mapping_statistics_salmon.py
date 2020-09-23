@@ -27,7 +27,7 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage,
     # reverse sample order
     df_comb = df_comb.loc[reversed(df_comb.index)]
     # make plot 
-    fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples * 2 + 3),legend=True,color = color, width = 0.8, fontsize=40)
+    fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples + 3),legend=True,color = color, width = 0.8, fontsize=40)
     fig.spines['top'].set_visible(False)
     fig.spines['right'].set_visible(False)
     fig.spines['bottom'].set_visible(True)
