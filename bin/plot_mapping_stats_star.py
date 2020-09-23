@@ -3,6 +3,8 @@
 """
 Created on Tue May 26 15:51:22 2020
 
+@author: B. Mika-Gospodorz
+
 Input files: tsv file 
 Output file: tsv and pdf files
 Description: Used to plot mapping statistics for STAR
