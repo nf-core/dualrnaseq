@@ -55,7 +55,7 @@ def plot_mapping_stats(df_comb,no_samples, color_map_collection, profile):
     fig.spines['left'].set_visible(False)
     plt.xlabel('[ % ]', fontsize=40)
     plt.xticks(np.arange(0, 105, step=5),rotation = 0)
-    fig.legend(loc = 'lower center',ncol=ncol_leg,bbox_to_anchor=(0.5,1),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
+    fig.legend(loc = 'lower center',ncol=ncol_leg,bbox_to_anchor=(0.5,1.5),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
     fig.set_yticklabels(df_comb.index)
     plt.savefig('RNA_class_stats_combined_' + str(profile) + '.pdf', dpi = 300, orientation = 'landscape',transparent=False,bbox_inches='tight')
 

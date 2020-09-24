@@ -44,11 +44,11 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage,
         plt.xticks(xticks_np,rotation = 90, fontsize=40)
         plt.tick_params(axis='x', which='major', pad=10)
     # set legent position and format
-    fig.legend(loc = 'upper center',ncol=n_col,bbox_to_anchor=(0.5,0),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
+    fig.legend(loc = 'upper center',ncol=n_col,bbox_to_anchor=(0.5, 1.4),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
     # set sample names as y labels
     fig.set_yticklabels(df_comb.index)
     # save used table
-    df_comb.to_csv("mapping_stats_" + profile + ".csv",sep='\t')  
+    df_comb.to_csv("mapping_stats_" + profile + ".tsv",sep='\t')  
     # save plot
     plt.savefig('mapping_stats_star_' + profile + '.pdf', dpi = 300, orientation = 'landscape',transparent=False,bbox_inches='tight')
 

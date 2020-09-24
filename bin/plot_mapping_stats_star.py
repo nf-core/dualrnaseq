@@ -27,7 +27,7 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage,
     # reverse sample order
     df_comb = df_comb.loc[reversed(df_comb.index)]
     # make plot 
-    fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples * 2 + 3),legend=True,color = color, width = 0.8, fontsize=40)
+    fig = df_comb.plot(kind='barh', stacked=True,figsize=(60, no_samples + 3),legend=True,color = color, width = 0.8, fontsize=40)
     fig.spines['top'].set_visible(False)
     fig.spines['right'].set_visible(False)
     fig.spines['bottom'].set_visible(True)
@@ -44,7 +44,7 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage,
         plt.xticks(xticks_np,rotation = 90, fontsize=40)
         plt.tick_params(axis='x', which='major', pad=10)
     # set legent position and format
-    fig.legend(loc = 'upper center',ncol=4,bbox_to_anchor=(0.5,0),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
+    fig.legend(loc = 'upper center',ncol=4,bbox_to_anchor=(0.5, 1.4),bbox_transform=plt.gcf().transFigure,frameon=False, prop={'size': 50})
     # set sample names as y labels
     fig.set_yticklabels(df_comb.index)
     # save used table

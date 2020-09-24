@@ -473,6 +473,16 @@ if (!params.skipTrimming){
 //----------
 // Channel to capture Salmon-based params
 //----------
+
+
+if (params.run_salmon_selective_alignment){
+	Channel
+	    .value(params.kmer_length)
+	    .set {kmer_length_salmon_index}
+
+}
+
+
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 	Channel
 	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
@@ -491,11 +501,6 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
 	    .collect()
 	    .into {gene_feature_to_quantify_pathogen_salmon_alignment; gene_feature_to_extract_annotations_pathogen; gene_feature_gff_to_create_transcriptome_pathogen_salmon}
-
-	Channel
-	    .value(params.kmer_length)
-	    .set {kmer_length_salmon_index}
-
 
 	Channel
 	    .value(params.libtype)
@@ -1439,8 +1444,8 @@ if (!params.skipFastqc) {
 	    label 'process_medium'
 
 	    publishDir "${params.outdir}/fastqc", mode: 'copy',
-		saveAs: { filename ->
-		              filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
+	    saveAs: { filename ->
+	              filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
 		        }
 	    storeDir "${params.outdir}/fastqc"
 
@@ -1463,7 +1468,7 @@ if (!params.skipFastqc) {
 
 
 /*
- *  STEP 2 - Trimming
+ *  STEP 4 - Trimming
  */
 
 
@@ -1518,7 +1523,7 @@ if (!params.skipTrimming) {
 
 
 /*
- * STEP 4 -FastQC after trimming 
+ * STEP 5 -FastQC after trimming 
  */
 
 
@@ -1579,7 +1584,7 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    """
 	}
 
-		if (!params.single_end){
+	if (!params.single_end){
 
 		/*
 		 * count total number of paired-end reads
@@ -1617,7 +1622,7 @@ if(params.mapping_statistics & !params.skipTrimming) {
 
 
 /*
- * STEP 5 - Salmon Selective Alignment
+ * STEP 6 - Salmon Selective Alignment
  */
 
 
@@ -1750,7 +1755,7 @@ if(params.run_salmon_selective_alignment) {
         }
 
 
-	    if(params.generate_salmon_uniq_ambig) {
+	if(params.generate_salmon_uniq_ambig) {
 
 	    /*
 	     * Extract and combine the ambig and unique counts
@@ -1824,7 +1829,7 @@ if(params.run_salmon_selective_alignment) {
 		    $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
 		    """
 		}
-	    }
+	}
 
 
 
@@ -2166,7 +2171,8 @@ if(params.run_salmon_selective_alignment) {
 		    file(stats) from salmon_mapped_stats_to_plot
 
 		    output:
-		    file "mapping_stats_*"
+		    file "*.tsv"
+		    file "*.pdf"
 
 		    script:
 		    """
@@ -2355,7 +2361,7 @@ if(params.run_salmon_selective_alignment) {
 
 
 /*
- * STEP 5 - Salmon alignment_based_mode
+ * STEP 7 - Salmon alignment_based_mode
  */
 
 
@@ -2446,7 +2452,6 @@ if (params.run_salmon_alignment_based_mode){
 	 */
 
 	process salmon_quantification_alignment_based_mode {
-	 //   publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "${sample}"
 
@@ -2961,7 +2966,8 @@ if (params.run_salmon_alignment_based_mode){
 		    file(stats) from salmon_mapped_stats_to_plot_alignment
 
 		    output:
-		    file "mapping_stats_*"
+		    file "*.tsv"
+		    file "*.pdf"
 
 		    script:
 		    """
@@ -3148,7 +3154,7 @@ if (params.run_salmon_alignment_based_mode){
 
 
 /*
- * STEP 6 - STAR
+ * STEP 8 - STAR
  */
 
 
@@ -3505,7 +3511,8 @@ if(params.run_star) {
 		    file(stats) from star_mapped_stats_to_plot
 
 		    output:
-		    file "mapping_stats_*"
+		    file "*.tsv"
+		    file "*.pdf"
 
 		    script:
 		    """
@@ -3521,7 +3528,7 @@ if(params.run_star) {
 
 
 /*
- * STEP 7 - HTSeq
+ * STEP 9 - HTSeq
  */
 
 
@@ -3811,7 +3818,8 @@ if(params.run_htseq_uniquely_mapped){
 		    file(stats) from htseq_mapped_stats_to_plot
 
 		    output:
-		    file "mapping_stats_*"
+		    file "*.tsv"
+		    file "*.pdf"
 
 		    script:
 		    """
@@ -4003,7 +4011,7 @@ if(params.run_htseq_uniquely_mapped){
 
 
 /*
- * STEP 8 - MultiQC
+ * STEP 10 - MultiQC
  */
 
 process multiqc {
@@ -4038,7 +4046,7 @@ process multiqc {
 
 
 /*
- * STEP 9 - Output Description HTML
+ * STEP 11 - Output Description HTML
  */
 
 
