@@ -40,10 +40,10 @@ nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institut
 iv. Start running your own analysis!
 
 ```bash
-nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome GRCh37
+nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
 ```
 
-See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
+See [parameters docs](docs/parameters.md) for all of the available parameters when running the pipeline.
 
 ### 1.2 Basic run
 
@@ -52,7 +52,7 @@ Once ready, a basic command for running the pipeline would be the following:
 ```bash
 nextflow run nf-core/dualrnaseq/main.nf -profile docker \
 --reads "/folder_to_reads/*_R{1,2}.fq.gz" \
---fasta_host host.fa.gz --fasta_pathogen pathogen.fa.gz \
+--fasta_host host.fa --fasta_pathogen pathogen.fa \
 --gff_host host.gff --gff_pathogen pathogen.gff \
 --run_star --outdir results
 ```
@@ -99,7 +99,7 @@ Note that multiple profiles can be loaded, for example: `-profile test,docker` (
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
-The nf-core/dualrnaseq pipeline contains Docker, Singluarity and test configuration profiles:
+The nf-core/dualrnaseq pipeline contains Docker, Singluarity, Conda and test configuration profiles:
 
 * `docker`
   * A generic configuration profile to be used with [Docker](http://docker.com/)
@@ -119,18 +119,22 @@ The nf-core/dualrnaseq pipeline contains Docker, Singluarity and test configurat
 
 `--reads`
 
-Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R`, and read number with a lower case `r` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
+Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R` or lower case `r`, and read number `1` or `2` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
 
 | Paired-end | Single-end |
 | --- | --- |
-| Host_pathogen_mock_10h_R1_r1.fq | Host_pathogen_mock_10h_r1.fq |
-| Host_pathogen_mock_10h_R1_r2.fq | Host_pathogen_mock_10h_r2.fq |
-| Host_pathogen_mock_10h_R2_r1.fq | Host_pathogen_MOI_1_10h_r1.fq |
-| Host_pathogen_mock_10h_R2_r2.fq | Host_pathogen_MOI_1_10h_r2.fq |
-| Host_pathogen_MOI_1_10h_R1_r1.fq |  |
-| Host_pathogen_MOI_1_10h_R1_r2.fq |  |
-| Host_pathogen_MOI_1_10h_R2_r1.fq |  |
-| Host_pathogen_MOI_1_10h_R2_r2.fq |  |
+| Host_pathogen_mock_10h_R1_1.fq | Host_pathogen_mock_10h_r1.fq |
+| Host_pathogen_mock_10h_R1_2.fq | Host_pathogen_mock_10h_r2.fq |
+| Host_pathogen_mock_10h_R2_1.fq | Host_pathogen_mock_10h_r3.fq |
+| Host_pathogen_mock_10h_R2_2.fq | Host_pathogen_MOI_1_10h_R1.fq |
+| Host_pathogen_mock_10h_R3_1.fq | Host_pathogen_MOI_1_10h_R2.fq |
+| Host_pathogen_mock_10h_R3_2.fq | Host_pathogen_MOI_1_10h_R3.fq |
+| Host_pathogen_MOI_1_10h_r1_1.fq |  |
+| Host_pathogen_MOI_1_10h_r1_2.fq |  |
+| Host_pathogen_MOI_1_10h_r2_1.fq |  |
+| Host_pathogen_MOI_1_10h_r2_2.fq |  |
+| Host_pathogen_MOI_1_10h_r3_1.fq |  |
+| Host_pathogen_MOI_1_10h_r3_2.fq |  |
 
 Once correctly named, instead of typing all files, the folder containing these files can be specified, such as `--reads "folder_to_files/*.fq.gz"`. Or, for paired-end `--reads "folder_to_files/*{1,2}.fastq.gz"`
 
@@ -144,7 +148,7 @@ If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
 ### Additional parameters
 
-The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values
+The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values.
 
 `single_end False`
 
