@@ -189,9 +189,9 @@ params {
       transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
              }
           }
-        // Optional - default genome. Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line 
-        genome_host = 'GRCm38'
-        genome_pathogen = 'SL1344'
+        // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line 
+      genome_host = 'GRCm38'
+      genome_pathogen = 'SL1344'
         }
 ```
 Defining default genomes in your configuration file is optional. You can specify the references using the following flags on command line:
@@ -205,7 +205,7 @@ Defining default genomes in your configuration file is optional. You can specify
 Note:
 
 * The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or 
-```--read_transcriptome_fasta_pathogen_from_file```
+```--read_transcriptome_fasta_pathogen_from_file```.
 
 * If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to create host gff file.
 
