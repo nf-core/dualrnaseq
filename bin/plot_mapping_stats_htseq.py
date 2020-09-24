@@ -148,5 +148,5 @@ else:
 
 
 # plot mapping statistics
-plot_mapping_stats(df_comb,no_samples,'samples_total_reads','Number of reads', narray_labels2, percentage = False, n_col = n_col,m = m)
+plot_mapping_stats(df_comb,no_samples,'samples_total_reads','Number of reads', array_labels2, percentage = False, n_col = n_col,m = m)
 

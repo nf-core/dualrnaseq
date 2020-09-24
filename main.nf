@@ -471,7 +471,7 @@ if (!params.skipTrimming){
 
 
 //----------
-// Channel to capture Cutadapt-based params
+// Channel to capture Salmon-based params
 //----------
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 	Channel
@@ -504,7 +504,7 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 
 
 //----------
-// Channel to capture Cutadapt-based params
+// Channel to capture htseq and star-based params
 //----------
 if(params.run_htseq_uniquely_mapped | params.run_star){
 
@@ -524,16 +524,16 @@ if(params.run_htseq_uniquely_mapped | params.run_star){
 
 	Channel
 	    .value(params.stranded)
-	    .into { stranded_htseq_unique}
+	    .set { stranded_htseq_unique}
 
 	Channel
 	    .value(params.host_gff_attribute)
-	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; combine_annot_quant_host_gff_attribute; host_gff_attribute_htseq_TPM; atr_scatter_plot_pathogen_htseq_u_m; atr_scatter_plot_host_htseq_u_m}
+	    .into { host_gff_attribute_to_pathogen; host_gff_attribute_htseq; host_gff_attribute_htseq_combine; host_gff_attribute_to_extract_annotations_htseq; host_gff_attribute_mapping_stats_htseq; host_gff_attribute_RNA_class_pathogen_htseq; host_gff_attribute_RNA_class_host_htseq; combine_annot_quant_pathogen_host_gff_attribute; host_gff_attribute_htseq_TPM; atr_scatter_plot_pathogen_htseq_u_m; atr_scatter_plot_host_htseq_u_m}
 }
 
 
 //----------
-// Channel to capture if mapping stats are required
+// Channel to capture mapping statistics-based  params
 //----------
 if(params.mapping_statistics) {
 
@@ -632,8 +632,6 @@ process get_software_versions {
                       else null
                 }
 
-    label 'main_env'
-
     output:
     file 'software_versions_mqc.yaml' into ch_software_versions_yaml
     file "software_versions.csv"
@@ -651,6 +649,7 @@ process get_software_versions {
     htseq-count . . --version > v_htseq.txt
     samtools --version > v_samtools.txt
     gffread --version > v_gffread.txt
+    salmon --version > v_salmon.txt
 
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
@@ -667,18 +666,21 @@ Workflow - Processes
 --------------------------------------------------------------------
 */
 
-if(params.mapping_statistics) {
 
+/*
+ * STEP 1 - Check if there are technical replicates - to plot scatter plots of technical replicates
+ */
+
+
+if(params.mapping_statistics) {
 
 	scatter_plots_set
 			.map { tag, file -> tag }
 			.set {scatter_plots}
 
-
 	process check_replicates {
 	    tag "check_replicates"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -702,11 +704,9 @@ if(params.mapping_statistics) {
 }
 
 
-
 /*
- *  create chimeric reference files
+ * STEP 2 - Prepare reference files
  */
-
 
 
 /*
@@ -736,13 +736,6 @@ process combine_pathogen_host_fasta_genome {
 }
 
 
-
-
-
-/*
- * chimeric gff file
- */
-
 if(params.run_htseq_uniquely_mapped | params.run_star) {
 
 	/*
@@ -763,7 +756,6 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 
 		    output:
 		    file "${outfile_name}" into gff_host_genome_htseq
-		    file "${outfile_name}" into split_tab_host_genome_gff_htseq
 		    file "${outfile_name}" into extract_annotations_host_gff_htseq
 
 		    script:
@@ -774,6 +766,10 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 		}
 	}
 
+
+	/*
+	 * Replace gene features (3rd column of gff) with 'quant' in host gff 
+	 */
 
 	process replace_gene_feature_gff_host_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -798,6 +794,9 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	}
 
 
+	/*
+	 * Replace gene features (3rd column of gff) with 'quant' in pathogen gff 
+	 */
 
 	process replace_gene_feature_gff_pathogen_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -820,6 +819,10 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	    """
 	}
 
+
+	/*
+	 * Replace pathogen gene attribute in 9th column of pathogen gff with host attribute
+	 */
 
 	process replace_attribute_pathogen_gff_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -873,7 +876,7 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 
 
 	/*
-	* extract annotations from gff files - for RNA class statistics + to merge with quantification results
+	* extract annotations from pathogen gff files - for RNA class statistics and to merge with quantification results
 	*/
 
 	process extract_annotations_pathogen_htseq {
@@ -881,7 +884,6 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	    storeDir "${params.outdir}/references"
 	    tag "extract_annotations_pathogen"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -902,12 +904,15 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 	}
 
 
+	/*
+	* extract annotations from host gff files - for RNA class statistics and to merge with quantification results
+	*/
+
 	process extract_annotations_host_htseq {
 	    publishDir "${params.outdir}/references", mode: 'copy'
 	    storeDir "${params.outdir}/references"
 	    tag "extract_annotations_host"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -930,14 +935,12 @@ if(params.run_htseq_uniquely_mapped | params.run_star) {
 
 
 
-
-
 if(params.run_star | params.run_salmon_alignment_based_mode) {
 
 	if(params.mapping_statistics) {
 	
 		/*
-		* extract reference names from genome fasta files - mapping stats
+		* extract reference names from host genome fasta files - for mapping stats
 		*/
 
 		process extract_reference_names_host_star {
@@ -961,6 +964,11 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 		    """
 		}
 
+
+
+		/*
+		* extract reference names from pathogen genome fasta files - for mapping stats
+		*/
 
 		process extract_reference_names_pathogen_star {
 		    publishDir "${params.outdir}/references", mode: 'copy' 
@@ -990,6 +998,10 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 
 
+	/*
+	 * Replace 'Parent' gene attribute in 9th column of host gff with 'parent'
+	 */
+
 	process replace_attribute_host_genome_gff_star_salmon {
 	    tag "repl_attribute_host_genome_gff"
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1012,7 +1024,14 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	}
 
 
+
+
 	if(params.gff_host_tRNA){
+
+		/*
+		 * Replace gene attribute in 9th column of host tRNA gff with 'parent'
+		 */
+
 		process replace_attribute_host_tRNA_gff_star_salmon {
 		    tag "repl_attribute_host_tRNA_gff"
 		    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1034,6 +1053,9 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    """
 		}
 
+		/*
+		 * Combine tRNA gff file with genome host gff 
+	 	 */
 
 		process combine_host_genome_tRNA_gff_star_salmon {
 		    tag "comb_host_genome_tRNA_gff"
@@ -1059,6 +1081,11 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 	gff_host_genome_salmon_alignment = params.gff_host_tRNA ? gff_host_tRNA_genome_salmon_alignment : combine_gff_host_genome_star_salmon
 
+
+	/*
+	 * Replace gene features (3rd column of gff) with 'quant' in host gff 
+	 */
+
 	process replace_gene_feature_gff_host_salmon {
 	    tag "repl_gene_feature_gff_host"
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1082,6 +1109,10 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	}
 
 
+	/*
+	 * Replace gene attribute in 9th column of pathogen gff with 'parent'
+	 */
+
 	process replace_attribute_pathogen_gff_star_salmon {
 	    tag "repl_attribute_pathogen_gff"
 	    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1104,74 +1135,17 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    $workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} parent $pathogen_attribute
 	    """
 	}
-}
-
-
-if(params.run_salmon_alignment_based_mode){
-	process replace_gene_feature_gff_pathogen_salmon {
-	    tag "repl_gene_feature_gff_pathogen"
-	    publishDir "${params.outdir}/references", mode: 'copy'
-	    storeDir "${params.outdir}/references"
-
-	    label 'process_high'
-
-	    input:
-	    file(gff) from to_replace_gff_feature_salmon_alignment
-	    val(features) from gene_feature_to_quantify_pathogen_salmon_alignment
-
-	    output:
-	    file "${outfile_name}" into combine_gff_pathogen_salmon_alignment
-
-	    script:
-	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature_salmon_alignment.gff3")
-	    """
-	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
-	    """
-	}
-
-	process combine_pathogen_host_gff_files_salmon {
-	    tag "combine_pathogen_host_gff"
-	    publishDir "${params.outdir}/references", mode: 'copy' 
-	    storeDir "${params.outdir}/references"
-
-	    label 'process_high'
-	 
-	    input:
-	    file(host_gff) from combine_gff_host_salmon_alignment
-	    file(pathogen_gff_genome) from combine_gff_pathogen_salmon_alignment
-
-	    output:
-	    file "host_pathogen_star_alignment_mode.gff" into genome_gff_star_index
-	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_salmon_alignment_gff
-
-	    script:
-	    """
-	    cat $pathogen_gff_genome $host_gff > host_pathogen_star_alignment_mode.gff
-	    """
-	}
-}
-
-
-
-/*
-* SALMON - extract gff annotations and create chimeric transcriptome 
-*/
-
-
-if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 
 
 	/*
-	* extract annotations from gff file - for RNA class statistics + to merge with quantification results
-	*/
-
+	 * Extract annotations from pathogen gff file - for RNA class statistics and to merge with quantification results
+	 */
 
 	process extract_annotations_pathogen_salmon {
 	    publishDir "${params.outdir}/references", mode: 'copy'
 	    storeDir "${params.outdir}/references"
 	    tag "extract_gff_annots_pathogen"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -1192,12 +1166,15 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	}
 
 
+	/*
+	 * Extract annotations from host gff file - for RNA class statistics and to merge with quantification results
+	 */
+
 	process extract_annotations_host_salmon {
 	    publishDir "${params.outdir}/references", mode: 'copy'
 	    storeDir "${params.outdir}/references"
 	    tag "extract_gff_annots_host"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -1223,17 +1200,18 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	}
 
 
-	/*
-	 * create transcriptome fasta file - host
-	 */
 
 	if(!params.read_transcriptome_fasta_host_from_file){
+
+		/*
+		 * create host transcriptome fasta file 
+		 */
+
 		process create_transcriptome_fasta_host {
 		    tag "create_transcripts_host"
 		    publishDir "${params.outdir}/references", mode: 'copy'
 		    storeDir "${params.outdir}/references"
 
-	            label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -1256,13 +1234,18 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 		    """
 	}
 	
+
 		if(params.gff_host_tRNA){
+
+			/*
+			 * Create host tRNA transcriptome fasta file 
+			 */
+
 			process create_transcriptome_fasta_host_tRNA {
 			    tag "create_transcripts_tRNA_host"
 			    publishDir "${params.outdir}/references", mode: 'copy'
 			    storeDir "${params.outdir}/references"
 
-	                    label 'main_env'
 			    label 'process_high'
 
 			    input:
@@ -1281,7 +1264,10 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 			    """
 			}
 			
-			
+			/*
+			 * Combine host genome transcriptome with tRNA transcriptome
+			 */
+
 			process combine_host_fasta_transcriptomes {
 			    tag "comb_host_fa_tRNA_transcripts"
 			    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1318,11 +1304,12 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 
 
-	/*
-	 * create transcriptome fasta file - pathogen
-	 */
-
 	if(!params.read_transcriptome_fasta_pathogen_from_file){
+
+		/*
+		 * create pathogen transcriptome fasta file
+		 */
+
 		process create_transcriptome_fasta_pathogen {
 		    tag "create_transcripts_fa_pathogen"
 		    publishDir "${params.outdir}/references", mode: 'copy'
@@ -1371,7 +1358,6 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 	    file(pathogen_tr_fa) from pathogen_transcriptome_to_combine
 
 	    output:
-	    //file "host_pathogen_transcriptome.fasta" into host_pathogen_transciptom_fasta_index
 	    file "host_pathogen_transcriptome.fasta" into transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file "host_pathogen_transcriptome.fasta" into transcriptome_salmon_alignment_based_mode
 
@@ -1384,15 +1370,74 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 }
 
 
+
+if(params.run_salmon_alignment_based_mode){
+
+	/*
+	 * Replace gene features (3rd column of gff) with 'quant' in pathogen gff 
+	 */
+
+	process replace_gene_feature_gff_pathogen_salmon {
+	    tag "repl_gene_feature_gff_pathogen"
+	    publishDir "${params.outdir}/references", mode: 'copy'
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+
+	    input:
+	    file(gff) from to_replace_gff_feature_salmon_alignment
+	    val(features) from gene_feature_to_quantify_pathogen_salmon_alignment
+
+	    output:
+	    file "${outfile_name}" into combine_gff_pathogen_salmon_alignment
+
+	    script:
+	    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_quant_feature_salmon_alignment.gff3")
+	    """
+	    $workflow.projectDir/bin/replace_feature_gff.sh $gff ${outfile_name} $features
+	    """
+	}
+
+
+	/*
+	 * Combine pathogen gff with host gff
+	 */
+
+
+	process combine_pathogen_host_gff_files_salmon {
+	    tag "combine_pathogen_host_gff"
+	    publishDir "${params.outdir}/references", mode: 'copy' 
+	    storeDir "${params.outdir}/references"
+
+	    label 'process_high'
+	 
+	    input:
+	    file(host_gff) from combine_gff_host_salmon_alignment
+	    file(pathogen_gff_genome) from combine_gff_pathogen_salmon_alignment
+
+	    output:
+	    file "host_pathogen_star_alignment_mode.gff" into genome_gff_star_index
+	    file "host_pathogen_star_alignment_mode.gff" into gff_host_pathogen_star_salmon_alignment_gff
+
+	    script:
+	    """
+	    cat $pathogen_gff_genome $host_gff > host_pathogen_star_alignment_mode.gff
+	    """
+	}
+}
+
+
+
+
 /*
- * STEP 1 - FastQC
+ * STEP 3 - FastQC
  */
 
 if (!params.skipFastqc) {
 	process fastqc {
 	    tag "$name"
 	    label 'process_medium'
-	    label 'main_env'
+
 	    publishDir "${params.outdir}/fastqc", mode: 'copy',
 		saveAs: { filename ->
 		              filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
@@ -1416,9 +1461,11 @@ if (!params.skipFastqc) {
 }
 
 
+
 /*
  *  STEP 2 - Trimming
  */
+
 
 if (!params.skipTrimming) {
 	process trimming {
@@ -1426,7 +1473,6 @@ if (!params.skipTrimming) {
 	    publishDir "${params.outdir}/trimming", mode: 'copy'
 	    storeDir "${params.outdir}/trimming"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -1472,8 +1518,9 @@ if (!params.skipTrimming) {
 
 
 /*
- * STEP 3 -FastQC after trimming 
+ * STEP 4 -FastQC after trimming 
  */
+
 
 if (!params.skipTrimming & !params.skipFastqc) {
 	process fastqc_after_trimming {
@@ -1481,14 +1528,12 @@ if (!params.skipTrimming & !params.skipFastqc) {
 	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 	    storeDir "${params.outdir}/fastqc_after_trimming"
 
-	    label 'main_env'
 	    label 'process_medium'
 
 	    input:
 	    set val(name),file(reads) from trimming_results_to_qc
 
 	    output:
-	    file "${sample_name}{_1,_2,}_trimmed_fastqc.{zip,html}" into raw_reads_fastqc_trim
 	    file "*_trimmed_fastqc.{zip,html}" into ch_fastqc_trimmed_results
 
 	    script:
@@ -1503,17 +1548,16 @@ if (!params.skipTrimming & !params.skipFastqc) {
 }
 
 
+
 if(params.mapping_statistics & !params.skipTrimming) {
-
-	/*
-	* count total number of raw reads
-	*/
-
 
 	raw_read_count
 		.map { tag, file -> file }
 		.set {raw_read_count_file}
 
+	/*
+	 * count total number of raw single-end reads
+	 */
 
 	process count_total_reads {
 	    tag "count_total_reads"
@@ -1535,75 +1579,49 @@ if(params.mapping_statistics & !params.skipTrimming) {
 	    """
 	}
 
+		if (!params.single_end){
 
+		/*
+		 * count total number of paired-end reads
+		 */
 
-if (!params.single_end){
-
-	process count_total_reads_collect {
-	    tag "count_total_reads"
-	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
-	    storeDir "${params.outdir}/mapping_statistics"
-
-	    label 'process_high'
-
-	    input:
-	    file(tsv) from to_collect_total_reads.collect()
-
-	    output:
-	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon
-	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon_alignment
-	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star
-	    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star_for_salmon
-
-	    script:
-	    """
-	    $workflow.projectDir/bin/collect_total_raw_read_pairs.py -i $tsv
-	    """
-	}
-}else{
-   to_collect_total_reads
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
-}
-
-
-
-
-
-	/*
-	* count total number of reads after trimming
-	*/
-
-
-/*
-		process count_total_trimmed_reads {
-		    tag "count_total_trimmed_reads"
+		process count_total_read_pairs {
+		    tag "count_total_reads"
 		    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics"
 
 		    label 'process_high'
 
 		    input:
-		    file(fastq) from count_reads.collect()
+		    file(tsv) from to_collect_total_reads.collect()
 
 		    output:
-//		    file "total_trimmed_reads_fastq.csv" into mapping_stats_total_processed_reads_alignment
+		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon
+		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon_alignment
+		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star
+		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star_for_salmon
 
 		    script:
 		    """
-		    $workflow.projectDir/bin/count_total_reads.sh $fastq >> total_trimmed_reads_fastq.csv
+		    $workflow.projectDir/bin/collect_total_raw_read_pairs.py -i $tsv
 		    """
 		}
-*/
-
+	}else{
+	   to_collect_total_reads
+		  .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
+	}
 }else{
    Channel.empty()
           .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
 }
 
 
+/*
+ * STEP 5 - Salmon Selective Alignment
+ */
+
 
 if(params.run_salmon_selective_alignment) {
-
 
 	/*
 	 * create genome as decoy sequence 
@@ -1620,9 +1638,9 @@ if(params.run_salmon_selective_alignment) {
 	    file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file(host_pathogen_transcriptome_fasta) from transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 
-            output:
-            file "gentrome.fasta" into salmon_index_gentrome
-            file "decoys.txt" into salmon_index_decoys
+	    output:
+	    file "gentrome.fasta" into salmon_index_gentrome
+	    file "decoys.txt" into salmon_index_decoys
 
 	    shell:
 	    '''
@@ -1633,16 +1651,14 @@ if(params.run_salmon_selective_alignment) {
 	}
 
 
-
 	/*
-	 * salmon - build an index
+	 * Salmon - build an index
 	 */
 
 	process salmon_index {
 	    tag "salmon_index"
             storeDir "${params.outdir}/salmon"
 
-            label 'salmon_env'
             label 'process_high'
 
 	    input:
@@ -1661,18 +1677,15 @@ if(params.run_salmon_selective_alignment) {
 	}
 
 
-
 	/*
-	 * salmon - quantification
+	 * Salmon - quantification
 	 */
 
 
 	process salmon_quantification {
-//	    publishDir "${params.outdir}/salmon", mode: 'copy'
 	    storeDir "${params.outdir}/salmon"
 	    tag "${sample}"
 
-            label 'salmon_env'
             label 'process_high'
 
 	    input:
@@ -1711,7 +1724,7 @@ if(params.run_salmon_selective_alignment) {
 
 
 	/*
-	 * salmon - split quantification tables into host and pathogen results
+	 * Salmon - split quantification tables into host and pathogen results
 	 */
 
 
@@ -1720,7 +1733,6 @@ if(params.run_salmon_selective_alignment) {
             storeDir "${params.outdir}/salmon/${sample_name}"
             tag "split_quantification ${sample_name}"
 
-            label 'main_env'
             label 'process_high'
 
             input:
@@ -1730,129 +1742,120 @@ if(params.run_salmon_selective_alignment) {
 
             output:
             set val(sample_name), file("host_quant.sf") into salmon_host_tximport
-            set val(sample_name), file("pathogen_quant.sf")
 
             script:
             """
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host  salmon/*/quant.sf "quant.sf"
             """
         }
-	
-	
-	
-	
-    if(params.generate_salmon_uniq_ambig) {
-
-    /*
-     * Extract and combine the ambig and unique counts
-     */
-    process extract_ambig_uniq_transcripts_genes {
-            publishDir "${params.outdir}/salmon/${sample_name}/aux_info", mode: 'copy'
-            storeDir "${params.outdir}/salmon/${sample_name}/aux_info"
-            tag "extract_ambig_uniq_transcripts_genes ${sample_name}"
-
-            label 'main_env'
-            label 'process_high'
-
-            input: 
-            set val(sample_name), file("salmon/*") from split_table_uniq_ambig
-            file (annotations) from host_annotations_uniq_ambig
 
 
-            output:
-            file "${sample_name}_host_quant_ambig_uniq.sf"
-            file "${sample_name}_pathogen_quant_ambig_uniq.sf"
-            file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
-            set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb
-            set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb
+	    if(params.generate_salmon_uniq_ambig) {
 
-            script:
-            """
-            $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
-            """
-        }
+	    /*
+	     * Extract and combine the ambig and unique counts
+	     */
 
-    /*
-     * Combine the host ambig and unique counts
-     */
-        process host_comb_ambig_uniq {
-            publishDir "${params.outdir}/salmon", mode: 'copy'
-            storeDir "${params.outdir}/salmon"
-            tag "host_comb_ambig_uniq"
+		process extract_ambig_uniq_transcripts_genes {
+		    publishDir "${params.outdir}/salmon/${sample_name}/aux_info", mode: 'copy'
+		    storeDir "${params.outdir}/salmon/${sample_name}/aux_info"
+		    tag "extract_ambig_uniq_transcripts_genes ${sample_name}"
 
-            label 'main_env'
-            label 'process_high'
+		    label 'process_high'
 
-            input: 
-            file("salmon/*") from host_files_comb.collect()
+		    input: 
+		    set val(sample_name), file("salmon/*") from split_table_uniq_ambig
+		    file (annotations) from host_annotations_uniq_ambig
 
-            output:
-            file "host_quant_combined_ambig_uniq.tsv"
 
-            script:
-            """
-            $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
-            """
-        }
+		    output:
+		    file "${sample_name}_host_quant_ambig_uniq.sf"
+		    file "${sample_name}_pathogen_quant_ambig_uniq.sf"
+		    file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
+		    set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb
+		    set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb
 
-    /*
-     * Combine the pathogen ambig and unique counts
-     */
-        process pathogen_comb_ambig_uniq {
-            publishDir "${params.outdir}/salmon", mode: 'copy'
-            storeDir "${params.outdir}/salmon"
-            tag "pathogen_comb_ambig_uniq"
+		    script:
+		    """
+		    $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
+		    """
+		}
 
-            label 'main_env'
-            label 'process_high'
+	    /*
+	     * Combine the host ambig and unique counts
+	     */
+		process host_comb_ambig_uniq {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "host_comb_ambig_uniq"
 
-            input: 
-            file("salmon/*") from path_files_comb.collect()
+		    label 'process_high'
 
-            output:
-            file "pathogen_quant_combined_ambig_uniq.tsv"
+		    input: 
+		    file("salmon/*") from host_files_comb.collect()
 
-            script:
-            """
-            $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
-            """
-        }
+		    output:
+		    file "host_quant_combined_ambig_uniq.tsv"
 
-    }
-    
-    
-    
+		    script:
+		    """
+		    $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
+		    """
+		}
+
+	    /*
+	     * Combine the pathogen ambig and unique counts
+	     */
+		process pathogen_comb_ambig_uniq {
+		    publishDir "${params.outdir}/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/salmon"
+		    tag "pathogen_comb_ambig_uniq"
+
+		    label 'process_high'
+
+		    input: 
+		    file("salmon/*") from path_files_comb.collect()
+
+		    output:
+		    file "pathogen_quant_combined_ambig_uniq.tsv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
+		    """
+		}
+	    }
+
+
 
 	/*
-	 * salmon - combine quantification results
+	 * Salmon - combine quantification results
 	 */
 
 
 	process combine_quantification_tables_salmon {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
-		    tag "combine_quantification_salmon"
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "combine_quantification_salmon"
+	    label 'process_high'
 
-		    label 'main_env'
-		    label 'process_high'
+	    input: 
+	    file input_quantification from salmon_files_to_combine.collect()
+	    val gene_attribute from host_atr_collect_data_salmon
 
-		    input: 
-		    file input_quantification from salmon_files_to_combine.collect()
-		    val gene_attribute from host_atr_collect_data_salmon
+	    output:
+	    file "combined_quant.tsv" into split_table_salmon 
 
-		    output:
-		    file "combined_quant.tsv" into split_table_salmon 
-
-		    script:
-		    """
-		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a $gene_attribute -org both
-		    """
-		}
+	    script:
+	    """
+	    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a $gene_attribute -org both
+	    """
+	}
 
 
 
 	/*
-	 * salmon - split quantification tables into host and pathogen results
+	 * Salmon - split quantification tables into host and pathogen results
 	 */
 
 
@@ -1861,7 +1864,6 @@ if(params.run_salmon_selective_alignment) {
 	    storeDir "${params.outdir}/salmon"
             tag "split_quant_table_salmon"
 
-            label 'main_env'
             label 'process_high'
 
             input:
@@ -1887,139 +1889,144 @@ if(params.run_salmon_selective_alignment) {
 
 
 	/*
-	 * salmon - 'combine annotations extracted from gff with quantification tables
+	 * Salmon - combine pathogen annotations extracted from gff with quantification tables
 	 */
 
 	process combine_annotations_quant_pathogen {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
-		    tag "comb_annots_quant_pathgn_salmon"
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "comb_annots_quant_pathgn_salmon"
 
-		    label 'main_env'
-   		    label 'process_high'
-		   
-	            input: 
-		    file quantification_table from quant_pathogen_add_annotations
-		    file annotation_table from annotation_pathogen_combine_quant
-		    val attribute from combine_annot_quant_pathogen
+   	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_pathogen_add_annotations
+	    file annotation_table from annotation_pathogen_combine_quant
+	    val attribute from combine_annot_quant_pathogen
 
-		    output:
-		    file "pathogen_combined_quant_annotations.tsv"
+	    output:
+	    file "pathogen_combined_quant_annotations.tsv"
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
-		    """
-		}
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
+	    """
+	}
 
+
+	/*
+	 * Salmon - combine host annotations extracted from gff with quantification tables
+	 */
 
 	process combine_annotations_quant_host_salmon {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
-		    tag "comb_annots_quant_host_salmon"
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "comb_annots_quant_host_salmon"
 
-		    label 'main_env'
-   		    label 'process_high'
-		   
-	            input: 
-		    file quantification_table from quant_host_add_annotations
-		    file annotation_table from annotation_host_combine_quant
-		    val attribute from combine_annot_quant_host
+   	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_host_add_annotations
+	    file annotation_table from annotation_host_combine_quant
+	    val attribute from combine_annot_quant_host
 
-		    output:
-		    file "host_combined_quant_annotations.tsv"
+	    output:
+	    file "host_combined_quant_annotations.tsv"
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
-		    """
-		}
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
+	    """
+	}
 
 
 
 	/*
-	 * tximport - host
+	 * Tximport - host
 	 */
 
 	process tximport_host {
-		    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
-		    storeDir "${params.outdir}/salmon/${sample_name}"
-		    tag "tximport_host"
+	    publishDir "${params.outdir}/salmon/${sample_name}", mode: 'copy'
+	    storeDir "${params.outdir}/salmon/${sample_name}"
+	    tag "tximport_host"
 
-		    label 'main_env'
-   		    label 'process_high'
+   	    label 'process_high'
 
-	            input: 
-		    set val(sample_name), file("salmon/${sample_name}/*") from salmon_host_tximport
-		    file (annotations) from tximport_annotations
+	    input: 
+	    set val(sample_name), file("salmon/${sample_name}/*") from salmon_host_tximport
+	    file (annotations) from tximport_annotations
 
-		    output:
-		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level
+	    output:
+	    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
-		    """
-		}
+	    script:
+	    """
+	    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
+	    """
+	}
 
+
+	/*
+	 * Salmon - Combine host gene level quantification results estimated with Tximport
+	 */
 
 	process combine_host_quant_gene_level_salmon {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
-		    tag "comb_host_quant_genes_salmon"
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "comb_host_quant_genes_salmon"
+ 
+	    label 'process_high'
 
-		    label 'main_env'
-		    label 'process_high'
+	    input: 
+	    file input_quantification from salmon_files_to_combine_gene_level.collect()
 
-		    input: 
-		    file input_quantification from salmon_files_to_combine_gene_level.collect()
+	    output:
+	    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon
 
-		    output:
-		    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon
-
-		    script:
-		    """
-		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
-		    """
-		}
+	    script:
+	    """
+	    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
+	    """
+	}
 
 
-		process combine_annotations_quant_gene_level_salmon {
-		    publishDir "${params.outdir}/salmon", mode: 'copy'
-		    storeDir "${params.outdir}/salmon"
-		    tag "comb_annots_gene_host_salmon"
+	/*
+	 * Salmon - combine host annotations extracted from gff with gene-level quantification estimates 
+	 */
 
-		    label 'main_env'
-		    label 'process_high'
-		   
-		    input: 
-		    file quantification_table from quant_gene_level_host_add_annotations_salmon
-		    file annotation_table from annotation_host_combine_quant_gene_level_salmon
+	process combine_annotations_quant_gene_level_salmon {
+	    publishDir "${params.outdir}/salmon", mode: 'copy'
+	    storeDir "${params.outdir}/salmon"
+	    tag "comb_annots_gene_host_salmon"
 
-		    output:
-		    file "host_combined_quant_gene_level_annotations.tsv"
+	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_gene_level_host_add_annotations_salmon
+	    file annotation_table from annotation_host_combine_quant_gene_level_salmon
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a gene_id -org host
-		    """
-		}
+	    output:
+	    file "host_combined_quant_gene_level_annotations.tsv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_annotations_salmon_gene_level.py -q $quantification_table -annotations $annotation_table -a gene_id -org host
+	    """
+	}
 
 
 
 	if(params.mapping_statistics) {
 	
 		/*
-		 * salmon - 'quantification_stats'
+		 * Salmon - plot scatter plots of technical replicates for pathogen
 		 */
-
 
 		process scatter_plot_pathogen_salmon {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
 		    tag "scatter_plot_salmon_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2040,12 +2047,15 @@ if(params.run_salmon_selective_alignment) {
 		}
 
 
+		/*
+		 * Salmon - plot scatter plots of technical replicates for host
+		 */
+
 		process scatter_plot_host_salmon {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/scatter_plots", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/scatter_plots"
 		    tag "scatter_plot_salmon_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2066,54 +2076,63 @@ if(params.run_salmon_selective_alignment) {
 		}
 
 
+		/*
+		 * Salmon - Extract processed reads from log file
+		 */
+
 		process extract_processed_reads {
-			    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/salmon"
-			    tag "extract_processed_reads"
+		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon"
+		    tag "extract_processed_reads"
 
-			    label 'main_env'
-	   		    label 'process_high'
-			   
-			    input: 
-			    set val(sample_name), file ("salmon/*") from collect_processed_read_counts
+		    label 'process_high'
+		   
+		    input: 
+		    set val(sample_name), file ("salmon/*") from collect_processed_read_counts
 
-			    output:
-			    file "${sample_name}.txt" into collect_results
+		    output:
+		    file "${sample_name}.txt" into collect_results
 
-			    script:
-			    """
-			    $workflow.projectDir/bin/extract_processed_reads.sh salmon/*/aux_info/meta_info.json $sample_name salmon
-			    """
-			}
+		    script:
+		    """
+		    $workflow.projectDir/bin/extract_processed_reads.sh salmon/*/aux_info/meta_info.json $sample_name salmon
+		    """
+		}
 
+
+		/*
+		 * Salmon - Collect processed reads from all samples
+		 */
 
 		process collect_processed_reads {
-			    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/salmon"
-			    tag "collect_processed_reads"
+		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon"
+		    tag "collect_processed_reads"
 
-			    label 'main_env'
-			    label 'process_high' 
-			    
-			    input: 
-			    file process_reads from collect_results.collect()
+		    label 'process_high' 
+		    
+		    input: 
+		    file process_reads from collect_results.collect()
 
-			    output:
-			    file "processed_reads_salmon.tsv" into mapping_stats_total_reads
+		    output:
+		    file "processed_reads_salmon.tsv" into mapping_stats_total_reads
 
-			    script:
-			    """
-			    cat $process_reads > processed_reads_salmon.tsv
-			    """
-			}
+		    script:
+		    """
+		    cat $process_reads > processed_reads_salmon.tsv
+		    """
+		}
 
+
+		/*
+		 * Salmon - Collect mapping statistics
+		 */
 
 		process salmon_quantification_stats {
 		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon"
 		    tag "quantification_stats_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2132,13 +2151,15 @@ if(params.run_salmon_selective_alignment) {
 		    """
 		}
 
+		/*
+		 * Salmon - Plot mapping statistics 
+		 */
 
 		process plot_salmon_mapping_stats_host_pathogen {
 		    tag "$name2"
 		    publishDir "${params.outdir}/mapping_statistics/salmon", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2156,7 +2177,7 @@ if(params.run_salmon_selective_alignment) {
 
 
 		/*
-		 * salmon - RNA class statistics
+		 * Salmon - Collect pathogen RNA class statistics
 		 */
 
 
@@ -2165,7 +2186,6 @@ if(params.run_salmon_selective_alignment) {
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
 		    tag "rna_class_stats_pathgn_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2188,16 +2208,14 @@ if(params.run_salmon_selective_alignment) {
 
 
 		/*
-		 * salmon - RNA class statistics
+		 * Salmon - Collect host RNA class statistics
 		 */
-
 
 		process RNA_class_statistics_salmon_host {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
 		    tag "rna_class_stats_host_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2220,16 +2238,16 @@ if(params.run_salmon_selective_alignment) {
 		    '''
 		}
 
- 
 
-
+		/*
+		 * Salmon - Plot pathogen RNA class statistics for each sample separately
+		 */
 
 		process plot_RNA_class_salmon_pathogen_each {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
 		    tag "plot_RNA_stats_pathogen_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2249,12 +2267,15 @@ if(params.run_salmon_selective_alignment) {
 		}
 
 
+		/*
+		 * Salmon - Plot pathogen RNA class statistics for all samples
+		 */
+
 		process plot_RNA_class_salmon_pathogen_combined {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
 		    tag "plot_RNA_stats_comb_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2273,13 +2294,15 @@ if(params.run_salmon_selective_alignment) {
 		    """
 		}
 
+		/*
+		 * Salmon - Plot host RNA class statistics for each sample separately
+		 */
 
 		process plot_RNA_class_salmon_host_each {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
 		    tag "plot_RNA_stats_host_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2298,12 +2321,15 @@ if(params.run_salmon_selective_alignment) {
 		    """
 		}
 
+		/*
+		 * Salmon - Plot host RNA class statistics for all samples
+		 */
+
 		process plot_RNA_class_salmon_host_combined {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
 		    tag "plot_RNA_stats_comb_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2321,29 +2347,29 @@ if(params.run_salmon_selective_alignment) {
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-
-}
+	}
 }else{
    Channel.empty()
       .set {multiqc_salmon_quant}
 }
 
 
-
 /*
- * salmon - alignment_based_mode
- */
+ * STEP 5 - Salmon alignment_based_mode
+ */
 
 
 if (params.run_salmon_alignment_based_mode){
 
+	/*
+	 * STAR - index
+	 */
 
 	process STARindex_salmon_alignment {
 		publishDir "${params.outdir}/STAR_for_salmon", mode: 'copy'
 		storeDir "${params.outdir}/STAR_for_salmon" 
 		tag "STAR_index"
 
-		label 'main_env'
          	label 'process_high'
 
 		input:
@@ -2352,7 +2378,6 @@ if (params.run_salmon_alignment_based_mode){
 
 		output:
 		file "index/*" into star_index_transcriptome_alignment
-		//file "index/*" into multiqc_star_index
 
 		script:
 		sjdbOverhang = params.sjdbOverhang
@@ -2363,13 +2388,15 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
+	/*
+	 * STAR - alignment
+	 */
 
 	process ALIGNMENTstar_for_salmon {
 	    tag "$sample_name"
 	    publishDir "${params.outdir}/STAR_for_salmon", mode: 'copy'
 	    storeDir "${params.outdir}/STAR_for_salmon" 
 
-	    label 'main_env'
 	    label 'process_medium'
 	
 	    input:
@@ -2382,8 +2409,6 @@ if (params.run_salmon_alignment_based_mode){
 	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into salmon_quantify_alignment_based_mode
 	    file "${sample_name}/*"
 	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR_for_salmon
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into alignment_unique_mapping_stats_for_salmon
-	    set val(sample_name), file("${sample_name}/${sample_name}Aligned.toTranscriptome.out.bam") into alignment_crossmapped_extract_for_salmon
 
 	    script:
 	    outSAMunmapped = params.outSAMunmapped
@@ -2416,14 +2441,15 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
-
+	/*
+	 * Salmon alignment-based mode - quantification
+	 */
 
 	process salmon_quantification_alignment_based_mode {
 	 //   publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "${sample}"
 
-	    label 'salmon_env'
 	    label 'process_high'
 
 	    input:
@@ -2447,13 +2473,15 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
+	/*
+	 * Salmon alignment-based mode - split quantification tables into host and pathogen results
+	 */
 
 	process split_table_salmon_each_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}"
 	    tag "split_quant_tbl_for_sal_modes"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -2477,146 +2505,138 @@ if (params.run_salmon_alignment_based_mode){
 
      if(params.generate_salmon_uniq_ambig) {
 
-    /*
-     * Extract and combine the ambig and unique counts
-     */
-   	 process extract_ambig_uniq_transcripts_genes_alignment_based {
-            publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info", mode: 'copy'
-            storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info"
-            tag "extract_ambig_uniq_transcripts_genes_AB ${sample_name}"
+	    /*
+	     * Extract and combine the ambig and unique counts
+	     */
+	   	 process extract_ambig_uniq_transcripts_genes_alignment_based {
+		    publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info", mode: 'copy'
+		    storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}/aux_info"
+		    tag "extract_ambig_uniq_transcripts_genes_AB ${sample_name}"
 
-            label 'main_env'
-            label 'process_high'
-
-            input: 
-            set val(sample_name), file("salmon/*") from split_table_uniq_ambig_ab
-            file (annotations) from host_annotations_uniq_ambig_AB
-
-
-            output:
-            file "${sample_name}_host_quant_ambig_uniq.sf"
-            file "${sample_name}_pathogen_quant_ambig_uniq.sf"
-            file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
-            set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb_uniq_ambig_AB
-            set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb_uniq_ambig_AB
-
-            script:
-            """
-            $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
-            """
-        }
-
-    /*
-     * Combine the host ambig and unique counts
-     */
-        process host_comb_ambig_uniq_alignment_based {
-            publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
-            storeDir "${params.outdir}/salmon_alignment_mode"
-            tag "host_comb_ambig_uniq_AB"
-
-            label 'main_env'
-            label 'process_high'
-
-            input: 
-            file("salmon/*") from host_files_comb_uniq_ambig_AB.collect()
-
-            output:
-            file "host_quant_combined_ambig_uniq.tsv"
-
-            script:
-            """
-            $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
-            """
-        }
-
-    /*
-     * Combine the pathogen ambig and unique counts
-     */
-        process pathogen_comb_ambig_uniq_alignment_based {
-            publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
-            storeDir "${params.outdir}/salmon_alignment_mode"
-            tag "pathogen_comb_ambig_uniq_AB"
-
-            label 'main_env'
-            label 'process_high'
-
-            input: 
-            file("salmon/*") from path_files_comb_uniq_ambig_AB.collect()
-
-            output:
-            file "pathogen_quant_combined_ambig_uniq.tsv"
-
-            script:
-            """
-            $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
-            """
-        }
-
-    }
-
-
-
-
-
-
-
-
-
-
-	/*
-	 * tximport - host
-	 */
-
-	process tximport_host_salmon_alignment {
-		    publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}", mode: 'copy'
-		    storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}"
-		    tag "tximport_host"
-
-		    label 'main_env'
-   		    label 'process_high'
-
-	            input: 
-		    set val(sample_name), file("salmon/${sample_name}/*") from salmon_alignment_host_tximport
-		    file (annotations) from tximport_annotations_salmon_alignment
-
-		    output:
-		    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level_alignment
-
-		    script:
-		    """
-		    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
-		    """
-		}
-
-
-	process combine_host_quant_gene_level_salmon_alignment {
-		    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
-		    storeDir "${params.outdir}/salmon_alignment_mode"
-		    tag "comb_host_quant_genes_sal_alig"
-
-		    label 'main_env'
 		    label 'process_high'
 
 		    input: 
-		    file input_quantification from salmon_files_to_combine_gene_level_alignment.collect()
+		    set val(sample_name), file("salmon/*") from split_table_uniq_ambig_ab
+		    file (annotations) from host_annotations_uniq_ambig_AB
+
 
 		    output:
-		    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon_alignment
+		    file "${sample_name}_host_quant_ambig_uniq.sf"
+		    file "${sample_name}_pathogen_quant_ambig_uniq.sf"
+		    file "${sample_name}_host_quant_ambig_uniq_gene_level.sf"
+		    set val(sample_name), file("${sample_name}_host_quant_ambig_uniq.sf") into host_files_comb_uniq_ambig_AB
+		    set val(sample_name), file("${sample_name}_pathogen_quant_ambig_uniq.sf") into path_files_comb_uniq_ambig_AB
 
 		    script:
 		    """
-		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
+		    $workflow.projectDir/bin/salmon_extract_ambig_uniq_transcripts_genes.R salmon/*/quant.sf salmon/*/aux_info/ambig_info.tsv $sample_name $annotations
 		    """
 		}
 
+	    /*
+	     * Combine the host ambig and unique counts
+	     */
+		process host_comb_ambig_uniq_alignment_based {
+		    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+		    storeDir "${params.outdir}/salmon_alignment_mode"
+		    tag "host_comb_ambig_uniq_AB"
 
+		    label 'process_high'
+
+		    input: 
+		    file("salmon/*") from host_files_comb_uniq_ambig_AB.collect()
+
+		    output:
+		    file "host_quant_combined_ambig_uniq.tsv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/salmon_host_comb_ambig_uniq.R salmon/*/aux_info/*_host_quant_ambig_uniq.sf
+		    """
+		}
+
+	    /*
+	     * Combine the pathogen ambig and unique counts
+	     */
+		process pathogen_comb_ambig_uniq_alignment_based {
+		    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+		    storeDir "${params.outdir}/salmon_alignment_mode"
+		    tag "pathogen_comb_ambig_uniq_AB"
+
+		    label 'process_high'
+
+		    input: 
+		    file("salmon/*") from path_files_comb_uniq_ambig_AB.collect()
+
+		    output:
+		    file "pathogen_quant_combined_ambig_uniq.tsv"
+
+		    script:
+		    """
+		    $workflow.projectDir/bin/salmon_pathogen_comb_ambig_uniq.R salmon/*/aux_info/*_pathogen_quant_ambig_uniq.sf
+		    """
+		}
+	    }
+
+
+	/*
+	 * Tximport - host
+	 */
+
+	process tximport_host_salmon_alignment {
+	    publishDir "${params.outdir}/salmon_alignment_mode/${sample_name}", mode: 'copy'
+	    storeDir "${params.outdir}/salmon_alignment_mode/${sample_name}"
+	    tag "tximport_host"
+
+   	    label 'process_high'
+
+	    input: 
+	    set val(sample_name), file("salmon/${sample_name}/*") from salmon_alignment_host_tximport
+	    file (annotations) from tximport_annotations_salmon_alignment
+
+	    output:
+	    file "${sample_name}_host_quant_gene_level.sf" into salmon_files_to_combine_gene_level_alignment
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/tximport.R salmon $annotations $sample_name
+	    """
+	}
+
+
+	/*
+	 * Salmon alignment-based mode - Combine host gene level quantification results estimated with Tximport
+	 */
+
+	process combine_host_quant_gene_level_salmon_alignment {
+	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
+	    storeDir "${params.outdir}/salmon_alignment_mode"
+	    tag "comb_host_quant_genes_sal_alig"
+
+	    label 'process_high'
+
+	    input: 
+	    file input_quantification from salmon_files_to_combine_gene_level_alignment.collect()
+
+	    output:
+	    file "host_combined_gene_level.tsv" into quant_gene_level_host_add_annotations_salmon_alignment
+
+	    script:
+	    """
+	    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q salmon -a gene_id -org host_gene_level
+	    """
+	}
+
+
+	/*
+	 * Salmon alignment-based mode - Combine quantification results
+	 */
 
 	process combine_quantification_tables_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "combine_quantification_salmon"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input: 
@@ -2633,13 +2653,16 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
+	/*
+	 * Salmon alignment-based mode - Split quantification tables into host and pathogen results
+	 */
+
 
 	process split_quantification_tables_salmon_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "split_quantification"
 
-	    label 'main_env'
 	    label 'process_high'
 
 	    input:
@@ -2664,12 +2687,15 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
+	/*
+	 * Salmon alignment-based mode - Combine pathogen annotations with quantification results
+	 */
+
 	process combine_annotations_quant_pathogen_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "comb_annots_quant_pathgn_salmn"
 	    
-	    label 'main_env'
 	    label 'process_high'
 	   
 	    input: 
@@ -2686,13 +2712,15 @@ if (params.run_salmon_alignment_based_mode){
 	    """
 	}
 
+	/*
+	 * Salmon alignment-based mode - Combine host annotations with quantification results
+	 */
 
 	process combine_annotations_quant_host_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "comb_annots_quant_host_salmn"
 
-	    label 'main_env'
 	    label 'process_high'
 	   
 	    input: 
@@ -2709,13 +2737,15 @@ if (params.run_salmon_alignment_based_mode){
 	    """
 	}
 
+	/*
+	 * Salmon alignment-based mode - Combine host annotations with gene-level estimates
+	 */
 
 	process combine_annotations_quant_gene_level_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
 	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "comb_annots_gene_host_salmn"
 
-	    label 'main_env'
 	    label 'process_high'
 	   
 	    input: 
@@ -2732,55 +2762,57 @@ if (params.run_salmon_alignment_based_mode){
 	}
 
 
-
-
-
 	if(params.mapping_statistics) {
 
+		/*
+		 * Extract processed reads from STAR log file
+		 */
+
 		process extract_processed_reads_STAR_for_salmon {
-			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads"
-			    tag "extract_processed_reads_STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon/processed_reads"
+		    tag "extract_processed_reads_STAR"
 
-			    label 'main_env'
-	   		    label 'process_high'
-			   
-			    input: 
-			    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR_for_salmon
+		    label 'process_high'
+		   
+		    input: 
+		    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR_for_salmon
 
-			    output:
-			    file "${sample_name}.txt" into collect_results_star_for_salmon
+		    output:
+		    file "${sample_name}.txt" into collect_results_star_for_salmon
 
-			    script:
-			    """
-			    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
-			    """
-			}
+		    script:
+		    """
+		    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
+		    """
+		}
 
+		/*
+		 * Collect STAR processed reads
+		 */
 
 		process collect_processed_reads_STAR_for_salmon {
-			    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
-			    tag "collect_processed_reads_STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR_for_salmon", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR_for_salmon"
+		    tag "collect_processed_reads_STAR"
 
-			    label 'main_env'
-			    label 'process_high' 
-			    
-			    input: 
-			    file process_reads from collect_results_star_for_salmon.collect()
+		    label 'process_high' 
+		    
+		    input: 
+		    file process_reads from collect_results_star_for_salmon.collect()
 
-			    output:
-			    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment_for_salmon
+		    output:
+		    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment_for_salmon
 
-			    script:
-			    """
-			    cat $process_reads > processed_reads_star.tsv
-			    """
-			}
+		    script:
+		    """
+		    cat $process_reads > processed_reads_star.tsv
+		    """
+		}
 
 
 		/*
-		 * salmon - alignment-based 'quantification_stats'
+		 * Salmon alignment-based mode  - plot scatter plots of technical replicates for pathogen
 		 */
 
 		process scatter_plot_pathogen_salmon_alignment_based {
@@ -2788,7 +2820,6 @@ if (params.run_salmon_alignment_based_mode){
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/scatter_plots"
 		    tag "scatter_plots_salmon_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2809,12 +2840,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
-	process scatter_plot_host_salmon_alignment_based {
-	    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/scatter_plots", mode: 'copy'
-	    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/scatter_plots"
+		/*
+		 * Salmon alignment-based mode  - plot scatter plots of technical replicates for host
+		 */
+
+		process scatter_plot_host_salmon_alignment_based {
+		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/scatter_plots"
 		    tag "scatter_plots_salmon_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2835,12 +2869,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
-	process extract_processed_reads_salmon_alignment_based {
+		/*
+		 * Salmon alignment-based mode  - Extract processed reads from log file
+		 */
+
+		process extract_processed_reads_salmon_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
 		    tag "extract_processed_reads"
 
-		    label 'main_env'
 		    label 'process_high'
 		   
 		    input: 
@@ -2856,12 +2893,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
-	process collect_processed_reads_salmon_alignment_based {
+		/*
+		 * Salmon alignment-based mode  - Collect processed reads
+		 */
+
+		process collect_processed_reads_salmon_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
 		    tag "collect_processed_reads"
 
-		    label 'main_env'
 		    label 'process_high' 
 		    
 		    input: 
@@ -2876,13 +2916,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
+		/*
+		 * Salmon alignment-based mode  - Collect mapping stats
+		 */
 
 		process salmon_quantification_stats_salmon_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
 		    tag "quantification_stats_salmon"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2903,12 +2945,16 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
+		/*
+		 * Salmon alignment-based mode  - Plot mapping stats
+		 */
+
+
 		process plot_salmon_mapping_stats_host_pathogen_salmon_alignment_based {
 		    tag "$name2"
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2924,12 +2970,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
+		/*
+		 * Salmon alignment-based mode  - Collect pathogen RNA class mapping stats
+		 */
+
 		process RNA_class_statistics_salmon_pathogen_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen"
 		    tag "rna_class_stats_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2950,13 +2999,15 @@ if (params.run_salmon_alignment_based_mode){
 		    '''
 		}
 
+		/*
+		 * Salmon alignment-based mode  - Collect host RNA class mapping stats
+		 */
 
 		process RNA_class_statistics_salmon_host_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host"
 		    tag "rna_class_stats_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -2980,12 +3031,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
+		/*
+		 * Salmon alignment-based mode  - Plot pathogen RNA class mapping stats for each sample separately
+		 */
+
 		process plot_RNA_class_salmon_pathogen_each_alignment_based{
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen"
 		    tag "plot_rna_class_stats_path_sal"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3004,12 +3058,15 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
+		/*
+		 * Salmon alignment-based mode  - Plot host RNA class mapping stats for each sample separately
+		 */
+
 		process plot_RNA_class_salmon_host_each_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host"
 		    tag "plot_rna_class_stats_host_sal"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3029,12 +3086,15 @@ if (params.run_salmon_alignment_based_mode){
 		}
 
 
+		/*
+		 * Salmon alignment-based mode  - Plot pathogen RNA class mapping stats for all samples
+		 */
+
 		process plot_RNA_class_salmon_pathogen_combined_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen"
 		    tag "plot_rna_class_stats_path_all"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3053,13 +3113,15 @@ if (params.run_salmon_alignment_based_mode){
 		    """
 		}
 
+		/*
+		 * Salmon alignment-based mode  - Plot host RNA class mapping stats for all samples
+		 */
 
 		process plot_RNA_class_salmon_host_combined_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host"
 		    tag "plot_rna_class_stats_host_all"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3077,7 +3139,7 @@ if (params.run_salmon_alignment_based_mode){
 		    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
 		    """
 		}
-}
+	}
 }else{
    Channel.empty()
      .into {multiqc_star_for_salmon_alignment; multiqc_salmon_alignment_quant}
@@ -3085,44 +3147,42 @@ if (params.run_salmon_alignment_based_mode){
 
 
 
-if(params.run_star) {
-
 /*
-* STAR - index
-*/
+ * STEP 6 - STAR
+ */
+
+
+if(params.run_star) {
 
 	/*
 	 * STAR - build an index
 	 */
 
-
 	process STARindex {
-                publishDir "${params.outdir}/STAR", mode: 'copy'
-		storeDir "${params.outdir}/STAR" 
-		tag "build_star_index"
+            publishDir "${params.outdir}/STAR", mode: 'copy'
+	    storeDir "${params.outdir}/STAR" 
+	    tag "build_star_index"
 
- 		label 'main_env'
-         	label 'process_high'
+ 
+	    label 'process_high'
 
-		input:
-		file(fasta) from host_pathogen_fasta_star_index
-		file(gff) from gff_host_pathogen_star_alignment_gff
+	    input:
+	    file(fasta) from host_pathogen_fasta_star_index
+	    file(gff) from gff_host_pathogen_star_alignment_gff
 
-		output:
-//		file "index/*" into multiqc_star_index
+	    output:
                 file "index/*" into star_index_genome_alignment
 
-		script:
-		sjdbOverhang = params.sjdbOverhang
-		"""
-		mkdir index
-		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang
-		"""
+	    script:
+	    sjdbOverhang = params.sjdbOverhang
+	    """
+	    mkdir index
+	    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang
+	    """
 	}
 
-
 	/*
-	 * STAR - align the reads
+	 * STAR - alignment
 	 */
 
 	process ALIGNMENTstar {
@@ -3130,7 +3190,6 @@ if(params.run_star) {
             publishDir "${params.outdir}/STAR", mode: 'copy'
 	    storeDir "${params.outdir}/STAR" 
 
-            label 'main_env'
             label 'process_high'
 	
 	    input:
@@ -3146,43 +3205,42 @@ if(params.run_star) {
 	    set val(sample_name), file("${sample_name}/${sample_name}Log.final.out") into collect_processed_read_counts_STAR
 
 	    script:
-		outSAMunmapped = params.outSAMunmapped
-		outSAMattributes = params.outSAMattributes
-		outFilterMultimapNmax = params.outFilterMultimapNmax
-		outFilterType = params.outFilterType
-		alignSJoverhangMin = params.alignSJoverhangMin
-		alignSJDBoverhangMin = params.alignSJDBoverhangMin
-		outFilterMismatchNmax = params.outFilterMismatchNmax
-		outFilterMismatchNoverReadLmax = params.outFilterMismatchNoverReadLmax
-		alignIntronMin = params.alignIntronMin
-		alignIntronMax = params.alignIntronMax
-		alignMatesGapMax = params.alignMatesGapMax
-		outWigType = params.outWigType
-		outWigStrand = params.outWigStrand
-		limitBAMsortRAM = params.limitBAMsortRAM
-		readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
-		winAnchorMultimapNmax = params.winAnchorMultimapNmax
+	    outSAMunmapped = params.outSAMunmapped
+	    outSAMattributes = params.outSAMattributes
+	    outFilterMultimapNmax = params.outFilterMultimapNmax
+	    outFilterType = params.outFilterType
+	    alignSJoverhangMin = params.alignSJoverhangMin
+	    alignSJDBoverhangMin = params.alignSJDBoverhangMin
+	    outFilterMismatchNmax = params.outFilterMismatchNmax
+	    outFilterMismatchNoverReadLmax = params.outFilterMismatchNoverReadLmax
+	    alignIntronMin = params.alignIntronMin
+	    alignIntronMax = params.alignIntronMax
+	    alignMatesGapMax = params.alignMatesGapMax
+	    outWigType = params.outWigType
+	    outWigStrand = params.outWigStrand
+	    limitBAMsortRAM = params.limitBAMsortRAM
+	    readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
+	    winAnchorMultimapNmax = params.winAnchorMultimapNmax
 
-		if (params.single_end){
-			"""
-		    	mkdir $sample_name
-		    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
-		    	"""
-		 } else {
-		 	"""
-		 	mkdir $sample_name
-		 	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
-		 	"""
-		 }
+	    if (params.single_end){
+	    """
+	    	mkdir $sample_name
+	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    """
+	    } else {
+	    """
+	    mkdir $sample_name
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    """
+	    }
 	}
-
 
 
 
 	if(params.mapping_statistics) {
 
 		/*
-		 * remove_cross_mapped_reads
+		 * STAR - Remove cross mapped reads from bam file
 		 */
 
 		process remove_crossmapped_reads {
@@ -3190,7 +3248,6 @@ if(params.run_star) {
 		    publishDir "${params.outdir}/STAR/multimapped_reads", mode: 'copy'
 		    storeDir "${params.outdir}/STAR/multimapped_reads"
 
-                    label 'main_env'
                     label 'process_high'
 
 		    input:
@@ -3217,61 +3274,66 @@ if(params.run_star) {
 		    	"""
 		    }
 		}
-	}
 
 
-
-	if(params.mapping_statistics) {
+		/*
+		 * STAR - Extract processed reads from log file
+		 */
 
 		process extract_processed_reads_STAR {
-			    publishDir "${params.outdir}/mapping_statistics/STAR/processed_reads", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR/processed_reads"
-			    tag "extract_processed_reads_STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR/processed_reads", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR/processed_reads"
+		    tag "extract_processed_reads_STAR"
 
-			    label 'main_env'
-	   		    label 'process_high'
-			   
-			    input: 
-			    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR
+	   	    label 'process_high'
+		   
+		    input: 
+		    set val(sample_name), file (Log_final_out) from collect_processed_read_counts_STAR
 
-			    output:
-			    file "${sample_name}.txt" into collect_results_star
+		    output:
+		    file "${sample_name}.txt" into collect_results_star
 
-			    script:
-			    """
-			    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
-			    """
-			}
+		    script:
+		    """
+		    $workflow.projectDir/bin/extract_processed_reads.sh $Log_final_out $sample_name star
+		    """
+		}
 
+
+		/*
+		 * STAR - Collect STAR processed reads
+		 */
 
 		process collect_processed_reads_STAR {
-			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR"
-			    tag "collect_processed_reads_STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+		    tag "collect_processed_reads_STAR"
 
-			    label 'main_env'
-			    label 'process_high' 
-			    
-			    input: 
-			    file process_reads from collect_results_star.collect()
+		    label 'process_high' 
+		    
+		    input: 
+		    file process_reads from collect_results_star.collect()
 
-			    output:
-			    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment
-			    file "processed_reads_star.tsv" into mapping_stats_htseq_total_processed_reads_alignment
+		    output:
+		    file "processed_reads_star.tsv" into mapping_stats_total_processed_reads_alignment
+		    file "processed_reads_star.tsv" into mapping_stats_htseq_total_processed_reads_alignment
 
-			    script:
-			    """
-			    cat $process_reads > processed_reads_star.tsv
-			    """
-			}
+		    script:
+		    """
+		    cat $process_reads > processed_reads_star.tsv
+		    """
+		}
 
+
+		/*
+		 * STAR - Count uniquely mapped reads
+		 */
 
 		process unique_mapping_stats_STAR {
 		    tag "$sample_name"
 		    publishDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/uniquely_mapped"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3295,31 +3357,33 @@ if(params.run_star) {
 		    }
 		}
 
+		/*
+		 * STAR - Collect uniquely mapped reads
+		 */
 
 		process collect_stats_STAR_uniquely_mapped {
-			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
-			    storeDir "${params.outdir}/mapping_statistics/STAR"
-			    tag "collect_uniq_mapped_reads_STAR"
+		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/STAR"
+		    tag "collect_uniq_mapped_reads_STAR"
 
-			    label 'main_env'
-			    label 'process_high' 
-			    
-			    input: 
-			    file stats from STAR_mapping_stats_unique.collect()
+		    label 'process_high' 
+		    
+		    input: 
+		    file stats from STAR_mapping_stats_unique.collect()
 
-			    output:
-			    file "uniquely_mapped_reads_star.tsv" into mapping_stats_uniquely_mapped_star
+		    output:
+		    file "uniquely_mapped_reads_star.tsv" into mapping_stats_uniquely_mapped_star
 
-			    script:
-			    """
-			    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.tsv -s uniquely_mapped_reads
-			    """
-			}
+		    script:
+		    """
+		    python $workflow.projectDir/bin/combine_tables.py -i $stats -o uniquely_mapped_reads_star.tsv -s uniquely_mapped_reads
+		    """
+		}
 
 
 		/*
-		 * count_cross_mapped_reads 
-		*/
+		 * STAR - Count cross mapped reads 
+		 */
 
 		process count_crossmapped_reads {
 		    tag "count_crossmapped_reads"
@@ -3342,7 +3406,7 @@ if(params.run_star) {
 
 
 		/*
-		 * multi mapped reads - statistics (multi_mapped - cross_mapped reads )
+		 * STAR - Count multi-mapped reads (multi_mapped reads without cross_mapped reads )
 		 */
 
 		process multi_mapping_stats {
@@ -3350,7 +3414,6 @@ if(params.run_star) {
 		    publishDir "${params.outdir}/mapping_statistics/STAR/multi_mapped", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR/multi_mapped"
 
-                    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3375,12 +3438,15 @@ if(params.run_star) {
 		}
 
 
+		/*
+		 * STAR - Collect multi-mapped reads 
+		 */
+
 		process collect_stats_STAR_multi_mapped {
 			    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 			    storeDir "${params.outdir}/mapping_statistics/STAR"
 			    tag "collect_multi_mapped_reads_STAR"
 
-			    label 'main_env'
 			    label 'process_high' 
 			    
 			    input: 
@@ -3396,12 +3462,15 @@ if(params.run_star) {
 			}
 
 
+		/*
+		 * STAR - Collect mapping stats
+		 */
+
 		process star_mapping_stats {
 		    storeDir "${params.outdir}/mapping_statistics/STAR"
 		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 		    tag "star_mapping_stats"
 
-		    label 'main_env'
 		    label 'process_high' 
 
 		    input:
@@ -3421,13 +3490,15 @@ if(params.run_star) {
 		    """
 		}
 
+		/*
+		 * STAR - Plot mapping stats
+		 */
 
 		process plot_star_mapping_stats {
 		    tag "plot_star_mapping_stats"
 		    publishDir "${params.outdir}/mapping_statistics/STAR", mode: 'copy'
 		    storeDir "${params.outdir}/mapping_statistics/STAR"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3441,9 +3512,7 @@ if(params.run_star) {
 		    python $workflow.projectDir/bin/plot_mapping_stats_star.py -i $stats
 		    """
 		}
-
-
-}
+	}
 }else{
    Channel.empty()
      .set {multiqc_star_alignment}
@@ -3451,25 +3520,22 @@ if(params.run_star) {
 
 
 
-
 /*
-* htseq
-*/
+ * STEP 7 - HTSeq
+ */
 
 
 if(params.run_htseq_uniquely_mapped){
 
-
 	/*
-	 * HTseq - quantification -unique mapping
+	 * HTSeq - quantification
 	 */
 
 	process HTseq_unique_mapping {
-	    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-	    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
 	    tag "$sample_name"
 
-            label 'main_env'
             label 'process_high'
 
 	    input:
@@ -3480,7 +3546,6 @@ if(params.run_htseq_uniquely_mapped){
 
 
 	    output:
-//	    file ("$name_file2") into htseq_files_u_m
 	    file ("$name_file2") into htseq_files_to_combine
 	    file ("$name_file2") into multiqc_htseq_unique
 
@@ -3497,7 +3562,7 @@ if(params.run_htseq_uniquely_mapped){
 
 
 	/*
-	 * htseq - combine quantification results
+	 * HTSeq - combine quantification results
 	 */
 
 	htseq_files_to_combine
@@ -3505,145 +3570,154 @@ if(params.run_htseq_uniquely_mapped){
 	    .set { htseq_result_quantification }
 
 	process combine_quantification_tables_htseq_uniquely_mapped {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "comb_quants_htseq_uniq_mapped"
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
+	    tag "comb_quants_htseq_uniq_mapped"
 
-                    label 'process_high'
+            label 'process_high'
 
-		    input: 
-		    file input_quantification from htseq_result_quantification
-		    val(host_attribute) from host_gff_attribute_htseq_combine
+	    input: 
+	    file input_quantification from htseq_result_quantification
+	    val(host_attribute) from host_gff_attribute_htseq_combine
 
-		    output:
-		    file "quantification_stats_*.tsv" 
-		    file "quantification_results_*.tsv" into htseq_result_quantification_TPM
+	    output:
+	    file "quantification_results_*.tsv" into htseq_result_quantification_TPM
 
-		    script:
-		    """
-		    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute 
-		    """
-		}
-
-
-
-	process htseq_uniquely_mapped_TPM {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "htseq_uniquely_mapped_TPM"
-
-                    label 'process_high'
-                    label 'main_env'
-
-		    input: 
-		    file input_quantification from htseq_result_quantification_TPM
-		    val(host_attribute) from host_gff_attribute_htseq_TPM
-		    file gff_host from gff_host_to_TPM
-		    file gff_pathogen from gff_pathogen_to_TPM
-
-		    output:
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" 
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_host
-		    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_pathogen
-
-		    script:
-		    """
-		    $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
-		    """
-		}
+	    script:
+	    """
+	    python $workflow.projectDir/bin/collect_quantification_data.py -i $input_quantification -q htseq -a $host_attribute 
+	    """
+	}
 
 
 	/*
-	 * htseq - split quantification tables into host and pathogen results
+	 * HTSeq - Calculate TPM values 
+	 */
+
+	process htseq_uniquely_mapped_TPM {
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
+	    tag "htseq_uniquely_mapped_TPM"
+
+            label 'process_high'
+
+	    input: 
+	    file input_quantification from htseq_result_quantification_TPM
+	    val(host_attribute) from host_gff_attribute_htseq_TPM
+	    file gff_host from gff_host_to_TPM
+	    file gff_pathogen from gff_pathogen_to_TPM
+
+	    output:
+	    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_host
+	    file "quantification_results_uniquely_mapped_NumReads_TPM.tsv" into split_table_htseq_pathogen
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/calculate_TPM_HTSeq.R $input_quantification $host_attribute $gff_pathogen $gff_host
+	    """
+	}
+
+
+	/*
+	 * HTSeq - Split quantification tables into host and pathogen results
 	 */
 
 
 	process split_quantification_tables_htseq_uniquely_mapped {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "split_quants_uniq_mapped_host"
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
+	    tag "split_quants_uniq_mapped_host"
 
-                    label 'process_high'
+            label 'process_high'
 
-		    input:
-		    file quant_table from split_table_htseq_host
-		    file host_annotations from annotation_host_split_quant_htseq
-		    file pathogen_annotations from annotation_pathogen_split_quant_htseq
+	    input:
+	    file quant_table from split_table_htseq_host
+	    file host_annotations from annotation_host_split_quant_htseq
+	    file pathogen_annotations from annotation_pathogen_split_quant_htseq
 
-		    output:
-		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq
-		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq_total
-		    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_htseq_quantification_RNA_stats
-		    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_host_add_annotations_htseq_u_m
-		    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_host_htseq_u_m
-		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq
-		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq_total
-		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_htseq_quantification_RNA_stats
-		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_pathogen_add_annotations_htseq_u_m
-		    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_pathogen_htseq_u_m
+	    output:
+	    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq
+	    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_quantification_stats_htseq_total
+	    file 'host_quantification_uniquely_mapped_htseq.tsv' into host_htseq_quantification_RNA_stats
+	    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_host_add_annotations_htseq_u_m
+	    file 'host_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_host_htseq_u_m
+	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq
+	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_quantification_stats_htseq_total
+	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_htseq_quantification_RNA_stats
+	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_pathogen_add_annotations_htseq_u_m
+	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_pathogen_htseq_u_m
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.tsv
-		    """
-		}
-
-
-
-		process combine_annotations_quant_pathogen_uniquely_mapped_host {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "comb_annots_quant_pathogen"
-		    
-		    label 'main_env'
-		    label 'process_high'
-		   
-		    input: 
-		    file quantification_table from quant_pathogen_add_annotations_htseq_u_m
-		    file annotation_table from annotation_pathogen_combine_quant_htseq_u_m
-		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
-
-		    output:
-		    file "pathogen_combined_quant_annotations.tsv"
-
-		    script:
-		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
-		    """
-		}
+	    script:
+	    """
+	    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.tsv
+	    """
+	}
 
 
-		process combine_annotations_quant_host_uniquely_mapped_host {
-		    publishDir "${params.outdir}/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/HTSeq/uniquely_mapped"
-		    tag "comb_annots_quant_host"
 
-		    label 'main_env'
-		    label 'process_high'
-		   
-		    input: 
-		    file quantification_table from quant_host_add_annotations_htseq_u_m
-		    file annotation_table from annotation_host_combine_quant_htseq
-		    val attribute from combine_annot_quant_pathogen_host_gff_attribute
+	/*
+	 * HTSeq - Combine pathogen annotations with quantification results
+	 */
 
-		    output:
-		    file "host_combined_quant_annotations.tsv"
+	process combine_annotations_quant_pathogen_uniquely_mapped_host {
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
+	    tag "comb_annots_quant_pathogen"
+	    
+	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_pathogen_add_annotations_htseq_u_m
+	    file annotation_table from annotation_pathogen_combine_quant_htseq_u_m
+	    val attribute from combine_annot_quant_pathogen_host_gff_attribute
 
-		    script:
-		    """
-		    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
-		    """
-		}
+	    output:
+	    file "pathogen_combined_quant_annotations.tsv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org pathogen
+	    """
+	}
+
+
+	/*
+	 * HTSeq - Combine host annotations with quantification results
+	 */
+
+	process combine_annotations_quant_host_uniquely_mapped_host {
+	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
+	    storeDir "${params.outdir}/HTSeq"
+	    tag "comb_annots_quant_host"
+
+	    label 'process_high'
+	   
+	    input: 
+	    file quantification_table from quant_host_add_annotations_htseq_u_m
+	    file annotation_table from annotation_host_combine_quant_htseq
+	    val attribute from combine_annot_quant_pathogen_host_gff_attribute
+
+	    output:
+	    file "host_combined_quant_annotations.tsv"
+
+	    script:
+	    """
+	    $workflow.projectDir/bin/combine_quant_annotations.py -q $quantification_table -annotations $annotation_table -a $attribute -org host
+	    """
+	}
 
 
 	if(params.mapping_statistics) {
 
+		/*
+	 	 * HTSeq - Plot scatter plots of technical replicates for pathogen
+	 	 */
+
 		process scatter_plot_pathogen_htseq {
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/scatter_plots"
 		    tag "scatter_plot_pathogen_htseq"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3664,12 +3738,16 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
-	process scatter_plot_host_htseq {
-	    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots", mode: 'copy'
-	    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/scatter_plots"
+		/*
+	 	 * HTSeq - Plot scatter plots of technical replicates for host
+	 	 */
+
+
+		process scatter_plot_host_htseq {
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/scatter_plots", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/scatter_plots"
 		    tag "scatter_plot_host_htseq"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3690,14 +3768,17 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Collect mapping and quantification stats
+	 	 */
 
 
 		process htseq_quantification_stats_uniquely_mapped {
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq", mode: 'copy'
 		    tag "quantification_stats_htseq"
 
-		    label 'main_env'
+		    label 'process_high'
 
 		    input:
 		    file quant_table_host from host_quantification_stats_htseq_total
@@ -3715,12 +3796,15 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Plot mapping and stats
+	 	 */
+
 		process plot_mapping_stats_host_pathogen_htseq_uniquely_mapped{
 		    tag "$name2"
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3736,12 +3820,15 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Collect pathogen RNA class mapping stats
+	 	 */
+
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen/"
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen/"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen", mode: 'copy'
 		    tag "rna_class_stats_htseq_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3764,13 +3851,15 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Collect host RNA class mapping stats
+	 	 */
 
 		process RNA_class_statistics_htseq_uniquely_mapped_host {
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host"
 		    tag "rna_class_stats_htseq_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3794,12 +3883,15 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Plot pathogen RNA class mapping stats for each sample separately
+	 	 */
+
 		process plot_RNA_class_htseq_uniquely_mapped_pathogen_each{
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen"
 		    tag "plot_rna_stats_htseq_pathogen"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3818,12 +3910,16 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
+
+		/*
+	 	 * HTSeq - Plot host RNA class mapping stats for each sample separately
+	 	 */
+
 		process plot_RNA_class_htseq_uniquely_mapped_host_each {
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host"
 		    tag "plot_rna_stats_htseq_host"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3843,12 +3939,15 @@ if(params.run_htseq_uniquely_mapped){
 		}
 
 
+		/*
+	 	 * HTSeq - Plot pathogen RNA class mapping stats for all samples
+	 	 */
+
 		process plot_RNA_class_htseq_uniquely_mapped_pathogen_combined {
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_pathogen"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen"
 		    tag "plt_rna_stats_htseq_pathgn_all"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3867,13 +3966,15 @@ if(params.run_htseq_uniquely_mapped){
 		    """
 		}
 
+		/*
+	 	 * HTSeq - Plot host RNA class mapping stats for all samples
+	 	 */
 
 		process plot_RNA_class_htseq_uniquely_host_combined {
-		    publishDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/uniquely_mapped/RNA_classes_host"
+		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host", mode: 'copy'
+		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host"
 		    tag "plt_rna_stats_htseq_host_all"
 
-		    label 'main_env'
 		    label 'process_high'
 
 		    input:
@@ -3902,14 +4003,12 @@ if(params.run_htseq_uniquely_mapped){
 
 
 /*
- * STEP 2 - MultiQC
+ * STEP 8 - MultiQC
  */
 
 process multiqc {
     publishDir "${params.outdir}/MultiQC", mode: 'copy'
     
-    label 'main_env'
-
     input:
     file (multiqc_config) from ch_multiqc_config
     file (mqc_custom_config) from ch_multiqc_custom_config.collect().ifEmpty([])
@@ -3939,14 +4038,12 @@ process multiqc {
 
 
 /*
- * STEP 3 - Output Description HTML
+ * STEP 9 - Output Description HTML
  */
 
 
 process output_documentation {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
-
-    label 'main_env'
 
     input:
     file output_docs from ch_output_docs
