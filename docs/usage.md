@@ -164,33 +164,13 @@ By default, the pipeline expects paired-end data. If you have single-end data, y
 
 The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gene expression. Thus, the pipeline requires references for each of the organisms.
 
-`--genome_host`
+These parameters can be used in two ways:
 
-`--genome_pathogen`
+#### A) Using a configuration file
 
-The pipeline config file comes bundled with paths to the Illumina iGenomes reference index files. If running with Docker or AWS, the configuration is set to use the [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) resource.
+You can create your own configuration file with sets of reference files and save it here: `...conf/genomes.config`
 
-If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
-
-```
-includeConfig 'conf/custom_genomes.config'
-```
-
-These parameters can be used in three ways:
-
-#### A) Using iGenomes
-
-There are a range of different species supported with [iGenomes references](https://ewels.github.io/AWS-iGenomes/). To run the pipeline, you must specify which one you would like to use, with `--genome_host`.
-
-You can find keys to specify the genomes in the iGenomes config file `../conf/igenomes.config`.
-
-Common host genomes that are supported are:
-
-Human: `--genome_host GRCh38`
-
-Mouse: `--genome_host GRCm38`
-
-> Note: that you can use the same configuration setup to save sets of reference files for your own use, even if they are not part of the iGenomes resource. See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions.
+> See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions.
 
 The syntax for this reference configuration would be the following:
 
@@ -202,45 +182,41 @@ params {
       gff_host = '<path to the genome annotation file>'
       gff_host_tRNA = '<path to the tRNA annotation file>' // Optional
       transcriptome_host = '<path to the transcriptome fasta file>' // Optional
-            }
+             }
+    'SL1344' {
+      fasta_pathogen  = '<path to the genome fasta file>'
+      gff_pathogen = '<path to the genome gff annotation file>'
+      transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
+             }
           }
+        // Optional - default genome. Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line 
+        genome_host = 'GRCm38'
+        genome_pathogen = 'SL1344'
         }
 ```
+Defining default genomes in your configuration file is optional. You can specify the references using the following flags on command line:
+
+`--genome_pathogen SL1344`
+
+`--genome_host GRCm38`
 
 > Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
 
 Note:
 
-* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file```
+* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or 
+```--read_transcriptome_fasta_pathogen_from_file```
 
-* If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to a create host gff file.
+* If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to create host gff file.
 
-* You don't have to specify the path to the pathogen transcriptome in your conf/genomes.config file, as this will be created if needed.
+* You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as this will be created if needed.
 
-#### B) Using an additional configuration file
+If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
 
-If your genome of interest is not provided within iGenomes, you can create your own configuration file and save it here: `...conf/genomes.config`
-
-The syntax for this reference configuration is as follows:
-
-```nextflow
-params {
-  genomes {
-    'SL1344' {
-      fasta_pathogen  = '<path to the genome fasta file>'
-      gff_pathogen = '<path to the genome gff annotation file>'
-      transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
-            }
-          }
-        }
 ```
-
-Then to use this reference: `--genome_pathogen SL1344`
-
-Note:
-The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_pathogen_from_file```
-
-#### C) Using pipeline-specific parameters
+includeConfig 'conf/custom_genomes.config'
+```
+#### B) Using pipeline-specific parameters
 
 If preferred, you can specify each parameter manually and link to appropriate files.
 
@@ -265,8 +241,6 @@ Pathogen:
 `--read_transcriptome_fasta_pathogen_from_file`
 
 `--transcriptome_pathogen`
-
-> Note: If using pipeline-specific parameters, it may be a good idea to disable the iGenomes configuration file (`--igenomes_ignore`), to avoid chashes between pipeline-specific parameters and those supplied in `igenomes.config`.
 
 **Host tRNA**
 
