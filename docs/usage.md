@@ -202,6 +202,11 @@ Defining default genomes in your configuration file is optional. You can specify
 
 > Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
 
+If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
+
+```
+includeConfig 'conf/custom_genomes.config'
+```
 Note:
 
 * The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or 
@@ -211,11 +216,6 @@ Note:
 
 * You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as this will be created if needed.
 
-If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
-
-```
-includeConfig 'conf/custom_genomes.config'
-```
 #### B) Using pipeline-specific parameters
 
 If preferred, you can specify each parameter manually and link to appropriate files.
@@ -246,6 +246,12 @@ Pathogen:
 
 We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
 
+#### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes!
+
+Many nf-core pipelines provide a possibility to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality.
+
+Since many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. We recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
+
 ### 4.2 Annotation
 
 Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotation files, main features are defined as genes, transcripts and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others.
@@ -272,8 +278,6 @@ Pathogen:
 `--gene_feature_gff_to_quantify_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
 
 `--pathogen_gff_attribute "locus_tag"`
-
-However, we realise that many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. In these instances, we recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
 
 #### Features within pathogen annotation files
 
