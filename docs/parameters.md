@@ -155,7 +155,7 @@ An option to not run FastQC
 
 ## 5. Adapter trimming
 
-To remove adapter sequences that were introduced during library preparation the pipeline utilises Cutadapt.
+To remove adapter sequences that were introduced during library preparation the pipeline utilize Cutadapt.
 To learn more on Cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
 
 By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq)
@@ -169,12 +169,10 @@ Will skip the trimming stage
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
 
 For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types)
-By default, the pipeline uses `"AGATCGGAAGAGCACACGTCTGAACTCCAGTCA` sequence to trim a 3’ adapter. 
 
 #### `--A "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"`
 
 For paired-end data, the adapter sequence for the second reads can be defined here. For more information, see [`trimming paired-end reads.`](https://cutadapt.readthedocs.io/en/stable/guide.html#trimming-paired-end-reads). 
-By default, the pipeline uses `"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT` sequence to trim an adapter from the second read. 
 
 #### `--quality_cutoff 10` or `--quality-cutoff 10,15`
 
@@ -373,11 +371,11 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 
 A parameter for the library type. Options include `"yes"` or `"no"`.
 
-#### `--max_reads_in_buffer 30000000
+#### `--max_reads_in_buffer 30000000`
 
 Option to define the number of maximum reads allowed to stay in memory until the mates are found. Has an effect for paired-end reads (Default: 30000000).
 
-#### `--minaqual 10
+#### `--minaqual 10`
 
 To specify a threshold for a minimal MAPQ alignment quality.
 By default, this parameter is set to 10.
