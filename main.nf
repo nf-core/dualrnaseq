@@ -199,7 +199,7 @@ def helpMessage() {
                                                          stay in memory until the mates are found
                                                          Has an effect for paired-end reads
                                                          (Default: 30000000) 
-      --minaqual                                [int]    To specify a threshold for a minimal MAPQ alignment quality. 
+      --minaqual                                [int]    To specify a threshold for a minimal MAPQ alignment quality.(Default: 10) 
                                                          Reads with the MAPQ alignment quality below the given number will be removed
                                                          (Default: 10)
 

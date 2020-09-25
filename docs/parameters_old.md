@@ -292,12 +292,15 @@ By default, the pipeline uses `Standard` option to keep NH HI AS nM SAM attribut
 #### `--outFilterMultimapNmax 999`
 
 To specify the maximum number of loci a read is allowed to map to.
-By default, this  option is set to 999 in the pipeline. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+By default, this  option is set to 999 in the pipeline (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--outFilterType "BySJout"`
 
 By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
+#### `--quantTranscriptomeBan "Singleend"`
+
+The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignSJoverhangMin 8`
 
@@ -311,9 +314,9 @@ The number of minimum overhang for annotated junctions can be changed here. See 
 
 To define a threshold for the number of mismatches to be allowed. By default, the pipeline uses a large number `999` to switch this filter off. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-#### `--outFilterMismatchNoverReadLmax 1`
+#### `--outFilterMismatchNoverReadLmax 0.04`
 
-Here, you can define a threshold for a ratio of mismatches to *read* length. The alignment will be considered if the ratio is less than or equal to this value. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+Here, you can define a threshold for a ratio of mismatches to *read* length. The alignment will be considered if the ratio is less than or equal to this value. For 2x100b, max number of mismatches is 0.04x200=8 for paired-end reads. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignIntronMin 20`
 
@@ -328,18 +331,13 @@ The maximum intron length is set to 1,000,000 (ENCODE standard options for long 
 
 The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
+#### `--quantTranscriptomeBan`
 
-#### `--limitBAMsortRAM 0`
+Option to enable or prohitit various alignment types. Default is `Singleend` which prohibits single-end alignments. Other option is `IndelSoftclipSingleend`, which prohibits indels, soft clipping and single-end alignments - but is compatible with RSEM.
+
+#### `--limitBAMsortRAM`
 
 Option to limit RAM when sorting BAM file. If `0`, will be set to the genome index size, which can be quite large when running on a desktop or laptop.
-
-#### `--winAnchorMultimapNmax 999`
-
-The aximum number of loci anchors that are allowed to map to. By default, the pipeline uses a large number `999` to switch this filter off. 
-
-#### `--sjdbOverhang 100`
-
-Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to 100. However, we recoment to set a value depending on the read length: read/mate length - 1.
 
 ### STAR for HTSeq
 
@@ -355,11 +353,6 @@ By default, the pipeline does not generate any of these files.
 
 Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-### STAR for Salmon alignment-based mode
-
-#### `--quantTranscriptomeBan "Singleend"`
-
-The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 ## 7. HTSeq
 
@@ -372,15 +365,6 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 #### `--stranded "yes"`
 
 A parameter for the library type. Options include `"yes"` or `"no"`.
-
-#### `--max_reads_in_buffer 30000000
-
-Option to define the number of maximum reads allowed to stay in memory until the mates are found. Has an effect for paired-end reads (Default: 30000000).
-
-#### `--minaqual 10
-
-To specify a threshold for a minimal MAPQ alignment quality.
-By default, this parameter is set to 10.
 
 ### Gene features and attributes
 
@@ -419,7 +403,7 @@ Option to generate mapping statistics. This will create the following:
 
 Located within the `data/` folder of dualrnaseq, this tab delimited file contains headers which groups similar types of RNA classes together. This helps to keep the RNA-class names simplified for plotting purposes.
 
-Initially, the user can run the pipeline without the 'others' class (remove the 'others' column) to identify the concentration of all RNA types,including e.g. scRNAs). Depending on the requirements, the user can decide which types should be included/excluded or grouped together.  
+Initially, the user can run the pipeline without this table (or remove the 'others' column because they may be interested in particular types of RNA, such as scRNAs). Depending on the requirements, the user can decide which types should be included/excluded or grouped together.  
 
 ## 9. Other
 
