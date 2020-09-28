@@ -336,7 +336,7 @@ As discussed above in the [Read mapping and quantification section](#52-salmon--
 
 * Single end reads
 
-* Pre-defined iGenomes references
+* Host (Human) and pathogen (*E. coli*) genomes defined through `genomes.conf`
 
 * Salmon - Selective alignment
 
@@ -354,7 +354,7 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 
 * Paired-end reads (unstranded)
 
-* Pre-defined iGenomes references
+* Host (Mouse) and pathogen (*C. trachomatis*) genomes defined through `genomes.conf`
 
 * Salmon - quantification in alignment-based mode
 
@@ -362,7 +362,7 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 
  ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
---genome_host "GRCm38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
+--genome_host "GRCm38" --genome_pathogen "C_trachomatis_strain_d" \
 --reads "folder_to_reads/*{1,2}.fastq.gz" \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
@@ -374,13 +374,13 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 
 * Single end reads
 
-* Custom pathogen reference - iGenomes Host reference
+* Host (Human) and pathogen (*M. pneumoniae*) genomes defined through `genomes.conf`
 
 * STAR - alignment-based genome mapping
 
  ```bash
 nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
---genome_host "GRCH38" --genome_pathogen "Pathogen_custom" \
+--genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
 --reads "folder_to_reads/*.fq.gz" --single_end \
 --outdir /outdir_folder/ \
 --run_star --run_htseq_uniquely_mapped \
@@ -394,13 +394,13 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 
 * Single end reads
 
-* Custom host and pathogen genomes defined through `genomes.conf`
+* Host (Human) and pathogen (*S. typhimurium*) genomes defined through `genomes.conf`
 
 * All three modes with custom gene attributes
 
 ```bash
 qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,cluster \
---genome_host "Human_custom" --genome_pathogen "Pathogen_custom" \
+--genome_host "GRCH38" --genome_pathogen "Salmonella_typhimurium" \
 --reads "folder_to_reads/*.fq.gz" --single_end \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "SF" \
