@@ -12,11 +12,11 @@
 
 ## Dual RNA-seq pipeline
 
-**Description**
+### Description
 
 Description of the pipeline and why important - to be completed
 
-**Nextflow**
+### Nextflow
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with Docker containers making installation trivial and results highly reproducible.
 
