@@ -2,15 +2,15 @@
 
 ## Table of contents
 
-1.[Nextflow](#1-nextflow)
-2.[Genome references and annotation](#2-genome-references-and-annotation)
-3.[Input sequence reads](#3-input-sequence-reads)
-4.[FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
-5.[Salmon](#5-salmon)
-6.[STAR](#6-star)
-7.[HTSeq](#7-htseq)
-8.[RNA mapping statistics](#8-rna-mapping-statistics)
-9.[Other](#9-other)
+1. [Nextflow](#1-nextflow)
+2. [Genome references and annotation](#2-genome-references-and-annotation)
+3. [Input sequence reads](#3-input-sequence-reads)
+4. [FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
+5. [Salmon](#5-salmon)
+6. [STAR](#6-star)
+7. [HTSeq](#7-htseq)
+8. [RNA mapping statistics](#8-rna-mapping-statistics)
+9. [Other](#9-other)
 
 ### General comment
 
