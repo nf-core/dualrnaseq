@@ -2189,7 +2189,6 @@ if(params.run_salmon_selective_alignment) {
 
 		process RNA_class_statistics_salmon_pathogen {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_pathogen"
 		    tag "rna_class_stats_pathgn_salmon"
 
 		    label 'process_high'
@@ -2219,7 +2218,6 @@ if(params.run_salmon_selective_alignment) {
 
 		process RNA_class_statistics_salmon_host {
 		    publishDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/salmon/RNA_classes_host"
 		    tag "rna_class_stats_host_salmon"
 
 		    label 'process_high'
@@ -2982,7 +2980,6 @@ if (params.run_salmon_alignment_based_mode){
 
 		process RNA_class_statistics_salmon_pathogen_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_pathogen"
 		    tag "rna_class_stats_pathogen"
 
 		    label 'process_high'
@@ -3011,7 +3008,6 @@ if (params.run_salmon_alignment_based_mode){
 
 		process RNA_class_statistics_salmon_host_alignment_based {
 		    publishDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/salmon_alignment_based/RNA_classes_host"
 		    tag "rna_class_stats_host"
 
 		    label 'process_high'
@@ -3833,7 +3829,6 @@ if(params.run_htseq_uniquely_mapped){
 	 	 */
 
 		process RNA_class_statistics_htseq_uniquely_mapped_pathogen {
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen/"
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_pathogen", mode: 'copy'
 		    tag "rna_class_stats_htseq_pathogen"
 
@@ -3865,7 +3860,6 @@ if(params.run_htseq_uniquely_mapped){
 
 		process RNA_class_statistics_htseq_uniquely_mapped_host {
 		    publishDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host", mode: 'copy'
-		    storeDir "${params.outdir}/mapping_statistics/HTSeq/RNA_classes_host"
 		    tag "rna_class_stats_htseq_host"
 
 		    label 'process_high'

@@ -91,11 +91,11 @@ for i in range(0,len(columns_conditions)): #iterate over number of samples
 
 # create list of replicates' position lists, e.g. [[1, 2, 0], [3, 4, 5], [6, 7, 8]]
 condition_list = [patterns[condition] for condition in patterns.keys()]
-
 # plot scatter plots of technical replicates
 for cond in condition_list: # iterate over list of technical replicates' positions 
     if len(cond) > 1:
         sample_cond = [TMP_column[c] for c in cond] # extract column names for replicates in quantification table
+        TPMs = quantification_table[sample_cond]
         combinations = list(itertools.combinations(TPMs, 2)) # create list of possible combinations of sample pairs
         for com in combinations:  # iterate over sample pair combinations
               TPMs = pd.concat([quantification_table[com[0]], quantification_table[com[1]]], axis=1) # extract TPM values of two replicates
