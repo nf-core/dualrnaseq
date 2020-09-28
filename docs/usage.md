@@ -150,9 +150,9 @@ If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
 The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values.
 
-`single_end False`
+`--single_end`
 
-`stranded "yes"`
+`--stranded "yes"`
 
 By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched.
 
@@ -317,7 +317,7 @@ STAR is a splice-aware alignment tool which aligns reads to a reference genome. 
 
 ## 6. Mapping statistics
 
-To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, change the following parameter to True `--mapping_statistics False`.
+To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, add the following parameter to the command line: `--mapping_statistics`.
 
 This will create the following:
 
