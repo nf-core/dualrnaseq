@@ -250,7 +250,7 @@ Pathogen:
 
 We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
 
-##### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes!
+##### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes
 
 Many nf-core pipelines provide a possibility to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality.
 
