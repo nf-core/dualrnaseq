@@ -189,11 +189,12 @@ params {
       transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
              }
           }
-        // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line 
+        // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line
       genome_host = 'GRCm38'
       genome_pathogen = 'SL1344'
         }
 ```
+
 Defining default genomes in your configuration file is optional. You can specify the references using the following flags on command line:
 
 `--genome_pathogen SL1344`
@@ -204,13 +205,14 @@ Defining default genomes in your configuration file is optional. You can specify
 
 If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
 
-```
+```bash
 includeConfig 'conf/custom_genomes.config'
 ```
+
 Note:
 
-* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or 
-```--read_transcriptome_fasta_pathogen_from_file```.
+* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or
+```--read_transcriptome_fasta_pathogen_from_file```
 
 * If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to create host gff file.
 
@@ -246,7 +248,7 @@ Pathogen:
 
 We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
 
-#### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes!
+**Warning! The nf-core/dualrnaseq pipeline does not support iGenomes!**
 
 Many nf-core pipelines provide a possibility to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality.
 
@@ -256,7 +258,7 @@ Since many dual RNA-seq experiments are likely to use pathogen-based references 
 
 Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotation files, main features are defined as genes, transcripts and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others.
 
-We have defined four parameters for both the host and pathogen to account for these differences in conventions - and should be modified when needed. 
+We have defined four parameters for both the host and pathogen to account for these differences in conventions - and should be modified when needed.
 Default values are shown below:
 
 Host:
@@ -282,7 +284,8 @@ Pathogen:
 #### Features within pathogen annotation files
 
 As previously mentioned, bacterial annotative files can be challenging to work with due to the non-uniformity. We find that summarising the contents of the GFF can help to identify which features you may want to examine. The following bash script can do this easily:
-```
+
+```bash
 awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
 ```
 
