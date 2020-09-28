@@ -2,16 +2,15 @@
 
 ## Table of contents
 
-1. [Nextflow](#1-nextflow)
-2. [Genome references and annotation](#2-genome-references-and-annotation)
-3. [Input sequence reads](#3-input-sequence-reads)
-4. [FastQC](#4-fastqc)
-5. [Adapter trimming](#5-adapter-trimming)
-5. [Salmon](#5-salmon)
-6. [STAR](#6-star)
-7. [HTSeq](#7-htseq)
-8. [RNA mapping statistics](#8-rna-mapping-statistics)
-9. [Other](#9-other)
+1.[Nextflow](#1-nextflow)
+2.[Genome references and annotation](#2-genome-references-and-annotation)
+3.[Input sequence reads](#3-input-sequence-reads)
+4.[FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
+5.[Salmon](#5-salmon)
+6.[STAR](#6-star)
+7.[HTSeq](#7-htseq)
+8.[RNA mapping statistics](#8-rna-mapping-statistics)
+9.[Other](#9-other)
 
 ### General comment
 
@@ -98,7 +97,7 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 
 ### Genomes
 
-#### `--fasta_host` 
+#### `--fasta_host`
 
 ```bash
 --fasta_host '[path to host genome fasta file]'
@@ -146,7 +145,9 @@ Please note the following requirements:
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
 
-## 4. FastQC
+## 4. FastQC and Adapter trimming
+
+### FastQC
 
 By default, the pipeline utilizes FastQC tool for quality control of raw sequencing reads. To learn more on FastQC, please check [`FastQC website.`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
@@ -156,14 +157,12 @@ An option to not run FastQC. (Default: False)
 
 This is set to False within the configuration files, but only needs to be passed on the command line to become True.
 
-## 5. Adapter trimming
+### Adapter trimming
 
 To remove adapter sequences that were introduced during library preparation the pipeline utilize Cutadapt.
 To learn more on Cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
 
 By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq)
-
-> Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
 
 #### `--skipTrimming`
 
@@ -175,7 +174,7 @@ For single-end reads as well as the first reads of paired-end data, adapter sequ
 
 #### `--A "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"`
 
-For paired-end data, the adapter sequence for the second reads can be defined here. For more information, see [`trimming paired-end reads.`](https://cutadapt.readthedocs.io/en/stable/guide.html#trimming-paired-end-reads). 
+For paired-end data, the adapter sequence for the second reads can be defined here. For more information, see [`trimming paired-end reads.`](https://cutadapt.readthedocs.io/en/stable/guide.html#trimming-paired-end-reads).
 
 #### `--quality_cutoff 10` or `--quality-cutoff 10,15`
 
@@ -237,7 +236,7 @@ To run Salmon with selective alignment (Default: False).
 
 #### `--kmer_length 21`
 
-To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)). By default, this parameter is set to 21. 
+To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)). By default, this parameter is set to 21.
 
 #### `--writeUnmappedNames`
 
@@ -253,7 +252,7 @@ If it is set to `False`, the end-to-end alignment of the entire read is forced, 
 
 #### `--dumpEq`
 
-To save the equivalence classes and their counts, change this option to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information 
+To save the equivalence classes and their counts, change this option to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information
 (Default: False).
 
 #### `--writeMappings`
@@ -302,7 +301,6 @@ By default, this  option is set to 999 in the pipeline. See [`STAR documentation
 
 By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
-
 #### `--alignSJoverhangMin 8`
 
 The number of minimum overhang for unannotated junctions can be changed here. By default, the pipeline uses 8. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
@@ -332,14 +330,13 @@ The maximum intron length is set to 1,000,000 (ENCODE standard options for long 
 
 The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-
 #### `--limitBAMsortRAM 0`
 
 Option to limit RAM when sorting BAM file. If `0`, will be set to the genome index size, which can be quite large when running on a desktop or laptop.
 
 #### `--winAnchorMultimapNmax 999`
 
-The aximum number of loci anchors that are allowed to map to. By default, the pipeline uses a large number `999` to switch this filter off. 
+The aximum number of loci anchors that are allowed to map to. By default, the pipeline uses a large number `999` to switch this filter off.
 
 #### `--sjdbOverhang 100`
 
