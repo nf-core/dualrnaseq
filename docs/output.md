@@ -44,14 +44,14 @@ All samples are processed in the output directory and appended with `_trimmed.fa
 
 Depending on which mapping/quantification mode was selected, will depend on which folders and files appear here.
 
-### A) Salmon selective alignment:
+### A) Salmon selective alignment
 
 **Output directory:** `results/salmon`
 
 **Description:** All files and folders produced by Salmon. Also contains separated quantification results from the host and pathogen,
 plus gene and transcript quantification results.
 
-### B) STAR + Salmon - alignment based:
+### B) STAR + Salmon - alignment based
 
 **Output directory:** `results/salmon_alignment_mode`
 
@@ -62,7 +62,7 @@ plus gene and transcript quantification results.
 
 **Description:** All files and folders produced by STAR that are required for the alignment-based mode of Salmon. This folder also contains the STAR index.
 
-### C) STAR + HTSeq:
+### C) STAR + HTSeq
 
 **Output directory:** `results/STAR`
 
@@ -121,28 +121,28 @@ Contents:
 **HTSeq:** `results/HTSeq`
 
 * `uniquely_mapped`
-  * `RNA_classes_host`
-  * `RNA_classes_pathogen`
-  * `scatter_plots`
+* `RNA_classes_host`
+* `RNA_classes_pathogen`
+* `scatter_plots`
 
 **Salmon:** `results/salmon`
 
- * `RNA_classes_host`
- * `RNA_classes_pathogen`
- * `scatter_plots`
+* `RNA_classes_host`
+* `RNA_classes_pathogen`
+* `scatter_plots`
 
  **Salmon alignment based:** `results/salmon_alignment_based`
 
- * `RNA_classes_host`
- * `RNA_classes_pathogen`
- * `scatter_plots`
+* `RNA_classes_host`
+* `RNA_classes_pathogen`
+* `scatter_plots`
 
  **STAR:** `results/STAR`
 
- * `multi_mapped`
- * `processed_reads`
- * `uniquely_mapped`
+* `multi_mapped`
+* `processed_reads`
+* `uniquely_mapped`
 
-  **STAR for Salmon:** `results/STAR_for_salmon`
+**STAR for Salmon:** `results/STAR_for_salmon`
 
- * `processed_reads`
+* `processed_reads`
