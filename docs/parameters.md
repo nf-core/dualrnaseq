@@ -16,6 +16,7 @@
 ### General comment
 
 > All of the parameters listed here can be found in either the main configuration file `nextflow.config` or `base.config`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir "/path_to_file/file"`.
+Although many of the parameters listed below are set as `False` in the configuration files - their usage on the command line will generally not require setting them to either True or False. Instead, by passing a parameter it becomes set to True.
 
 ## 1. Nextflow
 
@@ -149,9 +150,11 @@ Please note the following requirements:
 
 By default, the pipeline utilizes FastQC tool for quality control of raw sequencing reads. To learn more on FastQC, please check [`FastQC website.`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
-#### `--skipFastqc False`
+#### `--skipFastqc`
 
-An option to not run FastQC
+An option to not run FastQC. (Default: False)
+
+This is set to False within the configuration files, but only needs to be passed on the command line to become True.
 
 ## 5. Adapter trimming
 
@@ -162,9 +165,9 @@ By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`
 
 > Note: Perhaps using BBduck would be easier - as it has an adaptor file built in with common methods including TruSeq etc
 
-#### `--skipTrimming False`
+#### `--skipTrimming`
 
-Will skip the trimming stage
+Will skip the trimming stage (Default: False)
 
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
 
@@ -196,9 +199,9 @@ To learn more on library types available in Salmon, please read [_`What’s this
 
 By default, this is set to `0.0`, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon. You can find more information on this parameter in the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#incompatprior)
 
-#### `--generate_salmon_uniq_ambig False`
+#### `--generate_salmon_uniq_ambig`
 
-Option to extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes
+Option to extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes (Default: False).
 
 #### `--gene_feature_gff_to_create_transcriptome_host ["exon", "tRNA"]`
 
@@ -228,42 +231,45 @@ By default, the pipeline extracts `locus_tag` from the `--gff_pathogen` file.
 
 Parameters listed below are available only for Salmon with Selective Alignment.
 
-#### `--run_salmon_selective_alignment False`
+#### `--run_salmon_selective_alignment`
 
-To run Salmon with selective alignment
+To run Salmon with selective alignment (Default: False).
 
 #### `--kmer_length 21`
 
 To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcriptome indices`](https://salmon.readthedocs.io/en/latest/salmon.html?highlight=index#preparing-transcriptome-indices-mapping-based-mode)). By default, this parameter is set to 21. 
 
-#### `--writeUnmappedNames False`
+#### `--writeUnmappedNames`
 
-By default the pipeline does not save names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to false.
+By default the pipeline does not save names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to False.
+(Default: False).
 
-#### `--softclipOverhangs False`
+#### `--softclipOverhangs`
 
-By default, the pipeline does not allow soft-clipping of reads.
+By default, the pipeline does not allow soft-clipping of reads (Default: False).
 
 _"Soft-clipping allows reads that overhang the beginning or ends of the transcript. In this case, the overhanging section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_.
 If it is set to `False`, the end-to-end alignment of the entire read is forced, so that the occurance of any overhangings may affect the alignment score.
 
-#### `--dumpEq False`
+#### `--dumpEq`
 
-To save the equivalence classes and their counts, change this option to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information.
+To save the equivalence classes and their counts, change this option to `True`. See [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#dumpeq) for more information 
+(Default: False).
 
-#### `--writeMappings False`
+#### `--writeMappings`
 
 If set to `True`, the pipeline will create a `mapping.sam` file containing mapping information. To learn more on this option, please view the [`Salmon documentation.`](https://salmon.readthedocs.io/en/latest/salmon.html#writemappings)
+(Default: False).
 
-#### `--keepDuplicates False`
+#### `--keepDuplicates`
 
-Option to remove/collapse identical transcripts during the indexing stage
+Option to remove/collapse identical transcripts during the indexing stage (Default: False).
 
 ### Salmon alignment based mode
 
-#### `--run_salmon_alignment_based_mode FALSE`
+#### `--run_salmon_alignment_based_mode`
 
-Option to run Salmon in alignment-based mode
+Option to run Salmon in alignment-based mode (Default: False).
 
 ## 6. STAR
 
@@ -271,9 +277,9 @@ Option to run Salmon in alignment-based mode
 
 These parameters are available for STAR in both quantification modes, using HTSeq and Salmon in alignment-based mode.
 
-#### `--run_star False`
+#### `--run_star`
 
-Option to run STAR
+Option to run STAR (Default: False).
 
 #### `--outSAMunmapped "Within"`
 
@@ -363,9 +369,9 @@ The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignment
 
 ### Parameters
 
-#### `--run_htseq_uniquely_mapped False`
+#### `--run_htseq_uniquely_mapped`
 
-Used to run HTSeq-count and extract uniquely mapped reads from both the host and pathogen
+Used to run HTSeq-count and extract uniquely mapped reads from both the host and pathogen (Default: False).
 
 #### `--stranded "yes"`
 
@@ -404,9 +410,11 @@ A good idea is to view the accompanying annotative file and examine the fields w
 
 ### Parameters and files
 
-#### `--mapping_statistics False`
+#### `--mapping_statistics`
 
-Option to generate mapping statistics. This will create the following:
+Option to generate mapping statistics (Default: False).
+
+This will create the following:
 
 * Count the total number of reads before and after trimming
 * Scatterplots comparing all replicates (separate for both host and pathogen reads)
