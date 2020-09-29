@@ -42,7 +42,7 @@ def scatter_plot(TPM_log, TPMs, name_1, name_2, lim_plot, organism):
     plt.tick_params(axis="both", labelsize=15)
     plt.subplots_adjust(bottom=0.1)
     # save plot
-    plt.savefig('scatter_plot' + name_1 + '_' + name_2 + '_' + organism + '.pdf', dpi = 300,bbox_inches='tight')
+    plt.savefig('scatter_plot_' + name_1 + '_' + name_2 + '_' + organism + '.pdf', dpi = 300,bbox_inches='tight')
     plt.close(plt.gcf())
 
 
