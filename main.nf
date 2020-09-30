@@ -1616,7 +1616,9 @@ if (params.run_cutadapt | params.run_bbduk) {
  * STEP 5 -FastQC after trimming 
  */
 
-if (params.run_cutadapt & !params.skipFastqc) {
+
+
+if (params.run_cutadapt | params.run_bbduk & !params.skipFastqc) {
 	process fastqc_after_trimming {
 	    tag "$sample_name"
 	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
@@ -1643,17 +1645,15 @@ if (params.run_cutadapt & !params.skipFastqc) {
 
 
 
-if(params.mapping_statistics & params.run_cutadapt) {
+if(params.run_cutadapt | params.run_bbduk & params.mapping_statistics) {
 
 	raw_read_count
 		.map { tag, file -> file }
 		.set {raw_read_count_file}
-
-	/*
+		/*
 	 * count total number of raw single-end reads
 	 */
-
-	process count_total_reads {
+		process count_total_reads {
 	    tag "count_total_reads"
 	    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
 	    storeDir "${params.outdir}/mapping_statistics"
@@ -1662,10 +1662,8 @@ if(params.mapping_statistics & params.run_cutadapt) {
 
 	    input:
 	    file(fastq) from raw_read_count_file.collect()
-
 	    output:
 	    file "total_raw_reads_fastq.tsv" into to_collect_total_reads
-
 
 	    script:
 	    """
@@ -1678,7 +1676,6 @@ if(params.mapping_statistics & params.run_cutadapt) {
 		/*
 		 * count total number of paired-end reads
 		 */
-
 		process count_total_read_pairs {
 		    tag "count_total_reads"
 		    publishDir "${params.outdir}/mapping_statistics", mode: 'copy'
@@ -1688,7 +1685,6 @@ if(params.mapping_statistics & params.run_cutadapt) {
 
 		    input:
 		    file(tsv) from to_collect_total_reads.collect()
-
 		    output:
 		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon
 		    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon_alignment
@@ -1706,8 +1702,9 @@ if(params.mapping_statistics & params.run_cutadapt) {
 	}
 }else{
    Channel.empty()
-          .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
+  .into {collect_total_reads_raw_salmon; collect_total_reads_raw_salmon_alignment; collect_total_reads_raw_star; collect_total_reads_raw_star_for_salmon}
 }
+
 
 
 /*
