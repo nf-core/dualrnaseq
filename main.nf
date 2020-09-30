@@ -81,7 +81,7 @@ def helpMessage() {
                                 A single cutoff value is used to trim the 3’ end of reads. 
                                 If two comma-separated cutoffs are defined, the first value reprerents 5’ cutoff, 
                                 and the second value defines the 3’ cutoff.
-      --skipTrimming    [bool]  To skip the trimming step (Default: false)
+      --run_cutadapt    [bool]  To run cutadapt (Default: false)
 
     Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
     
@@ -453,7 +453,7 @@ Channel
 //----------
 // Channel to capture Cutadapt-based params
 //----------
-if (!params.skipTrimming){
+if (params.run_cutadapt){
 	if(params.single_end){
 		Channel
 		    .value( params.a )
@@ -1472,7 +1472,7 @@ if (!params.skipFastqc) {
  */
 
 
-if (!params.skipTrimming) {
+if (params.run_cutadapt) {
 	process trimming {
 	    tag "$name_reads"
 	    publishDir "${params.outdir}/trimming", mode: 'copy'
@@ -1527,7 +1527,7 @@ if (!params.skipTrimming) {
  */
 
 
-if (!params.skipTrimming & !params.skipFastqc) {
+if (params.run_cutadapt & !params.skipFastqc) {
 	process fastqc_after_trimming {
 	    tag "$sample_name"
 	    publishDir "${params.outdir}/fastqc_after_trimming", mode: 'copy', saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
@@ -1554,7 +1554,7 @@ if (!params.skipTrimming & !params.skipFastqc) {
 
 
 
-if(params.mapping_statistics & !params.skipTrimming) {
+if(params.mapping_statistics & params.run_cutadapt) {
 
 	raw_read_count
 		.map { tag, file -> file }
