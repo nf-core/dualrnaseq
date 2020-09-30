@@ -82,10 +82,34 @@ def helpMessage() {
                                 A single cutoff value is used to trim the 3’ end of reads. 
                                 If two comma-separated cutoffs are defined, the first value reprerents 5’ cutoff, 
                                 and the second value defines the 3’ cutoff.
-
+    
     BBDuk:
-      --run_bbduk    [bool]  To run BBDuk (Default: false)
-
+      --run_bbduk    [bool]    To run BBDuk (Default: false)
+      --minlen       [int]     Reads shorter than this after trimming will be discarded.
+                               Pairs will be discarded if both are shorter.
+                               (Default: 18)
+      --qtrim        [str]     To trim read ends to remove bases with quality below trimq. 
+                               Possible options:rl (trim both ends), f (neither end), r (right end only), 
+                               l (left end only), w (sliding window). 
+                               (Default: "r")
+      --trimq        [int]     Cutoff to trim regions with average quality BELOW given value. 
+                               Option is avaiable if qtrim is set to something other than f. 
+                               (Default: 10)
+      --ktrim        [str]     To trim reads to remove bases matching reference kmers. 
+                               Avaiable options: f (don't trim), r (trim to the right - 3' adapters), 
+                               l (trim to the left - 5' adapters). 
+                               (Default: "r")
+      --k            [int]     Kmer length used for finding contaminants (adapters). Contaminants 
+                               shorter than k will not be found. k must be at least 1.
+                               (Default: 17)
+      --mink        [int]      Look for shorter kmers at read tips down to this length, 
+                               when k-trimming or masking. 0 means disabled.  Enabling
+                               this will disable maskmiddle.
+                               (Default: 11)
+      --hdist        [int]     Maximum Hamming distance for ref kmers (subs only).
+                               (Default: 1)
+      --adapters     [file]    Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)
+    
     Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
     
     FastQC:
