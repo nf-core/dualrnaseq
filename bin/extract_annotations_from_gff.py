@@ -81,7 +81,6 @@ def extract_gene_types_pathogen(gff,gene_feature,gene_attribute):
                         feature_name_pathogen = ''
                 else:
                     feature_name_pathogen = ''
-                
                 #Capture biotypes
                 if d[2] == 'sRNA':
                     g_type = 'sRNA'
@@ -91,7 +90,7 @@ def extract_gene_types_pathogen(gff,gene_feature,gene_attribute):
                     g_type = 'tRNA'
                 elif d[2] == 'rRNA':
                     g_type = 'rRNA'
-                elif ('gene_biotype' in d1):
+                elif ([True for st in d1 if 'gene_biotype' in st]):
                     r_pos_host = [pos.split('=') for pos in d1 if pos.startswith('gene_biotype')]
                     g_type = r_pos_host[0][1]
                 else:
