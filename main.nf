@@ -70,9 +70,10 @@ def helpMessage() {
       --transcriptome_pathogen                         [file]    Custom pathogen transcriptome
                                                                 (Default: "")  
       
-    Trimming is performed by Cutadapt with the following related options
+    Trimming is performed by either Cutadapt or BBDuk with the following related options
     
-    Trimming:
+    Cutadapt:
+      --run_cutadapt    [bool]  To run cutadapt (Default: false)
       --a               [str]   Adapter sequence for single-end reads or first reads of paired-end data
                                 (Default: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA")
       --A               [str]   Adapter sequence for second reads of paired-end data
@@ -81,7 +82,9 @@ def helpMessage() {
                                 A single cutoff value is used to trim the 3’ end of reads. 
                                 If two comma-separated cutoffs are defined, the first value reprerents 5’ cutoff, 
                                 and the second value defines the 3’ cutoff.
-      --run_cutadapt    [bool]  To run cutadapt (Default: false)
+
+    BBDuk:
+      --run_bbduk    [bool]  To run BBDuk (Default: false)
 
     Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
     
@@ -305,6 +308,21 @@ if(params.read_transcriptome_fasta_pathogen_from_file){
 
 
 //----------
+// Trimming - check if only one of the trimming tools is set to "true"
+//----------
+if (params.run_cutadapt & params.run_bbduk) {
+	exit 1, "Trimming: both --run_cutadapt and --run_bbduk are set to true, please use only one of the adapter trimming tools"
+}
+
+//----------
+// BBDuk - fasta file of adapters
+//----------
+if(params.run_bbduk) {
+	if (params.adapters) { adapter_database = file(params.adapters, checkIfExists: true) }
+}
+
+
+//----------
 // Salmon library type
 //----------
 if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode){
@@ -384,7 +402,7 @@ if (params.readPaths) {
             .from(params.readPaths)
             .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
             .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { ch_read_files_fastqc; trimming_reads; raw_read_count;scatter_plots_set }
+            .into { ch_read_files_fastqc; trimming_reads; raw_read_count;scatter_plots_set}
     }
 } else {
     Channel
@@ -467,6 +485,16 @@ if (params.run_cutadapt){
 	Channel
 	 .value(params.quality_cutoff)
 	 .set { quality_cutoff}
+}
+
+
+//----------
+// Channel to capture BBDuk-based params
+//----------
+if (params.run_bbduk){
+	Channel
+	    .value( adapter_database )
+	    .set { adapter_database }
 }
 
 
@@ -1472,52 +1500,114 @@ if (!params.skipFastqc) {
  */
 
 
-if (params.run_cutadapt) {
-	process trimming {
-	    tag "$name_reads"
-	    publishDir "${params.outdir}/trimming", mode: 'copy'
-	    storeDir "${params.outdir}/trimming"
+if (params.run_cutadapt | params.run_bbduk) {
 
-	    label 'process_high'
+	/*
+	 *  run Cutadapt
+	 */
 
-	    input:
-	    set val(name), file(reads) from trimming_reads
-	    val adapter_seq_3 from adapter_sequence_3
-	    val q_value from quality_cutoff
+	if (params.run_cutadapt) {
+		process trimming {
+		    tag "$name_reads"
+		    publishDir "${params.outdir}/trimming_cutadapt", mode: 'copy'
+		    storeDir "${params.outdir}/trimming_cutadapt"
 
-	    output:
-	    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, trimming_results_star_salmon
-	    file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into count_reads
+		    label 'process_high'
 
-	    script:
-		if (params.single_end){
-	    		name_reads = reads.toString().replaceAll(/:/,"_")
-	    		name_reads = name_reads.replaceAll(/-/,"_")
-	    		name_out = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
-	    		name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
-			
-	    		"""
-	    		cutadapt -j ${task.cpus} -q $q_value -a $adapter_seq_3 -m 1 -o ${name_out} $reads 
-	    		"""
-		} else{
-			name_reads = name.replaceAll(/:/,"_")
-			name_reads = name_reads.replaceAll(/-/,"_")
-			name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
-			name_1 = reads[0][0].toString().replaceAll(/:/,"_")
-			name_1 = name_1.replaceAll(/-/,"_")
-			name_1 = name_1.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
-			name_2 = reads[1][0].toString().replaceAll(/:/,"_")
-			name_2 = name_2.replaceAll(/-/,"_")
-			name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
-			"""
-			cutadapt -j ${task.cpus} -q $q_value -a ${adapter_seq_3[0]} -A ${adapter_seq_3[1]} -o ${name_1} -p ${name_2} -m 1 ${reads[0]} ${reads[1]}
-			"""
+		    input:
+		    set val(name), file(reads) from trimming_reads
+		    val adapter_seq_3 from adapter_sequence_3
+		    val q_value from quality_cutoff
+
+		    output:
+		    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, trimming_results_star_salmon
+
+		    script:
+			if (params.single_end){
+		    		name_reads = reads.toString().replaceAll(/:/,"_")
+		    		name_reads = name_reads.replaceAll(/-/,"_")
+		    		name_out = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+		    		name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+				
+		    		"""
+		    		cutadapt -j ${task.cpus} -q $q_value -a $adapter_seq_3 -m 1 -o ${name_out} $reads 
+		    		"""
+			} else{
+				name_reads = name.replaceAll(/:/,"_")
+				name_reads = name_reads.replaceAll(/-/,"_")
+				name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+				name_1 = reads[0][0].toString().replaceAll(/:/,"_")
+				name_1 = name_1.replaceAll(/-/,"_")
+				name_1 = name_1.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+				name_2 = reads[1][0].toString().replaceAll(/:/,"_")
+				name_2 = name_2.replaceAll(/-/,"_")
+				name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
+				"""
+				cutadapt -j ${task.cpus} -q $q_value -a ${adapter_seq_3[0]} -A ${adapter_seq_3[1]} -o ${name_1} -p ${name_2} -m 1 ${reads[0]} ${reads[1]}
+				"""
+			}
 		}
+		
 	}
-	
+
+	/*
+	 *  run BBDuk
+	 */
+
+	if (params.run_bbduk) {
+		process bbduk {
+		    tag "$name_reads"
+		    publishDir "${params.outdir}/trimming_bbduk", mode: 'copy'
+		    storeDir "${params.outdir}/trimming_bbduk"
+
+		    label 'process_high'
+
+		    input:
+		    set val(name), file(reads) from trimming_reads
+		    file adapters from adapter_database
+
+		    output:
+		    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, trimming_results_star_salmon
+		    file "*.log"
+
+		    script:
+		    minlen = params.minlen
+		    qtrim = params.qtrim
+		    trimq = params.trimq
+		    ktrim = params.ktrim
+		    k = params.k
+		    mink = params.mink
+		    hdist = params.hdist
+		    if (params.single_end){
+		    		name_reads = reads.toString().replaceAll(/:/,"_")
+		    		name_reads = name_reads.replaceAll(/-/,"_")
+		    		name_out = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+		    		name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+				fileoutput = name_sample + '.log'
+		    		"""
+		    		bbduk.sh -Xmx1g in=$reads out=${name_out} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist &> $fileoutput
+		    		"""
+		    } else{
+				name_reads = name.replaceAll(/:/,"_")
+				name_reads = name_reads.replaceAll(/-/,"_")
+				name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
+				name_1 = reads[0][0].toString().replaceAll(/:/,"_")
+				name_1 = name_1.replaceAll(/-/,"_")
+				name_1 = name_1.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz")
+				name_2 = reads[1][0].toString().replaceAll(/:/,"_")
+				name_2 = name_2.replaceAll(/-/,"_")
+				name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
+				fileoutput = name_sample + '.log'
+				"""
+				bbduk.sh -Xmx1g in1=${reads[0]} in2=${reads[1]} out1=${name_1} out2=${name_2} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist tpe tbo &> $fileoutput
+				"""
+			}
+		}
+		
+	}
 }else{
    trimming_reads
-      .into {trimming_results_to_qc; trimming_results_star_htseq; trimming_results_to_salmon; count_reads; trimming_results_star_salmon}
+      .into {trimming_results_to_qc; trimming_results_star_htseq; trimming_results_to_salmon; trimming_results_star_salmon}
 }
 
 
@@ -1525,7 +1615,6 @@ if (params.run_cutadapt) {
 /*
  * STEP 5 -FastQC after trimming 
  */
-
 
 if (params.run_cutadapt & !params.skipFastqc) {
 	process fastqc_after_trimming {
