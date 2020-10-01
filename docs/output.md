@@ -5,7 +5,7 @@
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 * [FastQC](#fastqc)
-* [cutadapt](#cutadapt)
+* [Trimming reads](#trimming-reads)
 * [Mapping/Quantification](#mappingquantification)
 * [MultiQC](#multiqc)
 * [Pipeline info](#pipeline-info)
@@ -30,11 +30,11 @@ Contents:
 
 For further reading and documentation see the [FastQC help](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality. To see how your reads look after trimming, look at the FastQC reports in the `trim_galore` directory.
+> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality. To see how your reads look after trimming, look at the FastQC reports in the appropriate directory based on the trimming tool used.
 
-## Cutadapt
+## Trimming reads
 
-[Cutadapt](https://cutadapt.readthedocs.io/en/stable/) is used to trim low quality reads and remove adapter sequences from the user-specified reads.
+Two software options are provided to remove low quality reads and adapters: [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) and [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/).
 
 All samples are processed in the output directory and appended with `_trimmed.fastq.gz`
 
