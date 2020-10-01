@@ -302,7 +302,7 @@ Two software options are provided to remove low quality reads and adapters:
 
 Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are setup to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end). For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
 
-### 5.2 BBDuk 
+### 5.2 BBDuk
 
 The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file contained with the pipeline (`$baseDir/data/adapters.fa`) which contains common adapter types, from which BBDuk will search through and remove. This is extremly useful when analysing data from publicic repositories when minimal background has been given. For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
 
