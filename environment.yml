@@ -1,4 +1,4 @@
-name: nf-core-dualrnaseq-1.0:dev
+name: nf-core-dualrnaseq-1.0dev
 
 channels:
   - conda-forge
