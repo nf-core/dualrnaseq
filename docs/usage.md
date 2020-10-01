@@ -12,14 +12,17 @@
 4. [Reference genomes and annotation](#4-reference-genomes-and-annotation)
    * [Genomes](#41-genomes)
    * [Annotation](#42-annotation)
-5. [Read mapping and quantification](#5-read-mapping-and-quantification)
-   * [Salmon - Selective alignment](#51-salmon---selective-alignment)
-   * [Salmon - quantification in alignment-based mode](#52-salmon---quantification-in-alignment-based-mode)
-   * [STAR - alignment-based genome mapping](#53-star---alignment-based-genome-mapping)
-6. [Mapping statistics](#6-mapping-statistics)
-7. [Example usage](#7-example-usage)
-8. [Output files](#8-output-files)
-9. [Job resources](#9-job-resources-and-submission)
+5. [Trimming reads and adapters](#5-trimming-reads-and-adapters)
+   * [Cutadapt](#51-cutadapt)
+   * [BBDuk](#52-bbduk)
+6. [Read mapping and quantification](#6-read-mapping-and-quantification)
+   * [Salmon - Selective alignment](#61-salmon---selective-alignment)
+   * [Salmon - quantification in alignment-based mode](#62-salmon---quantification-in-alignment-based-mode)
+   * [STAR - alignment-based genome mapping](#63-star---alignment-based-genome-mapping)
+7. [Mapping statistics](#7-mapping-statistics)
+8. [Example usage](#8-example-usage)
+9. [Output files](#9-output-files)
+10. [Job resources](#10-job-resources-and-submission)
 
 ## 1. Running the pipeline
 
@@ -289,7 +292,21 @@ As previously mentioned, bacterial annotative files can be challenging to work w
 awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
 ```
 
-## 5. Read mapping and quantification
+## 5. Trimming reads and adapters
+
+By default, trimming and adapter removal is not run. To run either tool, you will need to specify either `run_cutadapt` or `run_bbduk` during run time.
+
+Two software options are provided to remove low quality reads and adapters:
+
+### 5.1 Cutadapt
+
+Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are setup to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end). For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
+
+### 5.2 BBDuk 
+
+The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file contained with the pipeline (`$baseDir/data/adapters.fa`) which contains common adapter types, from which BBDuk will search through and remove. This is extremly useful when analysing data from publicic repositories when minimal background has been given. For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
+
+## 6. Read mapping and quantification
 
 The nf-core/dualrnaseq pipeline provides three strategies to map and quantify your dual RNA-seq data.
 
@@ -299,14 +316,14 @@ The nf-core/dualrnaseq pipeline provides three strategies to map and quantify yo
 
 3) The third strategy utilises alignment-based mapping executed with **STAR**, counting uniquely aligned reads with **HTSeq**. `--run_star` and `--run_htseq_uniquely_mapped`
 
-### 5.1 Salmon - selective alignment
+### 6.1 Salmon - selective alignment
 
 Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
 To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotatated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
 
 > Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match - which increases accuracy. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
 
-### 5.2 Salmon - quantification in alignment-based mode
+### 6.2 Salmon - quantification in alignment-based mode
 
 In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
@@ -314,11 +331,11 @@ In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-i
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome (fasta) and annotative (gff) files.
 > When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
 
-### 5.3 STAR - alignment-based genome mapping
+### 6.3 STAR - alignment-based genome mapping
 
 STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions. Therefore, the paths to host and pathogen genomes and annotative files must be provided either through iGenomes, or directly using the appropriate parameters:  `--genome_host`, `--genome_pathogen`, `--gff_host` and `--gff_pathogen`.
 
-## 6. Mapping statistics
+## 7. Mapping statistics
 
 To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, add the following parameter to the command line: `--mapping_statistics`.
 
@@ -329,9 +346,9 @@ This will create the following:
 * Plots of the % of mapped/quantified reads
 * Plots of RNA-class statistics (for more information click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics).
 
-## 7. Example usage
+## 8. Example usage
 
-As discussed above in the [Read mapping and quantification section](#52-salmon---quantification-in-alignment-based-mode) above, there are different ways to run the pipeline:
+As discussed above in the [Read mapping and quantification section](#62-salmon---quantification-in-alignment-based-mode) above, there are different ways to run the pipeline:
 
 ### Example 1
 
@@ -413,11 +430,11 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,clus
 --gene_feature_gff_to_quantify_pathogen "[locus_tag, sRNA, tRNA, rRNA]"
 ```
 
-## 8. Output files
+## 9. Output files
 
 Click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/output.md) for a description on output files.
 
-## 9. Job resources and submission
+## 10. Job resources and submission
 
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus, Nextflow processes must run until the pipeline is finished. To achieve this, we recommend running in the background through `screen` / `tmux` or a similar tool. Alternatively, you can run dualrnaseq submitted by your job scheduler on a cluster.
 
