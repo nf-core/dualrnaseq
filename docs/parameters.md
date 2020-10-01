@@ -159,14 +159,19 @@ This is set to False within the configuration files, but only needs to be passed
 
 ### Adapter trimming
 
-To remove adapter sequences that were introduced during library preparation the pipeline utilize Cutadapt.
-To learn more on Cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
+Trimming is performed by either Cutadapt or BBDuk with the following related options:  
+
+### Cutadapt
+
+Cutadapt requires prior knowledge of the adaptors used during library preparation.
 
 By default, the pipeline trims Illumina TruSeq adapters. See [`Illumina TruSeq.`](https://cutadapt.readthedocs.io/en/stable/guide.html#illumina-truseq)
 
-#### `--skipTrimming`
+To learn more on Cutadapt and its parameters visit the [`cutadapt documentation.`](https://cutadapt.readthedocs.io/en/stable/guide.html)
 
-Will skip the trimming stage (Default: False)
+#### `--run_cutadapt`
+
+To run Cutadapt (Default: False)
 
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
 
@@ -181,6 +186,52 @@ For paired-end data, the adapter sequence for the second reads can be defined he
 Cutadapt can also remove low-quality read ends. By default, the 3’ end of each read is trimmed using a cutoff of 10. For more information on cutoff values, see [`quality trimming.`](https://cutadapt.readthedocs.io/en/stable/guide.html#quality-trimming)
 
 If you specify two comma-separated cutoffs, the first value represents the 5’ cutoff, and the second one the 3’ cutoff.
+
+### BBDuk
+
+BBDuk does not require any prior knowledge about adapter types, searching for common adapter sequences from the file `$baseDir/data/adapters.fa`.
+
+To learn more about BBDuk and its parameters visit the [`BBDuk website.`](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
+
+#### `--run_bbduk`
+
+To run BBDuk (Default: False)
+
+#### `--minlen 18`
+
+Reads shorter than this after trimming will be discarded (Pairs will be discarded if both are shorter).
+
+#### `--qtrim "r"`
+
+To trim read ends to remove bases with quality below trimq.
+
+Possible options:`rl` (trim both ends), `f` (neither end), `r` (right end only) `l` (left end only), `w` (sliding window).
+
+#### `--trimq 10`
+
+Cutoff to trim regions with average quality BELOW given value.
+
+Option is avaiable if qtrim is set to something other than f. Reads shorter than this after trimming will be discarded (Pairs will be discarded if both are shorter).
+
+#### `--ktrim "r"`
+
+To trim reads to remove bases matching reference kmers. Avaiable options: `f` (don't trim), `r` (trim to the right - 3' adapters), `l` (trim to the left - 5' adapters).
+
+#### `--k 17`
+
+Kmer length used for finding contaminants (adapters). Contaminants shorter than k will not be found. k must be at least 1.
+
+#### `--mink 11`
+
+Look for shorter kmers at read tips down to this length, when k-trimming or masking. 0 means disabled. Enabling this will disable maskmiddle
+
+#### `--hdist 1`
+
+Maximum Hamming distance for ref kmers (subs only).
+
+#### `--adapters`
+
+Fasta file with adapter sequences (Default: `$baseDir/data/adapters.fa`).
 
 ## 5. Salmon
 
@@ -319,7 +370,7 @@ Here, you can define a threshold for a ratio of mismatches to *read* length. The
 
 #### `--alignIntronMin 20`
 
-By default, the nf-core dualrnaseq pipeline uses 20 as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion.
+By default, the nf-core dualrnaseq pipeline uses `20` as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion.
 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignIntronMax 1000000`
@@ -336,11 +387,11 @@ Option to limit RAM when sorting BAM file. If `0`, will be set to the genome ind
 
 #### `--winAnchorMultimapNmax 999`
 
-The aximum number of loci anchors that are allowed to map to. By default, the pipeline uses a large number `999` to switch this filter off.
+The maximum number of loci anchors that are allowed to map. By default, the pipeline uses a large number `999` to switch this filter off.
 
 #### `--sjdbOverhang 100`
 
-Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to 100. However, we recoment to set a value depending on the read length: read/mate length - 1.
+Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to `100`. However, we recommend to set a value depending on the read length: read/mate length - 1.
 
 ### STAR for HTSeq
 
