@@ -16,7 +16,7 @@
 
 **nf-core/dualrnaseq** is an analysis pipeline for the analysis of Dual RNA-seq data. Dual RNA-seq is an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq. 
 
-The workflow merges host and pathogen genome annotations, then processes raw data from
+The workflow merges host and pathogen genome annotations taking into account differences in annotation conventions, then processes raw data from
  FastQ inputs ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/),
  [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),
   quantifies gene expression
