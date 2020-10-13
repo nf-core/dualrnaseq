@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Dualrnaseq is a workflow designed to assist in separating host and pathogen sequencing data. This has been initially tested with hosts including Human and Mouse, but can be used for any host organism containing a reference and annotation. The same input applies for extracting the pathogen information, thereby making this pipeline suited to a wide range of host and pathogen datasets.
+Dualrnaseq is a workflow designed to quantify simultaneous host and pathogen RNA-seq data. This has been initially tested with eukaryotic host organisms including Human and Mouse, and pathogens including *Salmonella enterica*, *Orientia tsutsugamushi*, *Streptococcus penumoniae*, and *Mycobacterium leprae*. The workflow should work with any eukaryotic and bacterial organisms with an available reference genome and annotation.
 
 This has been built using [Nextflow](https://www.nextflow.io/), a workflow tool allowing scalable and reproducible workflows using containers, which can run across multiple computing infrastructures.
 
