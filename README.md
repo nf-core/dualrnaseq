@@ -21,7 +21,7 @@ The workflow merges host and pathogen genome annotations, then processes raw dat
  [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),
   quantifies gene expression
    ([STAR](https://github.com/alexdobin/STAR) and
-    [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR], [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon] in quasimapping mode and [tximport]),
+    [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR](https://github.com/alexdobin/STAR), [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon](https://combine-lab.github.io/salmon/) in quasimapping mode and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)),
      and performs quality-control on the results
           ([MultiQC](http://multiqc.info/)), as well as generating a number of custom summary plots and separate results tables for the pathogen and host. See the [output documentation](docs/output.md) for more details of the results.
 
