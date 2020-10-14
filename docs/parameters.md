@@ -157,6 +157,10 @@ An option to not run FastQC. (Default: False)
 
 This is set to False within the configuration files, but only needs to be passed on the command line to become True.
 
+#### `--fastqc_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional fastqc parameters you wish to use, except --quiet --threads --noextract flags which are already specified in the dualrnaseq pipeline.
+
 ### Adapter trimming
 
 Trimming is performed by either Cutadapt or BBDuk with the following related options:  
@@ -186,6 +190,10 @@ For paired-end data, the adapter sequence for the second reads can be defined he
 Cutadapt can also remove low-quality read ends. By default, the 3’ end of each read is trimmed using a cutoff of 10. For more information on cutoff values, see [`quality trimming.`](https://cutadapt.readthedocs.io/en/stable/guide.html#quality-trimming)
 
 If you specify two comma-separated cutoffs, the first value represents the 5’ cutoff, and the second one the 3’ cutoff.
+
+#### `--cutadapt_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional cutadapt parameters you wish to use, except -m and -j which are already specified in the dualrnaseq pipeline.
 
 ### BBDuk
 
@@ -232,6 +240,10 @@ Maximum Hamming distance for ref kmers (subs only).
 #### `--adapters`
 
 Fasta file with adapter sequences (Default: `$baseDir/data/adapters.fa`).
+
+#### `--BBDuk_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional BBDuk parameters you wish to use, except -Xmx1g which is already specified in the dualrnaseq pipeline.
 
 ## 5. Salmon
 
@@ -315,11 +327,24 @@ If set to `True`, the pipeline will create a `mapping.sam` file containing mappi
 
 Option to remove/collapse identical transcripts during the indexing stage (Default: False).
 
+
+#### `--salmon_SA_params_index "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional salmon index parameters you wish to use in selective alignment mode.
+
+#### `--salmon_SA_params_mapping "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional salmon quant parameters you wish to use.
+
 ### Salmon alignment based mode
 
 #### `--run_salmon_alignment_based_mode`
 
 Option to run Salmon in alignment-based mode (Default: False).
+
+#### `--salmon_alignment_based_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional salmon quant parameters you wish to use in salmon alignment-based mode.
 
 ## 6. STAR
 
@@ -407,11 +432,23 @@ By default, the pipeline does not generate any of these files.
 
 Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
+#### `--STAR_index_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional star parameters to create index.
+
+#### `--STAR_alignment_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional star alignment parameters.
+
 ### STAR for Salmon alignment-based mode
 
 #### `--quantTranscriptomeBan "Singleend"`
 
 The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+
+#### `--STAR_salmon_alignment_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional alignment parameters for STAR in salmon alignment-based mode.
 
 ## 7. HTSeq
 
@@ -453,6 +490,10 @@ A good idea is to view the accompanying annotative file and examine the fields w
 #### `--gene_feature_gff_to_quantify_pathogen "[gene, sRNA, tRNA, rRNA]"`
 
 #### `--pathogen_gff_atribute "locus_tag"`
+
+#### `--htseq_params "--param_a 4 --param_b 5 -param_x"`
+
+Define set of additional htseq parameters you wish to use in the pipeline.
 
 ## 8. RNA mapping statistics
 
