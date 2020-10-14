@@ -100,7 +100,7 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 #### `--fasta_host`
 
 ```bash
---fasta_host '[path to host genome fasta file]'
+--fasta_host "<path to host genome fasta file>"
 ```
 
 #### `--fasta_pathogen`
@@ -253,25 +253,25 @@ By default, this is set to `0.0`, to ensure that only mappings or alignments tha
 
 Option to extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes (Default: False).
 
-#### `--gene_feature_gff_to_create_transcriptome_host ["exon", "tRNA"]`
+#### `--gene_feature_gff_to_create_transcriptome_host "[exon, tRNA]"`
 
 The pipeline uses gene features from the 3rd column of the host annotative (gff) file, to extract the coordinates of transcripts to be quantified.
 
 By default, the pipeline uses `exon` from the `--gff_host` file and `tRNA` from the `--gff_host_tRNA` file.
 
-#### `--gene_feature_gff_to_create_transcriptome_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
+#### `--gene_feature_gff_to_create_transcriptome_pathogen "[gene, sRNA, tRNA, rRNA]"`
 
 The pipeline uses gene features from the 3rd column of the pathogen annotative (gff) file, to extract the coordinates of transcripts to be quantified.
 
 By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file.
 
-#### `--gene_attribute_gff_to_create_transcriptome_host ["transcript_id"]`
+#### `--gene_attribute_gff_to_create_transcriptome_host "transcript_id"`
 
 This flag defines the gene attribute from the 9th column of the host annotative (gff) file, where the transcript names are extracted.
 
 By default, the pipeline extracts `transcript_id` from the `--gff_host` file.
 
-#### `--gene_attribute_gff_to_create_transcriptome_pathogen ["locus_tag"]`
+#### `--gene_attribute_gff_to_create_transcriptome_pathogen "locus_tag"`
 
 This flag defines the gene attribute from the 9th column of the pathogen annotative (gff) file, where transcripts, genes or CDS regions are extracted.
 
@@ -444,13 +444,13 @@ A good idea is to view the accompanying annotative file and examine the fields w
 
 #### Host
 
-#### `--gene_feature_gff_to_quantify_host ["exon","tRNA"]`
+#### `--gene_feature_gff_to_quantify_host "[exon, tRNA]"`
 
 #### `--host_gff_atribute "gene_id"`
 
 #### Pathogen
 
-#### `--gene_feature_gff_to_quantify_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
+#### `--gene_feature_gff_to_quantify_pathogen "[gene, sRNA, tRNA, rRNA]"`
 
 #### `--pathogen_gff_atribute "locus_tag"`
 

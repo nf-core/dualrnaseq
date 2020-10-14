@@ -227,7 +227,7 @@ If preferred, you can specify each parameter manually and link to appropriate fi
 
 Host:
 
-`--fasta_host` 'path to file'
+`--fasta_host` "path to file"
 
 `--gff_host`
 
@@ -268,9 +268,9 @@ Host:
 
 `--gene_attribute_gff_to_create_transcriptome_host "transcript_id"`
   
-`--gene_feature_gff_to_create_transcriptome_host ["exon", "tRNA"]`
+`--gene_feature_gff_to_create_transcriptome_host "[exon, tRNA]"`
   
-`--gene_feature_gff_to_quantify_host ["exon","tRNA"]`
+`--gene_feature_gff_to_quantify_host "[exon, tRNA]"`
   
 `--host_gff_attribute "gene_id"`
   
@@ -278,9 +278,9 @@ Pathogen:
 
 `--gene_attribute_gff_to_create_transcriptome_pathogen "locus_tag"`
   
-`--gene_feature_gff_to_create_transcriptome_pathogen ["gene","sRNA","tRNA","rRNA"]`
+`--gene_feature_gff_to_create_transcriptome_pathogen "[gene, sRNA, tRNA, rRNA]"`
   
-`--gene_feature_gff_to_quantify_pathogen ["gene", "sRNA", "tRNA", "rRNA"]`
+`--gene_feature_gff_to_quantify_pathogen "[gene, sRNA, tRNA, rRNA]"`
 
 `--pathogen_gff_attribute "locus_tag"`
 
