@@ -82,6 +82,7 @@ def helpMessage() {
                                 A single cutoff value is used to trim the 3’ end of reads. 
                                 If two comma-separated cutoffs are defined, the first value reprerents 5’ cutoff, 
                                 and the second value defines the 3’ cutoff.
+      --cutadapt_params [str]   Set of additional cutadapt parameters
     
     BBDuk:
       --run_bbduk    [bool]    To run BBDuk (Default: false)
@@ -109,11 +110,13 @@ def helpMessage() {
       --hdist        [int]     Maximum Hamming distance for ref kmers (subs only).
                                (Default: 1)
       --adapters     [file]    Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)
+      --BBDuk_params [str]     Set of additional BBDuk parameters 
     
     Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
     
     FastQC:
       --skipFastqc      [bool]  Option to skip running FastQC
+      --fastqc_params   [str]   Set of additional fastqc parameters
       
     The following options are related to the three main methods to extract gene expression:
     
@@ -151,6 +154,8 @@ def helpMessage() {
                                                                      (Default: locus_tag)
       --gene_feature_gff_to_create_transcriptome_pathogen   [str]    Pathogen transcriptome - gene features
                                                                      (Default: ["gene","sRNA","tRNA","rRNA"] )
+      --salmon_SA_params_index                              [str]    Set of additional parameters for creating an index with Salmon Selective Alignment
+      --salmon_SA_params_mapping                            [str]    Set of additional parameters for mapping with Salmon Selective Alignment
       
     STAR - general options available for both modes, genome mapping with HTSeq quantification and salmon - alignment-based mode:
       --run_star                          [bool]   Run STAR
@@ -205,6 +210,8 @@ def helpMessage() {
       --outWigStrand                      [str]    Options are Stranded or Unstranded when defining 
                                                    the strandedness of wiggle/bedGraph output
                                                    (Default: Stranded)
+      --STAR_index_params                 [str]    Set of additional parameters for creating an index with STAR
+      --STAR_alignment_params             [str]    Set of additional parameters for alignment with STAR
       
     STAR - additional options available only for Salmon - alignment-based mode:
       --quantTranscriptomeBan             [str]    The nf-core/dualrnaseq pipeline runs STAR to generate a 
@@ -212,11 +219,14 @@ def helpMessage() {
                                                    deletions and soft-clips (Singleend option). To prohibit this 
                                                    behaviour, specify IndelSoftclipSingleend
                                                    (Default: Singleend)
+      --STAR_salmon_index_params          [str]    Set of additional parameters for creating an index with STAR in salmon alignment-based mode
+      --STAR_salmon_alignment_params      [str]    Set of additional parameters for alignment with STAR in salmon alignment-based mode
       
     Salmon - alignment-based mode:
       --run_salmon_alignment_based_mode   [bool]   Option to run Salmn in alignment mode
                                                    (Default: false)
-     
+      -- salmon_alignment_based_params    [str]    Set of additional parameters for Salmon in alignment-based mode
+      
     HTSeq:
       --run_htseq_uniquely_mapped               [bool]   Option to run HTSeq
                                                          (Default: false)
@@ -229,9 +239,7 @@ def helpMessage() {
       --minaqual                                [int]    To specify a threshold for a minimal MAPQ alignment quality.(Default: 10) 
                                                          Reads with the MAPQ alignment quality below the given number will be removed
                                                          (Default: 10)
-
-
-
+      --htseq_params                            [str]    Set of additional parameters for HTSeq
       --gene_feature_gff_to_quantify_host       [str]    Host - gene features to quantify from GFF
                                                          (Default: ["exon","tRNA"] )
       --gene_feature_gff_to_quantify_pathogen   [str]    Pathogen - gene features to quantify from GFF
@@ -240,7 +248,7 @@ def helpMessage() {
                                                          (Default: gene_id )
       --pathogen_gff_attribute                  [str]    Pathogen - attribute from GFF
                                                          (Default: locus_tag)
-
+     
     RNA mapping statistics:
       --mapping_statistics               [bool]   Option to generate mapping statistics. This will create the following:
                                                   - Count the total number of reads before and after trimming
@@ -1506,10 +1514,10 @@ if (!params.skipFastqc) {
 
 	    output:
 	    file "*_fastqc.{zip,html}" into ch_fastqc_results
-
+	    fastqc_params = params.fastqc_params
 	    script:
 	    """
-	    fastqc --quiet --threads $task.cpus --noextract $reads
+	    fastqc --quiet --threads $task.cpus --noextract $reads $fastqc_params
 	    """
 	}
 }else{
@@ -1547,6 +1555,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 		    set val(name_sample), file("${name_sample}{_1,_2,}_trimmed.fastq.gz") into trimming_results_star_htseq, trimming_results_to_salmon, trimming_results_to_qc, trimming_results_star_salmon
 
 		    script:
+		    cutadapt_params = params.cutadapt_params
 			if (params.single_end){
 		    		name_reads = reads.toString().replaceAll(/:/,"_")
 		    		name_reads = name_reads.replaceAll(/-/,"_")
@@ -1554,7 +1563,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 		    		name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
 				
 		    		"""
-		    		cutadapt -j ${task.cpus} -q $q_value -a $adapter_seq_3 -m 1 -o ${name_out} $reads 
+		    		cutadapt -j ${task.cpus} -q $q_value -a $adapter_seq_3 -m 1 -o ${name_out} $reads $cutadapt_params
 		    		"""
 			} else{
 				name_reads = name.replaceAll(/:/,"_")
@@ -1567,7 +1576,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 				name_2 = name_2.replaceAll(/-/,"_")
 				name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
 				"""
-				cutadapt -j ${task.cpus} -q $q_value -a ${adapter_seq_3[0]} -A ${adapter_seq_3[1]} -o ${name_1} -p ${name_2} -m 1 ${reads[0]} ${reads[1]}
+				cutadapt -j ${task.cpus} -q $q_value -a ${adapter_seq_3[0]} -A ${adapter_seq_3[1]} -o ${name_1} -p ${name_2} -m 1 ${reads[0]} ${reads[1]} $cutadapt_params
 				"""
 			}
 		}
@@ -1602,6 +1611,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 		    k = params.k
 		    mink = params.mink
 		    hdist = params.hdist
+		    BBDuk_params = params.BBDuk_params
 		    if (params.single_end){
 		    		name_reads = reads.toString().replaceAll(/:/,"_")
 		    		name_reads = name_reads.replaceAll(/-/,"_")
@@ -1609,7 +1619,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 		    		name_sample = name_reads.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"")
 				fileoutput = name_sample + '.log'
 		    		"""
-		    		bbduk.sh -Xmx1g in=$reads out=${name_out} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist &> $fileoutput
+		    		bbduk.sh -Xmx1g in=$reads out=${name_out} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist &> $fileoutput $BBDuk_params
 		    		"""
 		    } else{
 				name_reads = name.replaceAll(/:/,"_")
@@ -1623,7 +1633,7 @@ if (params.run_cutadapt | params.run_bbduk) {
 				name_2 = name_2.replaceAll(/.fastq.gz|.fq.gz|.fastq|.fq/,"_trimmed.fastq.gz") 
 				fileoutput = name_sample + '.log'
 				"""
-				bbduk.sh -Xmx1g in1=${reads[0]} in2=${reads[1]} out1=${name_1} out2=${name_2} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist tpe tbo &> $fileoutput
+				bbduk.sh -Xmx1g in1=${reads[0]} in2=${reads[1]} out1=${name_1} out2=${name_2} ref=$adapters minlen=$minlen qtrim=$qtrim trimq=$trimq ktrim=$ktrim k=$k mink=$mink hdist=$hdist $BBDuk_params tpe tbo &> $fileoutput
 				"""
 			}
 		}
@@ -1658,8 +1668,9 @@ if (params.run_cutadapt | params.run_bbduk & !params.skipFastqc) {
 
 	    script:
 	    sample_name = name.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
+	    fastqc_params = params.fastqc_params
 	    """
-	    fastqc --threads ${task.cpus} --quiet --noextract $reads
+	    fastqc --threads ${task.cpus} --quiet --noextract $reads $fastqc_params
 	    """
 	}
 }else{
@@ -1785,9 +1796,10 @@ if(params.run_salmon_selective_alignment) {
 	    file "transcripts_index" into salmon_index
 
 	    script:
+	    salmon_SA_params_index = params.salmon_SA_params_index
 	    keepDuplicates = params.keepDuplicates ? "--keepDuplicates" : ''
 	    """
-	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} $keepDuplicates
+	    salmon index -t $gentrome -i transcripts_index --decoys $decoys -k $kmer_length -p ${task.cpus} $keepDuplicates $salmon_SA_params_index
 	    """
 	}
 
@@ -1820,18 +1832,18 @@ if(params.run_salmon_selective_alignment) {
 	    softclip = params.softclipOverhangs ? "--softclipOverhangs" : ''
 	    incompatPrior = params.incompatPrior
 	    dumpEq = params.dumpEq ? "--dumpEq" : ''
-	    
+	    salmon_SA_params_mapping = params.salmon_SA_params_mapping 
 	    if (params.single_end){
 	    	sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 		writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 		"""
-		salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name 
+		salmon quant -p ${task.cpus} -i $index -l $libtype -r $reads $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name $salmon_SA_params_mapping
 		"""
 	    } else{
 		sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 		writeMappings = params.writeMappings ? "--writeMappings=$sample_name/mapping.sam" : ''
 		"""
-		salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name
+		salmon quant -p ${task.cpus} -i $index -l $libtype -1 ${reads[0]} -2 ${reads[1]} $softclip --incompatPrior $incompatPrior $UnmappedNames --validateMappings $dumpEq $writeMappings -o $sample_name $salmon_SA_params_mapping
  		"""
 	    }
 	}
@@ -2495,9 +2507,10 @@ if (params.run_salmon_alignment_based_mode){
 
 		script:
 		sjdbOverhang = params.sjdbOverhang
+		STAR_salmon_index_params = params.STAR_salmon_index_params
 		"""
 		mkdir index
-		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --sjdbOverhang $sjdbOverhang
+		STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --sjdbOverhang $sjdbOverhang $STAR_salmon_index_params
 		"""
 	}
 
@@ -2540,16 +2553,17 @@ if (params.run_salmon_alignment_based_mode){
 	    limitBAMsortRAM = params.limitBAMsortRAM
 	    readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    winAnchorMultimapNmax = params.winAnchorMultimapNmax
-	    
+	    STAR_salmon_alignment_params = params. STAR_salmon_alignment_params
+
 	    if (params.single_end){
 	    	"""
 	    	mkdir $sample_name
-	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax $STAR_salmon_alignment_params
 	    	"""
 	    } else {
 	    	"""
 	    	mkdir $sample_name
-	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM Unsorted --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan $quantTranscriptomeBan --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax $STAR_salmon_alignment_params
 	    	"""
 	    }
 	}
@@ -2579,9 +2593,10 @@ if (params.run_salmon_alignment_based_mode){
 
 	    script:
 	    incompatPrior = params.incompatPrior
+	    salmon_alignment_based_params = params.salmon_alignment_based_params
 	    sample_name = sample.replaceFirst(/.fastq.gz|.fq.gz|.fastq|.fq/, "")
 	    """
-	    salmon quant -p ${task.cpus} -t $transcriptome -l $libtype -a $bam_file --incompatPrior $incompatPrior -o $sample_name
+	    salmon quant -p ${task.cpus} -t $transcriptome -l $libtype -a $bam_file --incompatPrior $incompatPrior -o $sample_name $salmon_alignment_based_params
 	    """
 	}
 
@@ -3287,11 +3302,10 @@ if(params.run_star) {
 
 	    script:
 	    sjdbOverhang = params.sjdbOverhang
-	    genomeSAsparseD = params.genomeSAsparseD
-	    limitGenomeGenerateRAM = params.limitGenomeGenerateRAM
+	    STAR_index_params = params.STAR_index_params
 	    """
 	    mkdir index
-	    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD
+	    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang $STAR_index_params
 	    """
 	}
 
@@ -3335,19 +3349,17 @@ if(params.run_star) {
 	    limitBAMsortRAM = params.limitBAMsortRAM
 	    readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    winAnchorMultimapNmax = params.winAnchorMultimapNmax
-	    genomeSAsparseD = params.genomeSAsparseD
-	    limitGenomeGenerateRAM = params.limitGenomeGenerateRAM
-	    other_param = params.other_STAR
+	    STAR_alignment_params = params.STAR_alignment_params
 
 	    if (params.single_end){
 	    """
 	    	mkdir $sample_name
-	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD $other_param
+	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax $STAR_alignment_params
 	    """
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax $STAR_alignment_params
 	    """
 	    }
 	}
@@ -3672,8 +3684,9 @@ if(params.run_htseq_uniquely_mapped){
 	    host_attr = host_attribute
 	    max_reads_in_buffer = params.max_reads_in_buffer
 	    minaqual = params.minaqual
+	    htseq_params = params.htseq_params
 	    """
-	    htseq-count -n $task.cpus -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded --max-reads-in-buffer=$max_reads_in_buffer -a $minaqual > $name_file2
+	    htseq-count -n $task.cpus -t quant -f bam -r pos $st $gff -i $host_attr -s $stranded --max-reads-in-buffer=$max_reads_in_buffer -a $minaqual $htseq_params > $name_file2
 	    sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$name_file2"
 	    """
 	}
