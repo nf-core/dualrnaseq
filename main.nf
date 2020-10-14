@@ -3287,9 +3287,11 @@ if(params.run_star) {
 
 	    script:
 	    sjdbOverhang = params.sjdbOverhang
+	    genomeSAsparseD = params.genomeSAsparseD
+	    limitGenomeGenerateRAM = params.limitGenomeGenerateRAM
 	    """
 	    mkdir index
-	    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang
+	    STAR --runThreadN ${task.cpus} --runMode genomeGenerate --genomeDir index/ --genomeFastaFiles $fasta --sjdbGTFfile $gff --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --sjdbOverhang $sjdbOverhang --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD
 	    """
 	}
 
@@ -3333,16 +3335,19 @@ if(params.run_star) {
 	    limitBAMsortRAM = params.limitBAMsortRAM
 	    readFilesCommand = reads[0].toString().endsWith('.gz') ? "--readFilesCommand zcat" : ''
 	    winAnchorMultimapNmax = params.winAnchorMultimapNmax
+	    genomeSAsparseD = params.genomeSAsparseD
+	    limitGenomeGenerateRAM = params.limitGenomeGenerateRAM
+	    other_param = params.other_STAR
 
 	    if (params.single_end){
 	    """
 	    	mkdir $sample_name
-	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    	STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn $reads --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD $other_param
 	    """
 	    } else {
 	    """
 	    mkdir $sample_name
-	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax
+	    STAR --runThreadN ${task.cpus} --genomeDir . --sjdbGTFfile $gff $readFilesCommand --readFilesIn ${reads[0]} ${reads[1]} --outSAMtype BAM SortedByCoordinate --outSAMunmapped $outSAMunmapped --outSAMattributes $outSAMattributes --outWigType $outWigType --outWigStrand $outWigStrand --outFileNamePrefix $sample_name/$sample_name --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript Parent --outFilterMultimapNmax $outFilterMultimapNmax --outFilterType $outFilterType --limitBAMsortRAM $limitBAMsortRAM --alignSJoverhangMin $alignSJoverhangMin --alignSJDBoverhangMin $alignSJDBoverhangMin --outFilterMismatchNmax $outFilterMismatchNmax --outFilterMismatchNoverReadLmax $outFilterMismatchNoverReadLmax --alignIntronMin $alignIntronMin --alignIntronMax $alignIntronMax --alignMatesGapMax $alignMatesGapMax --winAnchorMultimapNmax $winAnchorMultimapNmax --limitGenomeGenerateRAM $limitGenomeGenerateRAM --genomeSAsparseD $genomeSAsparseD
 	    """
 	    }
 	}
