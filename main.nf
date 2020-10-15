@@ -3681,7 +3681,7 @@ if(params.run_htseq_uniquely_mapped){
 	    file ("$name_file2") into multiqc_htseq_unique
 
 	    script:
-	    name_file2 = sample_name + "_count_u_m"
+	    name_file2 = sample_name + "_count_u_m.txt"
 	    host_attr = host_attribute
 	    max_reads_in_buffer = params.max_reads_in_buffer
 	    minaqual = params.minaqual

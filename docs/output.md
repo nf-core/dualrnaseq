@@ -49,46 +49,73 @@ Depending on which mapping/quantification mode was selected, will depend on whic
 Contents:
 * `transcripts_index`
   * All files produced by Salmon in the indexing phase.
-* subfolders with names of samples
+* subfolders named as samples.
   * All files and folders produced by Salmon in the quantification step of Selective Alignment mode. You can learn more about salmon outputs in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/file_formats.html#fileformats). Each subfolder also contains separated quantification results from the host and pathogen stored in `host_quant.sf` and `pathogen_quant.sf` files, respectively. 
 * `combined_quant.tsv` 
-  * tab delimited file containing combined quantification results of all samples processed by the pipeline. 
+  * Tab delimited file containing combined quantification results of all samples processed by the pipeline. 
 * `host_quant_salmon.tsv` and `pathogen_quant_salmon.tsv`
-  * tab delimited files containing combined quantification results for either host or pathogen from all samples.
+  * Tab delimited files containing combined quantification results for either host or pathogen from all samples.
 * `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
-  * tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
+  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
 * `host_combined_gene_level.tsv`
-  * host gene-level estimates obtained using tximport.
+  * Host gene-level estimates obtained using tximport.
 * `host_combined_quant_gene_level_annotations.tsv`
-  * tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
+  * Tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
 
-
-**Description:** 
-
-Salmon folder contains 
-Also contains separated quantification results from the host and pathogen,
-plus gene and transcript quantification results.
 
 ### B) STAR + Salmon - alignment based
 
-**Output directory:** `results/salmon_alignment_mode`
-
-**Description:** All files and folders produced by Salmon. Also contains separated quantification results from the host and pathogen,
-plus gene and transcript quantification results.
-
 **Output directory:** `results/STAR_for_salmon`
 
-**Description:** All files and folders produced by STAR that are required for the alignment-based mode of Salmon. This folder also contains the STAR index.
+Contents:
+* `index`
+  * All files produced by STAR in the indexing phase.
+* subfolders named as samples.
+  * All files produced by STAR in the alignment step including `sample_Aligned.sample_toTranscriptome.out.bam`. See `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf).
+
+**Output directory:** `results/salmon_alignment_mode`
+
+Contents:
+* subfolders named as samples
+  * All files and folders produced by Salmon in the quantification step of Selective Alignment mode. You can learn more about salmon outputs in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/file_formats.html#fileformats). Each subfolder also contains separated quantification results from the host and pathogen stored in `host_quant.sf` and `pathogen_quant.sf` files, respectively. 
+* `combined_quant.tsv` 
+  * Tab delimited file containing combined quantification results of all samples processed by the pipeline. 
+* `host_quant_salmon.tsv` and `pathogen_quant_salmon.tsv`
+  * Tab delimited files containing combined quantification results for either host or pathogen from all samples.
+* `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
+  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
+* `host_combined_gene_level.tsv`
+  * Host gene-level estimates obtained using tximport.
+* `host_combined_quant_gene_level_annotations.tsv`
+  * Tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
 
 ### C) STAR + HTSeq
 
 **Output directory:** `results/STAR`
 
-**Description:** All files and folders produced by STAR when aligning to a genome. This folder also contains the STAR index.
+Contents:
+* `index`
+  * All files produced by STAR in the indexing phase.
+* subfolders named as samples.
+  * All files produced by STAR in the alignment step.
+* `multimapped_reads`.
+  * This folder contains both `sample_cross_mapped_reads.txt` file with list of cross-mapped reads between host and pathogen and `sample_no_crossmapped.bam` file with alignment without cross-mapped reads. 
 
 **Output directory:** `results/HTSeq`
 
-**Description:** Contains counted features and TPMs for the host and pathogen; as a combined file, and as separate count files.
+Contents:
+* `sample_count_u_m.txt`
+  * Quantification results for a sample
+* `quantification_results_uniquely_mapped.tsv` 
+  * Tab delimited file containing combined quantification results of all samples processed by the pipeline. 
+* `quantification_results_uniquely_mapped_NumReads_TPM.tsv` 
+  * Tab delimited file containing HTSeq quantification results and TPM values estimated for each gene in each sample.
+* `quantification_stats_uniquely_mapped.tsv` 
+  * Satistics extracted from HTSeq quantification results.
+* `host_quantification_uniquely_mapped_htseq.tsv` and `pathogen_quantification_uniquely_mapped_htseq.tsv`
+  * tab delimited files containing combined quantification results for either host or pathogen from all samples.
+* `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
+  * tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including gene_id, gene_name, gene_type and gene length.
 
 ## MultiQC
 
@@ -100,6 +127,7 @@ The pipeline has special steps which allow the software versions used to be repo
 
 **Output directory:** `results/MultiQC`
 
+Contents:
 * `ProjectName_multiqc_report.html`
   * MultiQC report - a standalone HTML file that can be viewed in your web browser
 * `ProjectName_multiqc_report_data/`
@@ -109,28 +137,15 @@ The pipeline has special steps which allow the software versions used to be repo
 
 For more information about how to use MultiQC reports, see [http://multiqc.info](http://multiqc.info)
 
-## Pipeline info
+## References
 
-Directory containing all of the pipeline-specific reports, timeline and descriptions.
 
-Detailed descriptions of each file can be found on the [Nextflow website](https://www.nextflow.io/docs/latest/tracing.html)
-
-**Output directory:** `results/pipeline_info`
-
-* `execution_report.html`
-* `execution_timeline.html`
-* `execution_trace.txt`
-* `pipeline_dag.svg`
-* `pipeline_report.html`
-* `pipeline_report.txt`
-* `results_description.html`
-* `software_versions.csv`
 
 ## Mapping statistics
 
 Depending on which mapping/quantification mode was selected, will depend on which folders and files appear here.
 In general, files and images within these folders show the number of reads, mapping statistics for both the host and pathogen,
-scatter plots showing correlations between replicates within the same conditions, RNA-class statistics, as well as gene and transcript-based metrics.
+, RNA-class statistics, as well as gene and transcript-based metrics.
 
 **Output directory:** `results/mapping_statistics`
 
@@ -138,10 +153,39 @@ Contents:
 
 **HTSeq:** `results/HTSeq`
 
-* `uniquely_mapped`
-* `RNA_classes_host`
-* `RNA_classes_pathogen`
 * `scatter_plots`
+
+  Scatter plots showing correlations between TPM values of replicates within the same conditions
+
+  ![scatter_plots](images/scatter_plot_HTseq.png)
+
+* `RNA_classes_host`
+
+* `RNA_classes_pathogen`
+
+* `htseq_uniquely_mapped_reads_stats.tsv`
+
+  Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
+
+* `mapping_stats_samples_total_reads.tsv`
+
+  Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
+
+* `mapping_stats_samples_total_reads.pdf`
+
+  Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
+
+  ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads.png)
+
+* `mapping_stats_samples_percentage.tsv`
+
+  Mapping and quantification statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
+
+* `mapping_stats_samples_percentage.pdf`
+  Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
+
+  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage.png)
+
 
 **Salmon:** `results/salmon`
 
@@ -164,3 +208,24 @@ Contents:
 **STAR for Salmon:** `results/STAR_for_salmon`
 
 * `processed_reads`
+
+
+
+
+## Pipeline info
+
+Directory containing all of the pipeline-specific reports, timeline and descriptions.
+
+Detailed descriptions of each file can be found on the [Nextflow website](https://www.nextflow.io/docs/latest/tracing.html)
+
+**Output directory:** `results/pipeline_info`
+
+Contents:
+* `execution_report.html`
+* `execution_timeline.html`
+* `execution_trace.txt`
+* `pipeline_dag.svg`
+* `pipeline_report.html`
+* `pipeline_report.txt`
+* `results_description.html`
+* `software_versions.csv`
