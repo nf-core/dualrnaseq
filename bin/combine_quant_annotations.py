@@ -22,13 +22,10 @@ def combine_annotations_quant(quantification_table, annotations_table, gene_attr
     types_dict = {gene_attribute: str}
     types_dict.update({col: float for col in col_names if col not in types_dict})
     quantification = pd.read_csv(quantification_table,sep="\t",index_col=0, dtype = types_dict)
-    dd= set(quantification.index)
     # read annotations 
     annotations = pd.read_csv(annotations_table,sep="\t",index_col=0, dtype='str')
-    print(len(set(annotations.index)))
     # combine annotations and quantification results
     quant_merged_table = pd.concat([annotations, quantification], axis=1, join = 'inner').sort_index()
-    print(quant_merged_table)
     quant_merged_table.index.names = [gene_attribute] 
     # save results
     if organism == 'pathogen':
