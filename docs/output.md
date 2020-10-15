@@ -23,14 +23,12 @@ Information about adapter contamination and other overrepresented sequences is a
 
 Contents:
 
-* `sample_fastqc.html`
-  * FastQC report, containing quality metrics for your untrimmed raw fastq files
-* `zips/sample_fastqc.zip`
+* `sample_fastqc.html` and `sample_trimmed_fastqc.html`
+  * FastQC reports,`sample_fastqc.html` and  `sample_trimmed_fastqc.html` contain quality metrics for your untrimmed raw and trimmed fastq files, respectively. 
+* `zips/sample_fastqc.zip` and `zips/sample_trimmed_fastqc.zip`
   * zip file containing the FastQC report, tab-delimited data file and plot images
 
 For further reading and documentation see the [FastQC help](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
-
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality. To see how your reads look after trimming, look at the FastQC reports in the appropriate directory based on the trimming tool used.
 
 ## Trimming reads
 
@@ -48,7 +46,27 @@ Depending on which mapping/quantification mode was selected, will depend on whic
 
 **Output directory:** `results/salmon`
 
-**Description:** All files and folders produced by Salmon. Also contains separated quantification results from the host and pathogen,
+Contents:
+* `transcripts_index`
+  * All files produced by Salmon in the indexing phase.
+* subfolders with names of samples
+  * All files and folders produced by Salmon in the quantification step of Selective Alignment mode. You can learn more about salmon outputs in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/file_formats.html#fileformats). Each subfolder also contains separated quantification results from the host and pathogen stored in `host_quant.sf` and `pathogen_quant.sf` files, respectively. 
+* `combined_quant.tsv` 
+  * tab delimited file containing combined quantification results of all samples processed by the pipeline. 
+* `host_quant_salmon.tsv` and `pathogen_quant_salmon.tsv`
+  * tab delimited files containing combined quantification results for either host or pathogen from all samples.
+* `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
+  * tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
+* `host_combined_gene_level.tsv`
+  * host gene-level estimates obtained using tximport.
+* `host_combined_quant_gene_level_annotations.tsv`
+  * tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
+
+
+**Description:** 
+
+Salmon folder contains 
+Also contains separated quantification results from the host and pathogen,
 plus gene and transcript quantification results.
 
 ### B) STAR + Salmon - alignment based
