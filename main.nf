@@ -1514,8 +1514,9 @@ if (!params.skipFastqc) {
 
 	    output:
 	    file "*_fastqc.{zip,html}" into ch_fastqc_results
-	    fastqc_params = params.fastqc_params
+
 	    script:
+	    fastqc_params = params.fastqc_params
 	    """
 	    fastqc --quiet --threads $task.cpus --noextract $reads $fastqc_params
 	    """
