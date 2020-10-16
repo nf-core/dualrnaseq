@@ -743,6 +743,7 @@ if(params.mapping_statistics) {
 			.map { tag, file -> tag }
 			.set {scatter_plots}
 
+
 	process check_replicates {
 	    tag "check_replicates"
 
@@ -767,6 +768,7 @@ if(params.mapping_statistics) {
 	}
 
 }
+
 
 
 /*
