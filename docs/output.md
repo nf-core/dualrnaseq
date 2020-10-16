@@ -151,16 +151,33 @@ In general, files and images within these folders show the number of reads, mapp
 
 Contents:
 
+ **STAR:** `results/STAR`
+* `star_mapping_stats.tsv`
+   * Tab delimited file containg mapping statistics collected from all samples.
+* `mapping_stats_samples_total_reads.tsv`
+  * Set of mapping and quantification statistics extracted from `star_mapping_stats.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
+* `mapping_stats_samples_total_reads.pdf` 
+  * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
+
+  ![mapping_stats_samples_total_reads](images/mapping_stats_samples_total_reads_star.png)
+* `mapping_stats_samples_percentage.tsv`
+  * Mapping statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
+* `mapping_stats_samples_percentage.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
+
+  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_star.png)
+  
 **HTSeq:** `results/HTSeq`
 
 * `scatter_plots`
-  * Scatter plots showing correlations between TPM values of replicates within the same conditions.
+  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
 
-  ![scatter_plots](images/scatter_plot_HTseq.png)
+  ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png)
+  ![scatter_plot_host](images/scatter_plot_host_HTseq.png)
 * `htseq_uniquely_mapped_reads_stats.tsv`
-   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
+   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
 * `mapping_stats_samples_total_reads.tsv`
-  * Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
+  * Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
   * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
@@ -198,16 +215,18 @@ Contents:
   * `sample.pdf`
     * Visualization of host RNA classes statistics for a sample.
 
-    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_htseq)
+    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_htseq.png)
 
 **Salmon:** `results/salmon`
 * `scatter_plots`
-  * Scatter plots showing correlations between TPM values of replicates within the same conditions.
-  ![scatter_plots](images/scatter_plot_salmon.png)
-* `salmon_host_pathogen_total_reads.tsv.tsv`
+  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
+
+  ![scatter_plot_pathogen](images/scatter_plot_pathogen_salmon.png)
+  ![scatter_plot_host](images/scatter_plot_host_salmon.png)
+* `salmon_host_pathogen_total_reads.tsv`
    * Tab delimited file containg mapping statistics collected from all samples.
 * `mapping_stats_samples_total_reads.tsv`
-  * Set of mapping and quantification statistics extracted from `salmon_host_pathogen_total_reads.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
+  * Set of mapping and quantification statistics extracted from `salmon_host_pathogen_total_reads.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
   * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
@@ -245,25 +264,56 @@ Contents:
   * `sample.pdf`
     * Visualization of host RNA classes statistics for a sample.
 
-    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_salmon)
+    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_salmon.png)
 
  **Salmon alignment based:** `results/salmon_alignment_based`
+ * `scatter_plots`
+  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
 
-* `RNA_classes_host`
+  ![scatter_plot_pathogen](images/scatter_plot_pathogen_salmon_al.png)
+  ![scatter_plot_host](images/scatter_plot_host_salmon_al.png)
+* `salmon_alignment_host_pathogen_total_reads.tsv`
+   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen transcriptome using STAR, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
+* `mapping_stats_samples_total_reads.tsv`
+  * Set of mapping and quantification statistics extracted from `salmon_alignment_host_pathogen_total_reads.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
+* `mapping_stats_samples_total_reads.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
+
+  ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads_salmon_al.png)
+* `mapping_stats_samples_percentage.tsv`
+  * Mapping statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
+* `mapping_stats_samples_percentage.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
+
+  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_salmon_al.png)
 * `RNA_classes_pathogen`
-* `scatter_plots`
+  * `pathogen_RNA_classes_sum_counts_salmon.tsv`
+    * Tab delimited file containing pathogen RNA class statistics for each sample.
+  * `pathogen_RNA_classes_percentage_salmon.tsv`
+    * Pathogen RNA class statistics from `pathogen_RNA_classes_sum_counts_salmon.tsv` table expressed in percentage.
+  * `RNA_class_stats_combined_pathogen.pdf`
+    * Plot showing pathogen RNA class statistics for all samples from `pathogen_RNA_classes_percentage_htseq.tsv` table. 
 
- **STAR:** `results/STAR`
+    ![RNA_class_stats_combined_pathogen](images/RNA_class_stats_combined_pathogen_salmon_al.png)
+  * `sample.pdf`
+    * Visualization of pathogen RNA classes statistics for a sample.
 
-* `multi_mapped`
-* `processed_reads`
-* `uniquely_mapped`
+    ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_salmon_al.png)
+* `RNA_classes_host`
+  * `host_RNA_classes_sum_counts_salmon.tsv`
+    * Tab delimited file containing host RNA class statistics for each sample. 
+  * `host_RNA_classes_percentage_salmon.tsv`
+    * Host RNA class statistics from `host_RNA_classes_sum_counts_salmon.tsv` table expressed in percentage.
+  * `host_gene_types_groups_transcript.tsv`
+    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+  * `RNA_class_stats_combined_host.pdf`
+    * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table. 
 
-**STAR for Salmon:** `results/STAR_for_salmon`
+    ![RNA_class_stats_combined_host](images/RNA_class_stats_combined_host_salmon_al.png)
+  * `sample.pdf`
+    * Visualization of host RNA classes statistics for a sample.
 
-* `processed_reads`
-
-
+    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_salmon_al.png)
 
 
 ## Pipeline info
