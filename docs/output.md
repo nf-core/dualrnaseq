@@ -171,7 +171,7 @@ Contents:
 * `scatter_plots`
   * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
 
-  ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png){ width=50% hight=50% }
+  ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png){height=651px width=638px}
   ![scatter_plot_host](images/scatter_plot_host_HTseq.png)
 * `htseq_uniquely_mapped_reads_stats.tsv`
    * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
