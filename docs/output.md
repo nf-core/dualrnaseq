@@ -144,8 +144,7 @@ For more information about how to use MultiQC reports, see [http://multiqc.info]
 ## Mapping statistics
 
 Depending on which mapping/quantification mode was selected, will depend on which folders and files appear here.
-In general, files and images within these folders show the number of reads, mapping statistics for both the host and pathogen,
-, RNA-class statistics, as well as gene and transcript-based metrics.
+In general, files and images within these folders show the number of reads, mapping statistics for both the host and pathogen, RNA-class statistics, as well as gene and transcript-based metrics.
 
 **Output directory:** `results/mapping_statistics`
 
@@ -172,7 +171,7 @@ Contents:
 * `scatter_plots`
   * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
 
-  ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png)
+  ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png){:height="651.5px" width="638.5px"}
   ![scatter_plot_host](images/scatter_plot_host_HTseq.png)
 * `htseq_uniquely_mapped_reads_stats.tsv`
    * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
