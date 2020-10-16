@@ -105,7 +105,7 @@ Contents:
 
 Contents:
 * `sample_count_u_m.txt`
-  * Quantification results for a sample
+  * Quantification results for a sample.
 * `quantification_results_uniquely_mapped.tsv` 
   * Tab delimited file containing combined quantification results of all samples processed by the pipeline. 
 * `quantification_results_uniquely_mapped_NumReads_TPM.tsv` 
@@ -154,44 +154,98 @@ Contents:
 **HTSeq:** `results/HTSeq`
 
 * `scatter_plots`
-
-  Scatter plots showing correlations between TPM values of replicates within the same conditions
+  * Scatter plots showing correlations between TPM values of replicates within the same conditions.
 
   ![scatter_plots](images/scatter_plot_HTseq.png)
-
-* `RNA_classes_host`
-
-* `RNA_classes_pathogen`
-
 * `htseq_uniquely_mapped_reads_stats.tsv`
-
-  Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
-
+   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
 * `mapping_stats_samples_total_reads.tsv`
-
-  Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
-
+  * Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
-  Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
-
-  ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads.png)
-
+  ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads_htseq.png)
 * `mapping_stats_samples_percentage.tsv`
-
-  Mapping and quantification statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
-
+  * Mapping and quantification statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
 * `mapping_stats_samples_percentage.pdf`
-  Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
+  * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
 
-  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage.png)
+  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_htseq.png)
+* `RNA_classes_pathogen`
+  * `pathogen_RNA_classes_sum_counts_htseq.tsv`
+    * Tab delimited file containing pathogen RNA class statistics for each sample. Sum of number of reads assigned to genes which belong to a specific RNA class.
+  * `pathogen_RNA_classes_percentage_htseq.tsv`
+    * Pathogen RNA class statistics from `pathogen_RNA_classes_sum_counts_htseq.tsv` table expressed in percentage.
+  * `RNA_class_stats_combined_pathogen.pdf`
+    * Plot showing pathogen RNA class statistics for all samples from `pathogen_RNA_classes_percentage_htseq.tsv` table. 
 
+    ![RNA_class_stats_combined_pathogen](images/RNA_class_stats_combined_pathogen_htseq.png)
+  * `sample.pdf`
+    * Visualization of pathogen RNA classes statistics for a sample.
+
+    ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_htseq.png)
+* `RNA_classes_host`
+  * `host_RNA_classes_sum_counts_htseq.tsv`
+    * Tab delimited file containing host RNA class statistics for each sample. 
+  * `host_RNA_classes_percentage_htseq.tsv`
+    * Host RNA class statistics from `host_RNA_classes_sum_counts_htseq.tsv` table expressed in percentage.
+  * `host_gene_types_groups_gene.tsv`
+    * Tab delimited file containing list of host genes including gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+  * `RNA_class_stats_combined_host.pdf`
+    * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_htseq.tsv` table. 
+
+    ![RNA_class_stats_combined_host](images/RNA_class_stats_combined_host_htseq.png)
+  * `sample.pdf`
+    * Visualization of host RNA classes statistics for a sample.
+
+    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_htseq)
 
 **Salmon:** `results/salmon`
-
-* `RNA_classes_host`
-* `RNA_classes_pathogen`
 * `scatter_plots`
+  * Scatter plots showing correlations between TPM values of replicates within the same conditions.
+  ![scatter_plots](images/scatter_plot_salmon.png)
+* `salmon_host_pathogen_total_reads.tsv.tsv`
+   * Tab delimited file containg mapping statistics collected from all samples.
+* `mapping_stats_samples_total_reads.tsv`
+  * Set of mapping and quantification statistics extracted from `salmon_host_pathogen_total_reads.tsv` table and used to create `mapping_stats_samples_total_reads.pdf` plot. 
+* `mapping_stats_samples_total_reads.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
+
+  ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads_salmon.png)
+* `mapping_stats_samples_percentage.tsv`
+  * Mapping statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
+* `mapping_stats_samples_percentage.pdf`
+  * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
+
+  ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_salmon.png)
+* `RNA_classes_pathogen`
+  * `pathogen_RNA_classes_sum_counts_salmon.tsv`
+    * Tab delimited file containing pathogen RNA class statistics for each sample.
+  * `pathogen_RNA_classes_percentage_salmon.tsv`
+    * Pathogen RNA class statistics from `pathogen_RNA_classes_sum_counts_salmon.tsv` table expressed in percentage.
+  * `RNA_class_stats_combined_pathogen.pdf`
+    * Plot showing pathogen RNA class statistics for all samples from `pathogen_RNA_classes_percentage_htseq.tsv` table. 
+
+    ![RNA_class_stats_combined_pathogen](images/RNA_class_stats_combined_pathogen_salmon.png)
+  * `sample.pdf`
+    * Visualization of pathogen RNA classes statistics for a sample.
+
+    ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_salmon.png)
+* `RNA_classes_host`
+  * `host_RNA_classes_sum_counts_salmon.tsv`
+    * Tab delimited file containing host RNA class statistics for each sample. 
+  * `host_RNA_classes_percentage_salmon.tsv`
+    * Host RNA class statistics from `host_RNA_classes_sum_counts_salmonhead.tsv` table expressed in percentage.
+  * `host_gene_types_groups_transcript.tsv`
+    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+  * `RNA_class_stats_combined_host.pdf`
+    * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table. 
+
+    ![RNA_class_stats_combined_host](images/RNA_class_stats_combined_host_salmon.png)
+  * `sample.pdf`
+    * Visualization of host RNA classes statistics for a sample.
+
+    ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_salmon)
 
  **Salmon alignment based:** `results/salmon_alignment_based`
 
