@@ -28,10 +28,10 @@ def create_transcriptome(fasta_records_dict, gff_files,feature, gene_attribute, 
     with open(output_file_name, 'a') as out_name: #Open output file
         for gff_file in gff_files: 
             for line in open(gff_file):
-                 if not line: #ignore blank lines
+                 if len(line.split()) == 0: #ignore blank lines
                     continue
                  d = line.rstrip()  #remove '\n'
-                 if ((d[0] != '#') and (d != '')): #Ignore comments
+                 if ((d[0] != '#') and (d != '') and (d != ' ')): #Ignore comments
                     d_list = d.split('\t') #Split based on tabs
                     if d_list[2] in feature: 
                         reference_name = d_list[0]
@@ -55,7 +55,7 @@ def create_transcriptome(fasta_records_dict, gff_files,feature, gene_attribute, 
 parser = argparse.ArgumentParser()
 parser.add_argument("-fasta",nargs='+',help="genome fasta file")
 parser.add_argument("-gff", nargs='+', help="gff file")
-parser.add_argument("-f", "--gene_feature", nargs='+', help="gene feature defined int the 3rd column of gff file")
+parser.add_argument("-f", "--gene_feature", nargs='+', help="gene feature defined in the 3rd column of the gff file")
 parser.add_argument("-a", "--gene_attribute", help="gene attribute")
 parser.add_argument("-o", help="output file name")
 
@@ -65,7 +65,7 @@ args = parser.parse_args()
 #Format features when multiple options are parsed 
 gene_features = [feature.replace('[' , '').replace(']','').replace(',','') for feature in args.gene_feature ]
 #Create empty dict.
-fasta_records_dict =  dict()
+fasta_records_dict = dict()
 #Add fasta into dict.
 for fasta_file in  args.fasta:
         fasta_records_dict.update(SeqIO.to_dict(SeqIO.parse(fasta_file, 'fasta')))
