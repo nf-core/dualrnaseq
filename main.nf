@@ -803,7 +803,7 @@ process combine_pathogen_host_fasta_genome {
 }
 
 
-if(params.run_htseq_uniquely_mapped | params.run_star) {
+if(params.run_htseq_uniquely_mapped) {
 
 	/*
 	 * combine host genome and tRNA gff files

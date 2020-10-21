@@ -7,9 +7,20 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 * [FastQC](#fastqc)
 * [Trimming reads](#trimming-reads)
 * [Mapping/Quantification](#mappingquantification)
+   * [Salmon selective alignment](#-A-Salmon-selective-alignment)
+   * [STAR + Salmon - alignment based](#-B-STAR-+-Salmon---alignment-based)
+   * [STAR + HTSeq](#C-STAR-+-HTSeq)
 * [MultiQC](#multiqc)
+* [References](#References)
+   * [Salmon Selective Alignment references](#Salmon-Selective-Alignment-references:)
+   * [Salmon-Alignment-based-mode-references](#Salmon-Alignment-based-mode-references:)
+   * [STAR and HTSeq references](#STAR-and-HTSeq-references:)
+* [Mapping statistics](#Mapping-statistics)
+   * [STAR](###STAR:-results/STAR)
+   * [HTSeq](###HTSeq:-results/HTSeq)
+   * [Salmon](###Salmon:-results/salmon)
+   * [Salmon alignment based](###Salmon-alignment-based:-results/salmon_alignment_based)
 * [Pipeline info](#pipeline-info)
-* [Mapping statistics](#mapping-statistics)
 
 ## FastQC
 
@@ -71,7 +82,7 @@ Contents:
 * `index`
   * All files produced by STAR in the indexing phase.
 * subfolders named as samples.
-  * All files produced by STAR in the alignment step including `sample_Aligned.sample_toTranscriptome.out.bam`. See `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf).
+  * Files produced by STAR in the alignment step. The bam file generated in this mapping mode `sample_Aligned.sample_toTranscriptome.out.bam` contains alignments translated into transcript coordinates. See `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 **Output directory:** `results/salmon_alignment_mode`
 
@@ -87,7 +98,7 @@ Contents:
 * `host_combined_gene_level.tsv`
   * Host gene-level estimates obtained using tximport.
 * `host_combined_quant_gene_level_annotations.tsv`
-  * Tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
+  * Tab delimited file containing host gene-level estimates and annotations extracted from gff file including gene id, gene_name and	gene_type.
 
 ### C) STAR + HTSeq
 
@@ -98,8 +109,8 @@ Contents:
   * All files produced by STAR in the indexing phase.
 * subfolders named as samples.
   * All files produced by STAR in the alignment step.
-* `multimapped_reads`.
-  * This folder contains both `sample_cross_mapped_reads.txt` file with list of cross-mapped reads between host and pathogen and `sample_no_crossmapped.bam` file with alignment without cross-mapped reads. 
+* `multimapped_reads`
+  * This folder contains both `sample_cross_mapped_reads.txt` file with a list of cross-mapped reads between host and pathogen and `sample_no_crossmapped.bam` files with alignment without cross-mapped reads. 
 
 **Output directory:** `results/HTSeq`
 
@@ -109,19 +120,19 @@ Contents:
 * `quantification_results_uniquely_mapped.tsv` 
   * Tab delimited file containing combined quantification results of all samples processed by the pipeline. 
 * `quantification_results_uniquely_mapped_NumReads_TPM.tsv` 
-  * Tab delimited file containing HTSeq quantification results and TPM values estimated for each gene in each sample.
+  * Tab delimited file containing HTSeq quantification results and TPM values estimated for each gene in each sample. To calculate TPM values, the length of genes was estimated based on gff annotation.
 * `quantification_stats_uniquely_mapped.tsv` 
-  * Satistics extracted from HTSeq quantification results.
+  * Statistics extracted from HTSeq quantification results.
 * `host_quantification_uniquely_mapped_htseq.tsv` and `pathogen_quantification_uniquely_mapped_htseq.tsv`
-  * tab delimited files containing combined quantification results for either host or pathogen from all samples.
+  * Tab delimited files containing combined quantification results for either host or pathogen from all samples.
 * `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
-  * tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including gene_id, gene_name, gene_type and gene length.
+  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including gene_id, gene_name, gene_type and gene length.
 
 ## MultiQC
 
 [MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project.
 
-Most of the pipeline QC results are visualised in the report and further statistics are available in within the report data directory.
+Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
 
 The pipeline has special steps which allow the software versions used to be reported in the MultiQC output for future traceability.
 
@@ -139,23 +150,25 @@ For more information about how to use MultiQC reports, see [http://multiqc.info]
 
 ## References
 
-The pipeline creats chimeric references of the pathogen and host, and here you can find the references used for the mapping, quantification and collecting statistics. 
+The pipeline creates chimeric references of the pathogen and host, and here you can find references used for the mapping, quantification and collecting statistics. 
 
 Contents:
 
 **Salmon Selective Alignment references:** 
 * `host_pathogen.fasta`: 
-  * Chimeric genome fasta file used as a decoy sequence in Selective Alignment algorithm
+  * Chimeric genome fasta file used as a decoy sequence in Salmon with Selective Alignment. 
 You can find more information about the Selective Alignment algorithm in [salmon documentation](https://salmon.readthedocs.io/en/latest/salmon.html#salmon). 
-* `gentrome.fasta`
 * `decoys.txt`
+  * List of decoy sequences generated by Salmon
 * `*_parent_attribute.gff3`: 
-  * Host or pathogen gff file containing 'parent' insted of gene attribute defined by `--gene_attribute_gff_to_create_transcriptome_host` or `--gene_attribute_gff_to_create_transcriptome_pathogen`, respectivly.
+  * Host or pathogen gff file containing 'parent' insted of gene attribute defined by `--gene_attribute_gff_to_create_transcriptome_host` or `--gene_attribute_gff_to_create_transcriptome_pathogen`, respectively.
   These files are used to extract annotations for each transcript.
 * `*_transcriptome.fasta`
   * Either host or pathogen transcriptome fasta file created by the pipeline.
 * `host_pathogen_transcriptome.fasta`
   * Merged host and pathogen transcriptomes. 
+* `gentrome.fasta`
+  * Merged decoy sequences and transcriptome. File is generated by Salmon.
 * `host_gff_annotations_annotations_salmon.tsv` and `pathogen_gff_annotations_parent_salmon.tsv`
   * Annotations extracted from gff files for host or pathogen transcripts, respectively.
 * `*_parent_attribute_quant_feature_salmon_alignment.gff3`
@@ -163,10 +176,9 @@ You can find more information about the Selective Alignment algorithm in [salmon
 
 **Salmon Alignment-based mode references:** 
 * `host_pathogen.fasta`: 
-  * Chimeric genome fasta file used as a decoy sequence in Selective Alignment algorithm
-You can find more information about the Selective Alignment algorithm in [salmon documentation](https://salmon.readthedocs.io/en/latest/salmon.html#salmon). 
+  * Chimeric genome fasta file used for read alignment with STAR.
 * `*_parent_attribute.gff3`: 
-  * Host or pathogen gff file containing 'parent' insted of gene attribute defined by `--gene_attribute_gff_to_create_transcriptome_host` or `--gene_attribute_gff_to_create_transcriptome_pathogen`, respectivly.
+  * Host or pathogen gff file containing 'parent' insted of gene attribute defined by `--gene_attribute_gff_to_create_transcriptome_host` or `--gene_attribute_gff_to_create_transcriptome_pathogen`, respectively.
   These files are used to extract annotations for each transcript.
 * `*_transcriptome.fasta`
   * Either host or pathogen transcriptome fasta file created by the pipeline.
@@ -177,7 +189,7 @@ You can find more information about the Selective Alignment algorithm in [salmon
 * `*_parent_attribute_quant_feature_salmon_alignment.gff3`
   * Host gff file containing 'parent' in place of genome attribute defined with  `--gene_attribute_gff_to_create_transcriptome_host` and `quant` replacing  gene features defined by `--gene_feature_gff_to_create_transcriptome_host`.  The file is used to extract annotations for each transcript.
 * `reference_host_names.txt` and `reference_pathogen_names.txt`
-  * List of either host or pathogen reference names defined in the 1st column of gff file. Files are used to identify uniqly mapped, cross-mapped and multi-mapped reads in alignments generated by Star. 
+  * List of either host or pathogen reference names defined in the 1st column of gff file. Files are used to identify uniquely mapped, cross-mapped and multi-mapped reads in alignments generated by Star. 
 
 **STAR and HTSeq references:** 
 * `host_pathogen.fasta`: 
@@ -185,13 +197,13 @@ You can find more information about the Selective Alignment algorithm in [salmon
 * `*_quant_feature.gff3`:
   * Either host or pathogen gff file containing `quant` in place of gene features defined by `--gene_feature_gff_to_quantify_host` or `--gene_feature_gff_to_quantify_pathogen`, respectively. 
 * `*_quant_feature_new_attribute.gff3`
-  * Pathogen gff file containing `quant` as gene feature and host gene attribute defined by `--host_gff_atribute` in place of pathogen attribute defined by `--pathogen_gff_atribute`. 
+  * Pathogen gff file containing `quant` as gene feature and host gene attribute defined by `--host_gff_atribute` in place of pathogen attribute specified with `--pathogen_gff_atribute`. 
 * `host_pathogen_htseq.gff`
   * Chimeric gff file used for quantification.
 * `*_htseq.tsv`
   * Annotations extracted from gff files for host or pathogen genes.
 * `reference_host_names.txt` and `reference_pathogen_names.txt`
-  * List either host or pathogen reference names defined in the 1st column of gff file. Files are used to identify uniqly mapped, cross-mapped and multi-mapped reads in alignments generated by Star.   
+  * List either host or pathogen reference names defined in the 1st column of gff file. Files are used to identify uniquely mapped, cross-mapped and multi-mapped reads in alignments generated by Star.   
 
 
 ## Mapping statistics
@@ -203,9 +215,9 @@ In general, files and images within these folders show the number of reads, mapp
 
 Contents:
 
- **STAR:** `results/STAR`
+### STAR: `results/mapping_statistics/STAR`
 * `star_mapping_stats.tsv`
-   * Tab delimited file containg mapping statistics collected from all samples.
+   * Tab delimited file containing mapping statistics collected from all samples.
 * `mapping_stats_samples_total_reads.tsv`
   * Set of mapping and quantification statistics extracted from `star_mapping_stats.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf` 
@@ -219,15 +231,15 @@ Contents:
 
   ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_star.png)
   
-**HTSeq:** `results/HTSeq`
+### HTSeq: `results/mapping_statistics/HTSeq`
 
 * `scatter_plots`
-  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
+  * Scatter plots showing correlations between TPM values of replicates within the same condition. The Pearson correlation coefficient is calculated using untransformed data. 
 
   ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png)
   ![scatter_plot_host](images/scatter_plot_host_HTseq.png)
 * `htseq_uniquely_mapped_reads_stats.tsv`
-   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
+   * Collection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
 * `mapping_stats_samples_total_reads.tsv`
   * Set of mapping and quantification statistics extracted from `htseq_uniquely_mapped_reads_stats.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
@@ -259,7 +271,7 @@ Contents:
   * `host_RNA_classes_percentage_htseq.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_htseq.tsv` table expressed in percentage.
   * `host_gene_types_groups_gene.tsv`
-    * Tab delimited file containing list of host genes including gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+    * Tab delimited file containing list of host genes including gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results. 
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_htseq.tsv` table. 
 
@@ -269,14 +281,14 @@ Contents:
 
     ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_htseq.png)
 
-**Salmon:** `results/salmon`
+### Salmon: `results/mapping_statistics/salmon`
 * `scatter_plots`
-  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
+  * Scatter plots showing correlations between TPM values of replicates within the same condition. The Pearson correlation coefficient is calculated using untransformed data. 
 
   ![scatter_plot_pathogen](images/scatter_plot_pathogen_salmon.png)
   ![scatter_plot_host](images/scatter_plot_host_salmon.png)
 * `salmon_host_pathogen_total_reads.tsv`
-   * Tab delimited file containg mapping statistics collected from all samples.
+   * Tab delimited file containing mapping statistics collected from all samples.
 * `mapping_stats_samples_total_reads.tsv`
   * Set of mapping and quantification statistics extracted from `salmon_host_pathogen_total_reads.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
@@ -308,7 +320,7 @@ Contents:
   * `host_RNA_classes_percentage_salmon.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_salmonhead.tsv` table expressed in percentage.
   * `host_gene_types_groups_transcript.tsv`
-    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results. 
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table. 
 
@@ -318,14 +330,14 @@ Contents:
 
     ![RNA_class_stats_sample_host](images/RNA_class_stats_sample_host_salmon.png)
 
- **Salmon alignment based:** `results/salmon_alignment_based`
+### Salmon alignment based: `results/mapping_statistics/salmon_alignment_based`
  * `scatter_plots`
-  * Scatter plots showing correlations between TPM values of replicates within the same conditions. The pearson correlation coefficient is calculated using untransformed data. 
+  * Scatter plots showing correlations between TPM values of replicates within the same condition. The Pearson correlation coefficient is calculated using untransformed data. 
 
   ![scatter_plot_pathogen](images/scatter_plot_pathogen_salmon_al.png)
   ![scatter_plot_host](images/scatter_plot_host_salmon_al.png)
 * `salmon_alignment_host_pathogen_total_reads.tsv`
-   * Colection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen transcriptome using STAR, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
+   * Collection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen transcriptome using STAR, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
 * `mapping_stats_samples_total_reads.tsv`
   * Set of mapping and quantification statistics extracted from `salmon_alignment_host_pathogen_total_reads.tsv` table used to create `mapping_stats_samples_total_reads.pdf` plot. 
 * `mapping_stats_samples_total_reads.pdf`
@@ -357,7 +369,7 @@ Contents:
   * `host_RNA_classes_percentage_salmon.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_salmon.tsv` table expressed in percentage.
   * `host_gene_types_groups_transcript.tsv`
-    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene type assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md). This table is created only for examination of results. 
+    * Tab delimited file containing list of host transcripts including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results. 
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table. 
 

@@ -3,14 +3,131 @@
 ## Table of contents
 
 1. [Nextflow](#1-nextflow)
+   * [Core parameters](#-Core-parameters)
+        * [`-name`](#-name)
+        * [`-resume`](#-resume)
+        * [`-c`](#-c)
+   * [Pipeline resources](#-Pipeline-resources)
+        * [`--max_memory`](#--max_memory-128.GB)
+        * [`--max_time`](#--max_time-240.h)
+        * [`--max_cpus`](#--max_cpus-16)
+   * [Results directory](#-Results-directory)
+        * [`--outdir`](#--outdir)
+   * [Custom configuration](#-Custom-configuration)
+        * [`--custom_config_version`](#--custom_config_version)
 2. [Genome references and annotation](#2-genome-references-and-annotation)
+   * [Genomes](#-Genomes)
+        * [`--fasta_host`](#--fasta_host)
+        * [`--fasta_pathogen`](#--fasta_pathogen)
+   * [References](#-References)
+        * [`--gff_host`](#--gff_host)
+        * [`--gff_host_tRNA`](#--gff_host_tRNA)
+        * [`--gff_pathogen`](#--gff_pathogen)
+   * [Transcriptome](#-Transcriptome)
+        * [`--read_transcriptome_fasta_host_from_file`](#--read_transcriptome_fasta_host_from_file)
+        * [`--read_transcriptome_fasta_pathogen_from_file`](#--read_transcriptome_fasta_pathogen_from_file)
+        * [`--transcriptome_host`](#--transcriptome_host)            
+        * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
 3. [Input sequence reads](#3-input-sequence-reads)
+    * [`--reads`](#--reads)
 4. [FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
+   * [FastQC](#-FastQC)
+        * [`--skipFastqc`](#--skipFastqc)
+        * [`--fastqc_params`](#--fastqc_params-"--param_a-4---param_b-5--param_x")        
+   * [Adapter trimming](#-Adapter-trimming)
+        * [Cutadapt](#-Cutadapt)
+            * [`--run_cutadapt`](#--run_cutadapt)
+            * [`--a`](#--a-"AGATCGGAAGAGCACACGTCTGAACTCCAGTCA")
+            * [`--A`](#--A-"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT")
+            * [`--quality_cutoff`](#--quality_cutoff-10-or---quality-cutoff-10,15)
+            * [`--cutadapt_params`](#--cutadapt_params-"--param_a-4---param_b-5--param_x")
+        * [BBDuk](#-BBDuk)
+            * [`--run_bbduk`](#--run_bbduk)
+            * [`--minlen`](#--minlen-18)
+            * [`--qtrim`](#--qtrim-"r")
+            * [`--trimq`](#--trimq-10)
+            * [`--ktrim`](#--ktrim-"r")
+            * [`--k`](#--k-17)
+            * [`--mink`](#--mink-11)
+            * [`--hdist`](#--hdist-1)
+            * [`--adapters`](#--adapters)
+            * [`--BBDuk_params`](#--BBDuk_params "--param_a 4 --param_b 5 -param_x")
 5. [Salmon](#5-salmon)
+   * [General parameters](#-General-parameters)
+        * [`--libtype`](#--libtype-SF)
+        * [`--incompatPrior`](#--incompatPrior-0.0)
+        * [`--generate_salmon_uniq_ambig`](#--generate_salmon_uniq_ambig)
+        * [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host-"[exon,-tRNA]")
+        * [`--gene_feature_gff_to_create_transcriptome_pathogen`](#--gene_feature_gff_to_create_transcriptome_pathogen-"[gene,-sRNA,-tRNA,-rRNA]")
+        * [`--gene_attribute_gff_to_create_transcriptome_host`](#--gene_attribute_gff_to_create_transcriptome_host-"transcript_id")
+        * [`--gene_attribute_gff_to_create_transcriptome_pathogen`](#--gene_attribute_gff_to_create_transcriptome_pathogen-"locus_tag")
+   * [Salmon Selective Alignment](#-Salmon-Selective-Alignment)
+        * [`--run_salmon_selective_alignment`](#--run_salmon_selective_alignment)
+        * [`--kmer_length`](#--kmer_length-21)
+        * [`--writeUnmappedNames`](#--writeUnmappedNames)
+        * [`--softclipOverhangs`](#--softclipOverhangs)
+        * [`--dumpEq`](#--dumpEq)
+        * [`--writeMappings`](#--writeMappings)
+        * [`--keepDuplicates`](#--keepDuplicates)
+        * [`--salmon_SA_params_indexcates`](#--salmon_SA_params_index-"--param_a-4---param_b-5--param_x")
+        * [`--salmon_SA_params_mapping`](#--salmon_SA_params_mapping-"--param_a-4---param_b-5--param_x")
+   * [Salmon alignment based mode](#-Salmon-alignment-based-mode)
+        * [`--run_salmon_alignment_based_mode`](#--run_salmon_alignment_based_mode)
+        * [`--salmon_alignment_based_params`](#--salmon_alignment_based_params-"--param_a-4---param_b-5--param_x")
 6. [STAR](#6-star)
+   * [General parameters](#)
+        * [`--run_star`](#--run_star)
+        * [`--outSAMunmapped`](#--outSAMunmapped-"Within")
+        * [`--outSAMattributes`](#--outSAMattributes-"Standard")
+        * [`--outFilterMultimapNmax`](#-outFilterMultimapNmax-999)
+        * [`--outFilterType`](#-outFilterType-"BySJout")
+        * [`--alignSJoverhangMin`](#--alignSJoverhangMin-8)
+        * [`--alignSJDBoverhangMin`](#--alignSJDBoverhangMin-1)
+        * [`--outFilterMismatchNmax`](#--outFilterMismatchNmax-999)
+        * [`--outFilterMismatchNoverReadLmax`](#--outFilterMismatchNoverReadLmax-1)
+        * [`--alignIntronMin`](#--alignIntronMin-20)
+        * [`--alignIntronMax`](#--alignIntronMax-1000000)
+        * [`--alignMatesGapMax`](#--alignMatesGapMax-1000000)
+        * [`--limitBAMsortRAM`](#--limitBAMsortRAM-0)
+        * [`--winAnchorMultimapNmax`](#--winAnchorMultimapNmax-999)
+        * [`--sjdbOverhang`](#--sjdbOverhang-100)
+   * [STAR for HTSeq](#STAR-for-HTSeq)
+        * [`--outWigType`](#--outWigType-"None")
+        * [`--outWigStrand`](#--outWigStrand-"Stranded")
+        * [`--STAR_index_params`](#--STAR_index_params-"--param_a-4---param_b-5--param_x")
+        * [`--STAR_alignment_params`](#--STAR_alignment_params-"--param_a-4---param_b-5--param_x")
+   * [STAR for Salmon alignment-based mode](#STAR-for-Salmon-alignment-based-mode)
+        * [`--quantTranscriptomeBan`](#--quantTranscriptomeBan-"Singleend")
+        * [`--STAR_salmon_alignment_params`](#--STAR_salmon_alignment_params-"--param_a-4---param_b-5--param_x")
 7. [HTSeq](#7-htseq)
+   * [Parameters](#Parameters)
+        * [`--run_htseq_uniquely_mapped`](#--run_htseq_uniquely_mapped)
+        * [`--stranded`](#--stranded-"yes")
+        * [`--max_reads_in_buffer`](#--max_reads_in_buffer-30000000)
+        * [`--minaqual`](#--minaqual-10)
+        * [`--htseq_params`](#--htseq_params-"--param_a-4---param_b-5-param_x")
+   * [Gene features and attributes](#Gene-features-and-attributes)
+        * [`Host`](#Host)
+            * [`--gene_feature_gff_to_quantify_host`](#--gene_feature_gff_to_quantify_host-"[exon,-tRNA]")
+            * [`--host_gff_attribute`](#--host_gff_attribute-"gene_id")
+        * [`Pathogen`](#Pathogen)
+            * [`--gene_feature_gff_to_quantify_pathogen`](#--gene_feature_gff_to_quantify_pathogen-"[gene,-sRNA,-tRNA,-rRNA]")
+            * [`--pathogen_gff_attribute`](#--pathogen_gff_attribute-"locus_tag")      
 8. [RNA mapping statistics](#8-rna-mapping-statistics)
+    * [`--mapping_statistics`](#--mapping_statistics)
+    * [`--RNA_classes_to_replace_host`](#--RNA_classes_to_replace_host-"$baseDir/data/RNA_classes_to_replace.csv")
 9. [Other](#9-other)
+   * [Reports](#Reports)
+        * [`--email`](#--email)
+        * [`--email_on_fail`](#--email_on_fail)
+        * [`--max_multiqc_email_size`](#--max_multiqc_email_size-25.MB)
+        * [`--plaintext_email`](#--plaintext_email)
+        * [`--monochrome_logs`](#--monochrome_logs)
+        * [`--multiqc_config`](#--multiqc_config)
+   * [AWS Batch specific parameters](#ReporAWS-Batch-specific-parametersts)
+        * [`--awsqueue`](#--awsqueue)
+        * [`--awsregion`](#--awsregion)
+        * [`--awscli`](#--awscli)
 
 ### General comment
 
@@ -55,7 +172,7 @@ Use to set the max run time for each process.
 
 Use to set the max number of CPUs for each process.
 
-### Reslts directory
+### Results directory
 
 #### `--outdir`
 
@@ -159,7 +276,7 @@ This is set to False within the configuration files, but only needs to be passed
 
 #### `--fastqc_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional fastqc parameters you wish to use, except --quiet --threads --noextract flags which are already specified in the dualrnaseq pipeline.
+Define a set of additional fastqc parameters you wish to use, except --quiet --threads --noextract flags which are already specified in the dualrnaseq pipeline.
 
 ### Adapter trimming
 
@@ -179,7 +296,7 @@ To run Cutadapt (Default: False)
 
 #### `--a "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"`
 
-For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with `--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types)
+For single-end reads as well as the first reads of paired-end data, adapter sequence can be specified with the`--a` flag. For more information, see [`adapter-types.`](https://cutadapt.readthedocs.io/en/stable/guide.html#adapter-types)
 
 #### `--A "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"`
 
@@ -193,7 +310,7 @@ If you specify two comma-separated cutoffs, the first value represents the 5’ 
 
 #### `--cutadapt_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional cutadapt parameters you wish to use, except -m and -j which are already specified in the dualrnaseq pipeline.
+Define a set of additional cutadapt parameters you wish to use, except -m and -j which are already specified in the dualrnaseq pipeline.
 
 ### BBDuk
 
@@ -219,7 +336,7 @@ Possible options:`rl` (trim both ends), `f` (neither end), `r` (right end only) 
 
 Cutoff to trim regions with average quality BELOW given value.
 
-Option is avaiable if qtrim is set to something other than f. Reads shorter than this after trimming will be discarded (Pairs will be discarded if both are shorter).
+Option is available if qtrim is set to something other than f. Reads shorter than this after trimming will be discarded (Pairs will be discarded if both are shorter).
 
 #### `--ktrim "r"`
 
@@ -243,7 +360,7 @@ Fasta file with adapter sequences (Default: `$baseDir/data/adapters.fa`).
 
 #### `--BBDuk_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional BBDuk parameters you wish to use, except -Xmx1g which is already specified in the dualrnaseq pipeline.
+Define a set of additional BBDuk parameters you wish to use, except -Xmx1g which is already specified in the dualrnaseq pipeline.
 
 ## 5. Salmon
 
@@ -263,7 +380,7 @@ By default, this is set to `0.0`, to ensure that only mappings or alignments tha
 
 #### `--generate_salmon_uniq_ambig`
 
-Option to extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes (Default: False).
+Option to extract all of the unique and ambiguous reads after quantification. Works for both Selective alignment and alignment-based modes (Default: False).
 
 #### `--gene_feature_gff_to_create_transcriptome_host "[exon, tRNA]"`
 
@@ -311,7 +428,7 @@ By default the pipeline does not save names of unmapped reads. You can learn mor
 By default, the pipeline does not allow soft-clipping of reads (Default: False).
 
 _"Soft-clipping allows reads that overhang the beginning or ends of the transcript. In this case, the overhanging section of the read will simply be unaligned, and will not contribute or detract from the alignment score"_.
-If it is set to `False`, the end-to-end alignment of the entire read is forced, so that the occurance of any overhangings may affect the alignment score.
+If it is set to `False`, the end-to-end alignment of the entire read is forced, so that the occurrence of any overhangings may affect the alignment score.
 
 #### `--dumpEq`
 
@@ -330,11 +447,11 @@ Option to remove/collapse identical transcripts during the indexing stage (Defau
 
 #### `--salmon_SA_params_index "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional salmon index parameters you wish to use in selective alignment mode.
+Define a set of additional salmon index parameters you wish to use in selective alignment mode.
 
 #### `--salmon_SA_params_mapping "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional salmon quant parameters you wish to use.
+Define a set of additional salmon quant parameters you wish to use.
 
 ### Salmon alignment based mode
 
@@ -344,7 +461,7 @@ Option to run Salmon in alignment-based mode (Default: False).
 
 #### `--salmon_alignment_based_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional salmon quant parameters you wish to use in salmon alignment-based mode.
+Define a set of additional salmon quant parameters you wish to use in salmon alignment-based mode.
 
 ## 6. STAR
 
@@ -366,7 +483,7 @@ For paired-end reads, the `KeepPairs` parameter will record the unmapped mates f
 
 To specify the attributes of the output BAM file. The default value is `Standard`, but there are a range of options if needed. Please see the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for the full list.
 
-By default, the pipeline uses `Standard` option to keep NH HI AS nM SAM attributes.
+By default, the pipeline uses the `Standard` option to keep NH HI AS nM SAM attributes.
 
 #### `--outFilterMultimapNmax 999`
 
@@ -416,7 +533,7 @@ The maximum number of loci anchors that are allowed to map. By default, the pipe
 
 #### `--sjdbOverhang 100`
 
-Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to `100`. However, we recommend to set a value depending on the read length: read/mate length - 1.
+Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to `100`. However, we recommend setting a value depending on the read length: read/mate length - 1.
 
 ### STAR for HTSeq
 
@@ -434,21 +551,21 @@ Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/
 
 #### `--STAR_index_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional star parameters to create index.
+Define a set of additional star parameters to create an index.
 
 #### `--STAR_alignment_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional star alignment parameters.
+Define a set of additional star alignment parameters.
 
 ### STAR for Salmon alignment-based mode
 
 #### `--quantTranscriptomeBan "Singleend"`
 
-The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+The nf-core/dualrnaseq pipeline runs STAR to generate transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--STAR_salmon_alignment_params "--param_a 4 --param_b 5 -param_x"`
 
-Define set of additional alignment parameters for STAR in salmon alignment-based mode.
+Define a set of additional alignment parameters for STAR in salmon alignment-based mode.
 
 ## 7. HTSeq
 
@@ -471,29 +588,29 @@ Option to define the number of maximum reads allowed to stay in memory until the
 To specify a threshold for a minimal MAPQ alignment quality.
 By default, this parameter is set to 10.
 
+#### `--htseq_params "--param_a 4 --param_b 5 -param_x"`
+
+Define a set of additional htseq parameters you wish to use in the pipeline.
+
 ### Gene features and attributes
 
 The four parameters below are used to extract gene features from both the host and pathogen. These values may need to be changed, especially for the pathogen, as many different names exist, such as `ID`, `Gene`, `Name`, `locus_tag` etc.
 
 A good idea is to view the accompanying annotative file and examine the fields within.
 
-> Note: If a `tRNA.gff` file is included, it is assumed that it has the same gene atribute as the annotative (gff) file, i.e. `gene_id`
+> Note: If a `tRNA.gff` file is included, it is assumed that it has the same gene attribute as the annotative (gff) file, i.e. `gene_id`
 
 #### Host
 
 #### `--gene_feature_gff_to_quantify_host "[exon, tRNA]"`
 
-#### `--host_gff_atribute "gene_id"`
+#### `--host_gff_attribute "gene_id"`
 
 #### Pathogen
 
 #### `--gene_feature_gff_to_quantify_pathogen "[gene, sRNA, tRNA, rRNA]"`
 
-#### `--pathogen_gff_atribute "locus_tag"`
-
-#### `--htseq_params "--param_a 4 --param_b 5 -param_x"`
-
-Define set of additional htseq parameters you wish to use in the pipeline.
+#### `--pathogen_gff_attribute "locus_tag"`
 
 ## 8. RNA mapping statistics
 

@@ -46,7 +46,7 @@ iv. Start running your own analysis!
 nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
 ```
 
-See [parameters docs](docs/parameters.md) for all of the available parameters when running the pipeline.
+See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
 
 ### 1.2 Basic run
 
@@ -102,7 +102,7 @@ Note that multiple profiles can be loaded, for example: `-profile test,docker` (
 
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
-The nf-core/dualrnaseq pipeline contains Docker, Singluarity, Conda and test configuration profiles:
+The nf-core/dualrnaseq pipeline contains Docker, Singularity, Conda and test configuration profiles:
 
 * `docker`
   * A generic configuration profile to be used with [Docker](http://docker.com/)
@@ -173,7 +173,7 @@ These parameters can be used in two ways:
 
 You can create your own configuration file with sets of reference files and save it here: `...conf/genomes.config`
 
-> See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for instructions.
+> See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) and [Reference genomes](https://nf-co.re/usage/reference_genomes) for instructions.
 
 The syntax for this reference configuration would be the following:
 
@@ -251,7 +251,7 @@ Pathogen:
 
 ##### Host tRNA
 
-We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
+We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non-coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
 
 ##### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes
 
@@ -300,11 +300,11 @@ Two software options are provided to remove low quality reads and adapters:
 
 ### 5.1 Cutadapt
 
-Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are setup to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end). For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
+Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are set up to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end). For the full list of parameters, click [here](parameters.md#-Cutadapt)
 
 ### 5.2 BBDuk
 
-The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file contained with the pipeline (`$baseDir/data/adapters.fa`) which contains common adapter types, from which BBDuk will search through and remove. This is extremly useful when analysing data from publicic repositories when minimal background has been given. For the full list of parameters, click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md)
+The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file contained with the pipeline (`$baseDir/data/adapters.fa`) which contains common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
 
 ## 6. Read mapping and quantification
 
@@ -312,39 +312,49 @@ The nf-core/dualrnaseq pipeline provides three strategies to map and quantify yo
 
 1) The first approach **Salmon with Selective alignment**, performs mapping using the Selective alignment algorithm which quantifies the reads. `--run_salmon_selective_alignment`
 
-2) The second approach **Salmon with alignment-based mode**, utalises aligned reads from STAR to quantify input reads. `--run_salmon_alignment_based_mode`
+2) The second approach **Salmon with alignment-based mode**, utilizes aligned reads from STAR to quantify input reads. `--run_salmon_alignment_based_mode`
 
 3) The third strategy utilises alignment-based mapping executed with **STAR**, counting uniquely aligned reads with **HTSeq**. `--run_star` and `--run_htseq_uniquely_mapped`
 
 ### 6.1 Salmon - selective alignment
 
-Salmon is a transcriptome-based mapping tool that performes both mapping and quantification. In the first phase it performes indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
-To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotatated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
+Salmon is a transcriptome-based mapping tool that performs both mapping and quantification. In the first phase it performs indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
+To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
 
-> Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the the longest exact match - which increases accuracy. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
+> Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the longest exact match - which increases accuracy. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
+
+To summarize transcript-level estimates obtained with Salmon into gene-level abundance estimates, the nf-core/dualrnaseq pipeline uses [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
+
 
 ### 6.2 Salmon - quantification in alignment-based mode
 
 In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
-> Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md).
+> Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](parameters.md).
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome (fasta) and annotative (gff) files.
 > When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
 
-### 6.3 STAR - alignment-based genome mapping
+Gene-level estimates are obtained using [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
 
-STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions. Therefore, the paths to host and pathogen genomes and annotative files must be provided either through iGenomes, or directly using the appropriate parameters:  `--genome_host`, `--genome_pathogen`, `--gff_host` and `--gff_pathogen`.
+### 6.3 STAR - alignment-based genome mapping + quantification with HTSeq
+
+STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions. 
+Therefore, the paths to host and pathogen genomes and host annotative file must be provided using the appropriate parameters: `--genome_host`, `--genome_pathogen` and `--gff_host`.
+
+To quantify uniquely mapped reads the nf-core/dualrnaseq pipeline uses HTSeq. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`. 
 
 ## 7. Mapping statistics
 
-To summarise the mapping statistics including total mapped reads, unmapped reads, host-specifc and pathogen-specific mapped reads, add the following parameter to the command line: `--mapping_statistics`.
+To summarise the mapping statistics including total mapped reads, unmapped reads, host-specific and pathogen-specific mapped reads, add the following parameter to the command line: `--mapping_statistics`.
 
 This will create the following:
 
 * Count the total number of reads before and after trimming
-* Scatterplots comparing all replicates (separate for both host and pathogen reads)
+* Scatterplots comparing all replicates (separate for both host and pathogen genes)
 * Plots of the % of mapped/quantified reads
-* Plots of RNA-class statistics (for more information click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/parameters.md#9-rna-mapping-statistics).
+* Plots of RNA-class statistics (for more information click [here](docs/parameters.md#9-rna-mapping-statistics).
+
+You can check examples of the outputs of this command in [output docs](output.md#mapping-statistics). 
 
 ## 8. Example usage
 
@@ -398,6 +408,8 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 
 * STAR - alignment-based genome mapping
 
+* HTSeq - quantification of uniquely mapped reads
+
  ```bash
 nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 --genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
@@ -432,13 +444,13 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,clus
 
 ## 9. Output files
 
-Click [here](https://github.com/BarquistLab/nf-core-dualrnaseq/blob/master/docs/output.md) for a description on output files.
+Click [here](output.md) for a description on output files.
 
 ## 10. Job resources and submission
 
 Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus, Nextflow processes must run until the pipeline is finished. To achieve this, we recommend running in the background through `screen` / `tmux` or a similar tool. Alternatively, you can run dualrnaseq submitted by your job scheduler on a cluster.
 
-It is also recommended to limit the Nextflow Java virtual machines memory. This can be achieved by adding the following line to your environment (typically in `~/.bashrc` or `~./bash_profile`):
+It is also recommended to limit the Nextflow Java virtual machine memory. This can be achieved by adding the following line to your environment (typically in `~/.bashrc` or `~./bash_profile`):
 
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
