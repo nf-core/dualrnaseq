@@ -468,7 +468,7 @@ if(params.gff_host_tRNA){
 
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; combine_gff_host_genome_htseq; gff_host_star_alignment_gff;gff_host_star_htseq_alignment_gff}
+	    .into { gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; combine_gff_host_genome_htseq; gff_host_star_alignment_gff;gff_host_star_htseq_alignment_gff;genome_gff_star_index;gff_host_star_salmon_alignment_gff}
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
