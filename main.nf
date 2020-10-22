@@ -1930,7 +1930,6 @@ if(params.run_salmon_selective_alignment) {
 
 	process split_quantification_tables_salmon {
 	    publishDir "${params.outdir}/salmon", mode: 'copy'
-	    storeDir "${params.outdir}/salmon"
             tag "split_quant_table_salmon"
 
             label 'process_high'
@@ -1949,10 +1948,14 @@ if(params.run_salmon_selective_alignment) {
             file 'pathogen_quant_salmon.tsv' into quant_pathogen_add_annotations
             file 'host_quant_salmon.tsv' into quant_scatter_plot_host
             file 'pathogen_quant_salmon.tsv' into quant_scatter_plot_pathogen
+	    env pathonen_tab into pathonen_tab into scatterplots_pathogen_salmon
+	    env host_tab into host_tab into scatterplots_host_salmon
 
             script:
             """
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "quant_salmon.tsv"
+            pathonen_tab=\$(if [ \$(cat pathogen_quant_salmon.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
+            host_tab=\$(if [ \$(cat host_quant_salmon.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
             """
         }
 
@@ -2102,12 +2105,14 @@ if(params.run_salmon_selective_alignment) {
 		    file quant_table from quant_scatter_plot_pathogen
 		    val attribute from atr_scatter_plot_pathogen
 		    val replicates from repl_scatter_plots_salmon_pathogen
+		    val pathogen_table_non_empty from scatterplots_pathogen_salmon 
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    pathogen_table_non_empty.toBoolean()
 
 		    script:
 		    """
@@ -2131,12 +2136,14 @@ if(params.run_salmon_selective_alignment) {
 		    file quant_table from quant_scatter_plot_host
 		    val attribute from atr_scatter_plot_host
 		    val replicates from repl_scatter_plots_salmon_host
+		    val host_table_non_empty from scatterplots_host_salmon 
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    host_table_non_empty.toBoolean()
 
 		    script:
 		    """
@@ -2730,7 +2737,6 @@ if (params.run_salmon_alignment_based_mode){
 
 	process split_quantification_tables_salmon_salmon_alignment_mode {
 	    publishDir "${params.outdir}/salmon_alignment_mode", mode: 'copy'
-	    storeDir "${params.outdir}/salmon_alignment_mode"
 	    tag "split_quantification"
 
 	    label 'process_high'
@@ -2749,10 +2755,14 @@ if (params.run_salmon_alignment_based_mode){
 	    file 'pathogen_quant_salmon.tsv' into quant_pathogen_add_annotations_alignment_based
 	    file 'host_quant_salmon.tsv' into quant_scatter_plot_host_salmon_alignment_based
 	    file 'pathogen_quant_salmon.tsv' into quant_scatter_plot_pathogen_salmon_alignment_based
+	    env pathonen_tab into pathonen_tab into scatterplots_pathogen_salmon_alignment_based
+	    env host_tab into host_tab into scatterplots_host_salmon_alignment_based
 
             script:
             """
             $workflow.projectDir/bin/split_quant_tables_salmon.sh $transcriptome_pathogen $transcriptome_host $quant_table "quant_salmon.tsv"
+            pathonen_tab=\$(if [ \$(cat pathogen_quant_salmon.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
+            host_tab=\$(if [ \$(cat host_quant_salmon.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
             """
 	}
 
@@ -2896,12 +2906,14 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table from quant_scatter_plot_pathogen_salmon_alignment_based
 		    val attribute from atr_scatter_plot_pathogen_alignment
 		    val replicates from repl_scatter_plots_salmon_alignment_pathogen
+		    val pathogen_table_non_empty from scatterplots_pathogen_salmon_alignment_based
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    pathogen_table_non_empty.toBoolean()
 
 		    script:
 		    """
@@ -2925,12 +2937,14 @@ if (params.run_salmon_alignment_based_mode){
 		    file quant_table from quant_scatter_plot_host_salmon_alignment_based
 		    val attribute from atr_scatter_plot_host_alignment
 		    val replicates from repl_scatter_plots_salmon_alignment_host
+		    val host_table_non_empty from scatterplots_host_salmon_alignment_based
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    host_table_non_empty.toBoolean()
 
 		    script:
 		    """
@@ -3698,7 +3712,6 @@ if(params.run_htseq_uniquely_mapped){
 
 	process split_quantification_tables_htseq_uniquely_mapped {
 	    publishDir "${params.outdir}/HTSeq", mode: 'copy'
-	    storeDir "${params.outdir}/HTSeq"
 	    tag "split_quants_uniq_mapped_host"
 
             label 'process_high'
@@ -3719,13 +3732,16 @@ if(params.run_htseq_uniquely_mapped){
 	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into pathogen_htseq_quantification_RNA_stats
 	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_pathogen_add_annotations_htseq_u_m
 	    file 'pathogen_quantification_uniquely_mapped_htseq.tsv' into quant_scatter_plot_pathogen_htseq_u_m
+	    env pathonen_tab into pathonen_tab into scatterplots_pathogen_htseq
+	    env host_tab into host_tab into scatterplots_host_htseq
 
 	    script:
 	    """
 	    $workflow.projectDir/bin/split_quant_tables.sh $quant_table $host_annotations $pathogen_annotations quantification_uniquely_mapped_htseq.tsv
+            pathonen_tab=\$(if [ \$(cat pathogen_quantification_uniquely_mapped_htseq.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
+            host_tab=\$(if [ \$(cat host_quantification_uniquely_mapped_htseq.tsv | wc -l) -gt 1  ]; then echo "true"; else echo "false"; fi)
 	    """
 	}
-
 
 
 	/*
@@ -3797,12 +3813,14 @@ if(params.run_htseq_uniquely_mapped){
 		    file quant_table from quant_scatter_plot_pathogen_htseq_u_m
 		    val attribute from atr_scatter_plot_pathogen_htseq_u_m
 		    val replicates from repl_scatter_plots_htseq_pathogen
+		    val pathogen_table_non_empty from scatterplots_pathogen_htseq
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    pathogen_table_non_empty.toBoolean()
 
 		    script:
 		    """
@@ -3827,12 +3845,14 @@ if(params.run_htseq_uniquely_mapped){
 		    file quant_table from quant_scatter_plot_host_htseq_u_m
 		    val attribute from atr_scatter_plot_host_htseq_u_m
 		    val replicates from repl_scatter_plots_htseq_host
+		    val host_table_non_empty from scatterplots_host_htseq
 
 		    output:
 		    file ('*.pdf')
 
 		    when:
 		    replicates.toBoolean()
+		    host_table_non_empty.toBoolean()
 
 		    script:
 		    """
