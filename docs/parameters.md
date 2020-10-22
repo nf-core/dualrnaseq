@@ -57,8 +57,8 @@
         * [`--libtype`](#--libtype-SF)
         * [`--incompatPrior`](#--incompatPrior-00)
         * [`--generate_salmon_uniq_ambig`](#--generate_salmon_uniq_ambig)
-        * [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host-[exon,-tRNA])
-        * [`--gene_feature_gff_to_create_transcriptome_pathogen`](#--gene_feature_gff_to_create_transcriptome_pathogen-[gene,-sRNA,-tRNA,-rRNA])
+        * [`--gene_feature_gff_to_create_transcriptome_host`](#--gene_feature_gff_to_create_transcriptome_host-exon,-tRNA)
+        * [`--gene_feature_gff_to_create_transcriptome_pathogen`](#--gene_feature_gff_to_create_transcriptome_pathogen-gene,-sRNA,-tRNA,-rRNA)
         * [`--gene_attribute_gff_to_create_transcriptome_host`](#--gene_attribute_gff_to_create_transcriptome_host-transcript_id)
         * [`--gene_attribute_gff_to_create_transcriptome_pathogen`](#--gene_attribute_gff_to_create_transcriptome_pathogen-locus_tag)
    * [Salmon Selective Alignment](#Salmon-Selective-Alignment)
@@ -75,12 +75,12 @@
         * [`--run_salmon_alignment_based_mode`](#--run_salmon_alignment_based_mode)
         * [`--salmon_alignment_based_params`](#--salmon_alignment_based_params---param_a-4---param_b-5--param_x)
 6. [STAR](#6-star)
-   * [General parameters](#)
+   * [General parameters STAR](#General-parameters-STAR)
         * [`--run_star`](#--run_star)
         * [`--outSAMunmapped`](#--outSAMunmapped-Within)
         * [`--outSAMattributes`](#--outSAMattributes-Standard)
-        * [`--outFilterMultimapNmax`](#-outFilterMultimapNmax-999)
-        * [`--outFilterType`](#-outFilterType-BySJout)
+        * [`--outFilterMultimapNmax`](#--outFilterMultimapNmax-999)
+        * [`--outFilterType`](#--outFilterType-BySJout)
         * [`--alignSJoverhangMin`](#--alignSJoverhangMin-8)
         * [`--alignSJDBoverhangMin`](#--alignSJDBoverhangMin-1)
         * [`--outFilterMismatchNmax`](#--outFilterMismatchNmax-999)
@@ -465,7 +465,7 @@ Define a set of additional salmon quant parameters you wish to use in salmon ali
 
 ## 6. STAR
 
-### General parameters
+### General parameters STAR
 
 These parameters are available for STAR in both quantification modes, using HTSeq and Salmon in alignment-based mode.
 
