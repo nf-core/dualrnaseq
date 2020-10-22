@@ -16,10 +16,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
    * [Salmon-Alignment-based-mode-references](#Salmon-Alignment-based-mode-references)
    * [STAR and HTSeq references](#STAR-and-HTSeq-references)
 * [Mapping statistics](#Mapping-statistics)
-   * [STAR](###STAR-results-mapping_statistics-STAR)
-   * [HTSeq](###HTSeq-results-mapping_statistics-HTSeq)
-   * [Salmon](###Salmon-results-mapping_statistics-salmon)
-   * [Salmon alignment based](###Salmon-alignment-based-results-mapping_statistics-salmon_alignment_based)
+   * [STAR](###STAR-resultsmapping_statisticsSTAR)
+   * [HTSeq](###HTSeq-resultsmapping_statisticsHTSeq)
+   * [Salmon](###Salmon-resultsmapping_statisticssalmon)
+   * [Salmon alignment based](###Salmon-alignment-based-resultsmapping_statisticssalmon_alignment_based)
 * [Pipeline info](#pipeline-info)
 
 ## FastQC
