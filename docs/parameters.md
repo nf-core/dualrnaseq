@@ -105,7 +105,7 @@
         * [`--stranded`](#--stranded-yes)
         * [`--max_reads_in_buffer`](#--max_reads_in_buffer-30000000)
         * [`--minaqual`](#--minaqual-10)
-        * [`--htseq_params`](#--htseq_params---param_a-4---param_b-5-param_x)
+        * [`--htseq_params`](#--htseq_params---param_a-4---param_b-5--param_x)
    * [Gene features and attributes](#Gene-features-and-attributes)
         * [`Host`](#Host)
             * [`--gene_feature_gff_to_quantify_host`](#--gene_feature_gff_to_quantify_host-exon-tRNA)
