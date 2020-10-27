@@ -594,7 +594,7 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 
 #### `--stranded "yes"`
 
-A parameter for the library type. Options include `"yes"`, `"no"` or `reverse`.
+A parameter for the library type. Options include `"yes"`, `"no"` or `"reverse"`.
 
 #### `--max_reads_in_buffer 30000000`
 
