@@ -18,7 +18,7 @@
 6. [Read mapping and quantification](#6-read-mapping-and-quantification)
    * [Salmon - Selective alignment](#61-salmon---selective-alignment)
    * [Salmon - quantification in alignment-based mode](#62-salmon---quantification-in-alignment-based-mode)
-   * [STAR - alignment-based genome mapping](#63-star---alignment-based-genome-mapping)
+   * [STAR - alignment-based genome mapping + quantification with HTSeq](#63-star---alignment-based-genome-mapping-+-quantification-with-HTSeq)
 7. [Mapping statistics](#7-mapping-statistics)
 8. [Example usage](#8-example-usage)
 9. [Output files](#9-output-files)
@@ -229,23 +229,23 @@ Host:
 
 `--fasta_host` "path to file"
 
-`--gff_host`
+`--gff_host` "path to file"
 
-`--gff_host_tRNA`
+`--gff_host_tRNA` "path to file"
 
 `--read_transcriptome_fasta_host_from_file`
 
-`--transcriptome_host`
+`--transcriptome_host` "path to file"
 
 Pathogen:
 
-`--fasta_pathogen`
+`--fasta_pathogen` "path to file"
 
-`--gff_pathogen`
+`--gff_pathogen` "path to file"
 
 `--read_transcriptome_fasta_pathogen_from_file`
 
-`--transcriptome_pathogen`
+`--transcriptome_pathogen` "path to file"
 
 > Note: Since many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. We recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
 
@@ -352,7 +352,7 @@ This will create the following:
 * Count the total number of reads before and after trimming
 * Scatterplots comparing all replicates (separate for both host and pathogen genes)
 * Plots of the % of mapped/quantified reads
-* Plots of RNA-class statistics (for more information click [here](docs/parameters.md#9-rna-mapping-statistics).
+* Plots of RNA-class statistics (for more information click [here](docs/parameters.md#9-rna-mapping-statistics)).
 
 You can check examples of the outputs of this command in [output docs](output.md#mapping-statistics). 
 

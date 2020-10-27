@@ -222,14 +222,25 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 
 #### `--fasta_pathogen`
 
+```bash
+--fasta_pathogen "<path to pathogen genome fasta file>"
+```
+
 ### References
 
 #### `--gff_host`
 
+```bash
+--gff_host "<path to host gff file>"
+```
 #### `--gff_host_tRNA`
-
+```bash
+--gff_host_tRNA "<path to host tRNA gff file>"
+```
 #### `--gff_pathogen`
-
+```bash
+--gff_pathogen "<path to pathogen gff file>"
+```
 ### Transcriptome
 
 The first two parameters are set to `False`. If supplying custom transcriptome files, add the appropriate flags below.
@@ -239,8 +250,13 @@ The first two parameters are set to `False`. If supplying custom transcriptome f
 #### `--read_transcriptome_fasta_pathogen_from_file`
 
 #### `--transcriptome_host`
-
+```bash
+--transcriptome_host "<path to host transcriptome fasta file>"
+```
 #### `--transcriptome_pathogen`
+```bash
+--transcriptome_pathogen "<path to pathogen transcriptome fasta file>"
+```
 
 > The above nine parameters are all set as `False`. If specified, the folder/file should be enclosed by quotations `"..."`.
 
@@ -261,6 +277,8 @@ Please note the following requirements:
 * It is not possible to run a mixture of single-end and paired-end files in one run
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
+
+To learn more about best practices for raw fastq file naming, please check `Input sequence reads` section of the [usage.md](docs/usage.md). 
 
 ## 4. FastQC and Adapter trimming
 
@@ -420,7 +438,7 @@ To define the k-mer length (`-k` parameter in Salmon, see [`preparing transcript
 
 #### `--writeUnmappedNames`
 
-By default the pipeline does not save names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you don't want to keep this option, set the `--writeUnmappedNames` flag to False.
+By default the pipeline does not save names of unmapped reads. You can learn more about this option in [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html#writeunmappednames). If you want to keep this option, specify the `--writeUnmappedNames` flag on the command line.
 (Default: False).
 
 #### `--softclipOverhangs`
@@ -442,8 +460,7 @@ If set to `True`, the pipeline will create a `mapping.sam` file containing mappi
 
 #### `--keepDuplicates`
 
-Option to remove/collapse identical transcripts during the indexing stage (Default: False).
-
+By default salmon removes/collapses identical transcripts during the indexing stage. The list of both restored and removed transcripts will be saved in the `duplicate_clusters.tsv` file of the `transcripts_index` folder. If you want to obtain quantification results for all duplicates, please specify this option `--keepDuplicates`. (Default: False).
 
 #### `--salmon_SA_params_index "--param_a 4 --param_b 5 -param_x"`
 
@@ -475,7 +492,7 @@ Option to run STAR (Default: False).
 
 #### `--outSAMunmapped "Within"`
 
-By default, the pipeline saves unmapped reads within the main BAM file. If you want to switch off this option, set the `--outSAMunmapped` flag to `None`.  See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more details.
+By default, the pipeline saves unmapped reads within the main BAM file. If you want to switch off this option, set the `--outSAMunmapped` flag to `None`.  See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more details.
 
 For paired-end reads, the `KeepPairs` parameter will record the unmapped mates for each alignment, and will keep it adjacent to its mapped read (only affects multi-mapping reads).
 
@@ -488,40 +505,40 @@ By default, the pipeline uses the `Standard` option to keep NH HI AS nM SAM attr
 #### `--outFilterMultimapNmax 999`
 
 To specify the maximum number of loci a read is allowed to map to.
-By default, this  option is set to 999 in the pipeline. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+By default, this  option is set to 999 in the pipeline. See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--outFilterType "BySJout"`
 
-By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
+By default, the pipeline keeps reads containing junctions that passed filtering into the file `SJ.out.tab`. This option reduces the number of ”spurious” junctions. (ENCODE standard options for long RNA-seq pipeline). You can read more about the flag and its options in the [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 #### `--alignSJoverhangMin 8`
 
-The number of minimum overhang for unannotated junctions can be changed here. By default, the pipeline uses 8. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+The number of minimum overhang for unannotated junctions can be changed here. By default, the pipeline uses 8. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignSJDBoverhangMin 1`
 
-The number of minimum overhang for annotated junctions can be changed here. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+The number of minimum overhang for annotated junctions can be changed here. See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--outFilterMismatchNmax 999`
 
-To define a threshold for the number of mismatches to be allowed. By default, the pipeline uses a large number `999` to switch this filter off. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+To define a threshold for the number of mismatches to be allowed. By default, the pipeline uses a large number `999` to switch this filter off. (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--outFilterMismatchNoverReadLmax 1`
 
-Here, you can define a threshold for a ratio of mismatches to *read* length. The alignment will be considered if the ratio is less than or equal to this value. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+Here, you can define a threshold for a ratio of mismatches to *read* length. The alignment will be considered if the ratio is less than or equal to this value. See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignIntronMin 20`
 
 By default, the nf-core dualrnaseq pipeline uses `20` as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion.
-(ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+(ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignIntronMax 1000000`
 
-The maximum intron length is set to 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+The maximum intron length is set to 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--alignMatesGapMax 1000000`
 
-The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline). See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--limitBAMsortRAM 0`
 
@@ -547,7 +564,7 @@ By default, the pipeline does not generate any of these files.
 
 #### `--outWigStrand "Stranded"`
 
-Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
+Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
 #### `--STAR_index_params "--param_a 4 --param_b 5 -param_x"`
 
@@ -577,7 +594,7 @@ Used to run HTSeq-count and extract uniquely mapped reads from both the host and
 
 #### `--stranded "yes"`
 
-A parameter for the library type. Options include `"yes"` or `"no"`.
+A parameter for the library type. Options include `"yes"`, `"no"` or `reverse`.
 
 #### `--max_reads_in_buffer 30000000`
 
