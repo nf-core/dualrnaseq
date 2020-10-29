@@ -68,11 +68,11 @@ Contents:
 * `host_quant_salmon.tsv` and `pathogen_quant_salmon.tsv`
   * Tab delimited files containing combined quantification results for either host or pathogen from all samples.
 * `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
-  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
+  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and gene_type.
 * `host_combined_gene_level.tsv`
   * Host gene-level estimates obtained using tximport.
 * `host_combined_quant_gene_level_annotations.tsv`
-  * Tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and	gene_type.
+  * Tab delimited file containing host gene-level estimates and annotations extracted from gff files including gene id, gene_name and gene_type.
 
 ### B) STAR + Salmon - alignment based
 
@@ -96,7 +96,7 @@ Contents:
 * `host_quant_salmon.tsv` and `pathogen_quant_salmon.tsv`
   * Tab delimited files containing combined quantification results for either host or pathogen from all samples.
 * `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
-  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and	gene_type.
+  * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including transcript_id, transcript_name, gene id, gene_name and gene_type.
 * `host_combined_gene_level.tsv`
   * Host gene-level estimates obtained using tximport.
 * `host_combined_quant_gene_level_annotations.tsv`
@@ -335,7 +335,7 @@ Contents:
     * Visualization of pathogen RNA classes statistics for a sample.
 
     ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_salmon.png)
-    
+
 * `RNA_classes_host`
   * `host_RNA_classes_sum_counts_salmon.tsv`
     * Tab delimited file containing host RNA class statistics for each sample.
