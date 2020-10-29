@@ -1,8 +1,8 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
+    "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/dualrnaseq/master/nextflow_schema.json",
     "title": "nf-core/dualrnaseq pipeline parameters",
-    "description": "Dual RNA-seq pipeline ",
+    "description": "Dual RNA-seq pipeline",
     "type": "object",
     "definitions": {
         "input_output_options": {
@@ -267,6 +267,10 @@
                 "skipFastqc": {
                     "type": "string",
                     "description": "An option to skip the Fastqc step"
+                },
+                "fastqc_params": {
+                    "type": "string",
+                    "description": "Set of additional fastqc parameters"
                 }
             }
         },
@@ -293,6 +297,10 @@
                     "type": "integer",
                     "default": 10,
                     "description": "Cutadapt can also remove low-quality read ends. By default, the 3\u2019 end of each read is trimmed using a cutoff of 10. If you specify two comma-separated cutoffs, the first value represents the 5\u2019 cutoff, and the second one the 3\u2019 cutoff"
+                },
+                "cutadapt_params": {
+                    "type": "string",
+                    "description": "Set of additional cutadapt parameters"
                 }
             }
         },
@@ -345,11 +353,15 @@
                     "type": "string",
                     "default": "data/adapters.fa",
                     "description": "Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)"
+                },
+                "BBDuk_params": {
+                    "type": "string",
+                    "description": "Set of additional BBDuk parameters"
                 }
             }
         },
         "salmon_general": {
-            "title": "Salmon general",
+            "title": "Salmon - general",
             "type": "object",
             "description": "See the Salmon docmentation for more specific details",
             "default": "",
@@ -426,106 +438,138 @@
                     "type": "string",
                     "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
                     "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file."
+                },
+                "salmon_SA_params_index": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with Salmon Selective Alignment"
+                },
+                "salmon_SA_params_mapping": {
+                    "type": "string",
+                    "description": "Set of additional parameters for mapping with Salmon Selective Alignment"
                 }
             }
         },
-        "star_and_salmon_alignment_based_mode": {
-            "title": "STAR and Salmon - alignment based mode",
+        "salmon_alignment_based_mode": {
+            "title": "Salmon - alignment-based mode:",
             "type": "object",
             "description": "",
             "default": "",
             "properties": {
                 "run_salmon_alignment_based_mode": {
-                    "type": "string",
-                    "description": "Option to run Salmon in alignment based mode"
+                    "type": "string"
                 },
+                "salmon_alignment_based_params": {
+                    "type": "string"
+                }
+            }
+        },
+        "star_general": {
+            "title": "STAR - general",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
                 "run_star": {
-                    "type": "string",
-                    "description": "Option to run STAR"
-                },
-                "outWigType": {
-                    "type": "string",
-                    "default": "None",
-                    "description": "Used to generate signal outputs, such as \"wiggle\" and \"bedGraph\""
-                },
-                "outWigStrand": {
-                    "type": "string",
-                    "default": "Stranded",
-                    "description": "Options are Stranded or Unstranded when defining the strandedness of wiggle/bedGraph output."
+                    "type": "string"
                 },
                 "outSAMunmapped": {
                     "type": "string",
-                    "default": "Within",
-                    "description": "By default, the pipeline saves unmapped reads within the main BAM file. If you want to switch off this option, set the --outSAMunmapped flag to None"
+                    "default": "Within"
                 },
                 "outSAMattributes": {
                     "type": "string",
-                    "default": "Standard",
-                    "description": "To specify the attributes of the output BAm file. The default value is Standard, but there are a range of options if needed. Please see the STAR documentation. for the full list"
+                    "default": "Standard"
                 },
                 "outFilterMultimapNmax": {
                     "type": "integer",
-                    "default": 20,
-                    "description": "To specify the maximum number of loci a read is allowed to map to. By default, this option is set to 20 in the pipeline (ENCODE standard options for long RNA-seq pipeline)"
+                    "default": 999
                 },
                 "outFilterType": {
                     "type": "string",
-                    "default": "BySJout",
-                    "description": "By default, the pipeline keeps reads containing junctions that passed filtering into the file SJ.out.tab. This option reduces the number of \u201dspurious\u201d junctions. (ENCODE standard options for long RNA-seq pipeline)"
-                },
-                "quantTranscriptomeBan": {
-                    "type": "string",
-                    "default": "Singleend",
-                    "description": "The nf-core/dualrnaseq pipeline runs STAR to generate a transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (Singleend option). To prohibit this behaviour, please specify IndelSoftclipSingleend"
+                    "default": "BySJout"
                 },
                 "alignSJoverhangMin": {
                     "type": "integer",
-                    "default": 8,
-                    "description": "The number of minimum overhang for unannotated junctions can be changed here. By default, the pipeline uses 8. (ENCODE standard options for long RNA-seq pipeline)"
+                    "default": 8
                 },
                 "alignSJDBoverhangMin": {
                     "type": "integer",
-                    "default": 1,
-                    "description": "The number of minimum overhang for annotated junctions can be changed here"
+                    "default": 1
                 },
                 "outFilterMismatchNmax": {
                     "type": "integer",
-                    "default": 999,
-                    "description": "To define a threshold for the number of mismatches to be allowed. By default, the pipeline uses a large number 999 to switch this filter off. (ENCODE standard options for long RNA-seq pipeline)"
+                    "default": 999
                 },
                 "outFilterMismatchNoverReadLmax": {
-                    "type": "number",
-                    "default": 0.04,
-                    "description": "Here, you can define a threshold for a ratio of mismatches to read length. The alignment will be considered if the ratio is less than or equal to this value. For 2x100b, max number of mismatches is 0.04x200=8 for paired-end reads. (ENCODE standard options for long RNA-seq pipeline)"
+                    "type": "integer",
+                    "default": 1
                 },
                 "alignIntronMin": {
                     "type": "integer",
-                    "default": 20,
-                    "description": "By default, the nf-core dualrnaseq pipeline uses 20 as a minimum intron length. If the genomic gap is smaller than this value, it is considered as a deletion. (ENCODE standard options for long RNA-seq pipeline)"
+                    "default": 20
                 },
                 "alignIntronMax": {
                     "type": "integer",
-                    "default": 1000000,
-                    "description": "The maximum intron length is set to 1,000,000 (ENCODE standard options for long RNA-seq pipeline)"
+                    "default": 1000000
                 },
                 "alignMatesGapMax": {
                     "type": "integer",
-                    "default": 1000000,
-                    "description": "The maximum genomic distance between mates is 1,000,000 (ENCODE standard options for long RNA-seq pipeline)."
+                    "default": 1000000
                 },
                 "limitBAMsortRAM": {
-                    "type": "integer",
-                    "description": "Option to limit RAM when sorting BAM file. If 0, will be set to the genome index size, which can be quite large when running on a desktop or laptop"
+                    "type": "integer"
                 },
                 "winAnchorMultimapNmax": {
                     "type": "integer",
-                    "default": 999,
-                    "description": "The aximum number of loci anchors that are allowed to map to. By default, the pipeline uses a large number 999 to switch this filter off"
+                    "default": 999
                 },
                 "sjdbOverhang": {
                     "type": "integer",
-                    "default": 100,
-                    "description": "Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to 100. However, we recoment to set a value depending on the read length: read/mate length - 1."
+                    "default": 100
+                }
+            }
+        },
+        "star_genome_mapping": {
+            "title": "STAR - genome mapping",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "STAR_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR"
+                },
+                "STAR_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR"
+                },
+                "outWigType": {
+                    "type": "string",
+                    "default": "None"
+                },
+                "outWigStrand": {
+                    "type": "string",
+                    "default": "Stranded"
+                }
+            }
+        },
+        "star_salmon_alignment_based_mode": {
+            "title": "STAR - Salmon - alignment-based mode",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "STAR_salmon_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR in salmon"
+                },
+                "STAR_salmon_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR in salmon alignment-based mode"
+                },
+                "quantTranscriptomeBan": {
+                    "type": "string",
+                    "default": "Singleend"
                 }
             }
         },
@@ -573,6 +617,10 @@
                     "type": "integer",
                     "default": 30000000,
                     "description": "Option to define the number of maximum reads allowed to stay in memory until the mates are found. Has an effect for paired-end reads"
+                },
+                "htseq_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for HTSeq"
                 }
             }
         },
@@ -629,7 +677,16 @@
             "$ref": "#/definitions/salmon_selective_alignment"
         },
         {
-            "$ref": "#/definitions/star_and_salmon_alignment_based_mode"
+            "$ref": "#/definitions/salmon_alignment_based_mode"
+        },
+        {
+            "$ref": "#/definitions/star_general"
+        },
+        {
+            "$ref": "#/definitions/star_genome_mapping"
+        },
+        {
+            "$ref": "#/definitions/star_salmon_alignment_based_mode"
         },
         {
             "$ref": "#/definitions/htseq"
