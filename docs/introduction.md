@@ -16,5 +16,6 @@ Click [here](usage.md) for details on how to run the pipeline.
 
 ## References
 
-<a id="1">[1]</a> 
+[1]
+
 Westermann, A., Förstner, K., Amman, F. et al. Dual RNA-seq unveils noncoding RNA functions in host–pathogen interactions. Nature 529, 496–501 (2016)
