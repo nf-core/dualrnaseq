@@ -325,7 +325,6 @@ To avoid spurious mapping of reads that originate from unannotated locus to sequ
 
 To summarize transcript-level estimates obtained with Salmon into gene-level abundance estimates, the nf-core/dualrnaseq pipeline uses [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
 
-
 ### 6.2 Salmon - quantification in alignment-based mode
 
 In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
@@ -338,10 +337,10 @@ Gene-level estimates are obtained using [`Tximport.`](https://bioconductor.org/p
 
 ### 6.3 STAR - alignment-based genome mapping + quantification with HTSeq
 
-STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions. 
+STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions.
 Therefore, the paths to host and pathogen genomes and host annotative file must be provided using the appropriate parameters: `--genome_host`, `--genome_pathogen` and `--gff_host`.
 
-To quantify uniquely mapped reads the nf-core/dualrnaseq pipeline uses HTSeq. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`. 
+To quantify uniquely mapped reads the nf-core/dualrnaseq pipeline uses HTSeq. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`.
 
 ## 7. Mapping statistics
 
@@ -354,7 +353,7 @@ This will create the following:
 * Plots of the % of mapped/quantified reads
 * Plots of RNA-class statistics (for more information click [here](docs/parameters.md#9-rna-mapping-statistics)).
 
-You can check examples of the outputs of this command in [output docs](output.md#mapping-statistics). 
+You can check examples of the outputs of this command in [output docs](output.md#mapping-statistics).
 
 ## 8. Example usage
 

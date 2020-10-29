@@ -26,14 +26,14 @@
    * [Transcriptome](#Transcriptome)
         * [`--read_transcriptome_fasta_host_from_file`](#--read_transcriptome_fasta_host_from_file)
         * [`--read_transcriptome_fasta_pathogen_from_file`](#--read_transcriptome_fasta_pathogen_from_file)
-        * [`--transcriptome_host`](#--transcriptome_host)            
+        * [`--transcriptome_host`](#--transcriptome_host)
         * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
 3. [Input sequence reads](#3-input-sequence-reads)
     * [`--reads`](#--reads)
 4. [FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
    * [FastQC](#FastQC)
         * [`--skipFastqc`](#--skipFastqc)
-        * [`--fastqc_params`](#--fastqc_params---param_a-4---param_b-5--param_x)        
+        * [`--fastqc_params`](#--fastqc_params---param_a-4---param_b-5--param_x)
    * [Adapter trimming](#Adapter-trimming)
         * [Cutadapt](#Cutadapt)
             * [`--run_cutadapt`](#--run_cutadapt)
@@ -112,7 +112,7 @@
             * [`--host_gff_attribute`](#--host_gff_attribute-gene_id)
         * [`Pathogen`](#Pathogen)
             * [`--gene_feature_gff_to_quantify_pathogen`](#--gene_feature_gff_to_quantify_pathogen-gene-sRNA-tRNA-rRNA)
-            * [`--pathogen_gff_attribute`](#--pathogen_gff_attribute-locus_tag)      
+            * [`--pathogen_gff_attribute`](#--pathogen_gff_attribute-locus_tag)
 8. [RNA mapping statistics](#8-rna-mapping-statistics)
     * [`--mapping_statistics`](#--mapping_statistics)
     * [`--RNA_classes_to_replace_host`](#--RNA_classes_to_replace_host-baseDirdataRNA_classes_to_replacecsv)
@@ -233,14 +233,19 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 ```bash
 --gff_host "<path to host gff file>"
 ```
+
 #### `--gff_host_tRNA`
+
 ```bash
 --gff_host_tRNA "<path to host tRNA gff file>"
 ```
+
 #### `--gff_pathogen`
+
 ```bash
 --gff_pathogen "<path to pathogen gff file>"
 ```
+
 ### Transcriptome
 
 The first two parameters are set to `False`. If supplying custom transcriptome files, add the appropriate flags below.
@@ -250,10 +255,13 @@ The first two parameters are set to `False`. If supplying custom transcriptome f
 #### `--read_transcriptome_fasta_pathogen_from_file`
 
 #### `--transcriptome_host`
+
 ```bash
 --transcriptome_host "<path to host transcriptome fasta file>"
 ```
+
 #### `--transcriptome_pathogen`
+
 ```bash
 --transcriptome_pathogen "<path to pathogen transcriptome fasta file>"
 ```
@@ -278,7 +286,7 @@ Please note the following requirements:
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
 
-To learn more about best practices for raw fastq file naming, please check `Input sequence reads` section of the [usage.md](docs/usage.md). 
+To learn more about best practices for raw fastq file naming, please check `Input sequence reads` section of the [usage.md](docs/usage.md).
 
 ## 4. FastQC and Adapter trimming
 
