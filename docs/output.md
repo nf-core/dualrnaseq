@@ -232,6 +232,7 @@ Contents:
   * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
   ![mapping_stats_samples_total_reads](images/mapping_stats_samples_total_reads_star.png)
+
 * `mapping_stats_samples_percentage.tsv`
   * Mapping statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
 * `mapping_stats_samples_percentage.pdf`
@@ -246,6 +247,7 @@ Contents:
 
   ![scatter_plot_pathogen](images/scatter_plot_pathogen_HTseq.png)
   ![scatter_plot_host](images/scatter_plot_host_HTseq.png)
+
 * `htseq_uniquely_mapped_reads_stats.tsv`
   * Collection of mapping and quantification statistics including number of reads uniquely and multi-mapped to either host or pathogen using STAR, number of cross-mapped reads, unmapped reads, trimmed reads and number of assigned reads to the pathogen and host by HTSeq.
 * `mapping_stats_samples_total_reads.tsv`
@@ -254,12 +256,14 @@ Contents:
   * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
   ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads_htseq.png)
+
 * `mapping_stats_samples_percentage.tsv`
   * Mapping and quantification statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
 * `mapping_stats_samples_percentage.pdf`
   * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
 
   ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_htseq.png)
+
 * `RNA_classes_pathogen`
   * `pathogen_RNA_classes_sum_counts_htseq.tsv`
     * Tab delimited file containing pathogen RNA class statistics for each sample. Sum of number of reads assigned to genes which belong to a specific RNA class.
@@ -269,10 +273,12 @@ Contents:
     * Plot showing pathogen RNA class statistics for all samples from `pathogen_RNA_classes_percentage_htseq.tsv` table.
 
     ![RNA_class_stats_combined_pathogen](images/RNA_class_stats_combined_pathogen_htseq.png)
+
   * `sample.pdf`
     * Visualization of pathogen RNA classes statistics for a sample.
 
     ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_htseq.png)
+
 * `RNA_classes_host`
   * `host_RNA_classes_sum_counts_htseq.tsv`
     * Tab delimited file containing host RNA class statistics for each sample.
@@ -284,6 +290,7 @@ Contents:
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_htseq.tsv` table.
 
     ![RNA_class_stats_combined_host](images/RNA_class_stats_combined_host_htseq.png)
+
   * `sample.pdf`
     * Visualization of host RNA classes statistics for a sample.
 
@@ -295,7 +302,9 @@ Contents:
   * Scatter plots showing correlations between TPM values of replicates within the same condition. The Pearson correlation coefficient is calculated using untransformed data.
 
   ![scatter_plot_pathogen](images/scatter_plot_pathogen_salmon.png)
+
   ![scatter_plot_host](images/scatter_plot_host_salmon.png)
+
 * `salmon_host_pathogen_total_reads.tsv`
   * Tab delimited file containing mapping statistics collected from all samples.
 * `mapping_stats_samples_total_reads.tsv`
@@ -304,12 +313,14 @@ Contents:
   * Visualisation of mapping statistics from `mapping_stats_samples_total_reads.tsv` table.
 
   ![mapping_stats_star_samples_total_reads](images/mapping_stats_samples_total_reads_salmon.png)
+
 * `mapping_stats_samples_percentage.tsv`
   * Mapping statistics from `mapping_stats_samples_total_reads.tsv` table expressed in percentage.
 * `mapping_stats_samples_percentage.pdf`
   * Visualisation of mapping statistics from `mapping_stats_samples_percentage.tsv` table.
 
   ![mapping_stats_samples_percentage](images/mapping_stats_samples_percentage_salmon.png)
+
 * `RNA_classes_pathogen`
   * `pathogen_RNA_classes_sum_counts_salmon.tsv`
     * Tab delimited file containing pathogen RNA class statistics for each sample.
@@ -319,10 +330,12 @@ Contents:
     * Plot showing pathogen RNA class statistics for all samples from `pathogen_RNA_classes_percentage_htseq.tsv` table.
 
     ![RNA_class_stats_combined_pathogen](images/RNA_class_stats_combined_pathogen_salmon.png)
+
   * `sample.pdf`
     * Visualization of pathogen RNA classes statistics for a sample.
 
     ![RNA_class_stats_sample_pathogen](images/RNA_class_stats_sample_pathogen_salmon.png)
+    
 * `RNA_classes_host`
   * `host_RNA_classes_sum_counts_salmon.tsv`
     * Tab delimited file containing host RNA class statistics for each sample.
