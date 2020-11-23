@@ -1,4 +1,6 @@
+
 FROM nfcore/base:1.12
+
 LABEL authors="Bozena Mika-Gospodorz, Regan Hayward" \
       description="Docker image containing all software requirements for the nf-core/dualrnaseq pipeline"
 
