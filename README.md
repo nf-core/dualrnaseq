@@ -1,6 +1,5 @@
 # ![nf-core/dualrnaseq](docs/images/nf-core-dualrnaseq_logo.png)
 
-<<<<<<< HEAD
 **Dual RNA-seq pipeline**.
 
 [![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
@@ -48,7 +47,6 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline: [us
 ## Credits
 
 nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz, Regan Hayward.
-=======
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
 [![nf-core](https://img.shields.io/badge/nf--core-pipeline-brightgreen.svg)](https://nf-co.re/)
 
@@ -96,7 +94,6 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 ## Credits
 
 nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz with support from Regan Hayward.
->>>>>>> dev
 
 ## Contributions and Support
 
