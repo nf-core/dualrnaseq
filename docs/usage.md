@@ -1,5 +1,14 @@
 # nf-core/dualrnaseq: Running the pipeline
 
+<<<<<<< HEAD
+## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/dualrnaseq/usage](https://nf-co.re/dualrnaseq/usage)
+
+> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
+
+## Introduction
+
+<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+=======
 ## Table of contents
 
 1. [Running the pipeline](#1-running-the-pipeline)
@@ -47,17 +56,22 @@ nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --
 ```
 
 See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
+>>>>>>> dev
 
 ### 1.2 Basic run
 
 Once ready, a basic command for running the pipeline would be the following:
 
 ```bash
+<<<<<<< HEAD
+nextflow run nf-core/dualrnaseq --input '*_R{1,2}.fastq.gz' -profile docker
+=======
 nextflow run nf-core/dualrnaseq/main.nf -profile docker \
 --reads "/folder_to_reads/*_R{1,2}.fq.gz" \
 --fasta_host host.fa --fasta_pathogen pathogen.fa \
 --gff_host host.gff --gff_pathogen pathogen.gff \
 --run_star --outdir results
+>>>>>>> dev
 ```
 
 This will launch the pipeline with the `docker` configuration profile (click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles).
@@ -88,11 +102,23 @@ To find the latest version number, go to the [nf-core/dualrnaseq releases page](
 
 ## 2. Configuration profile
 
+<<<<<<< HEAD
+## Core Nextflow arguments
+
+> **NB:** These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+=======
 **`-profile`**
+>>>>>>> dev
 
 Use this parameter to choose a configuration profile, which can define specific presets for different compute environments.
 
+<<<<<<< HEAD
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
+
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Conda) - see below.
+=======
 Several generic profiles are bundled with the pipeline, instructing it to use software packaged within different container-based objects (Docker, Singularity, Conda) - see below.
+>>>>>>> dev
 
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
@@ -105,19 +131,76 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 The nf-core/dualrnaseq pipeline contains Docker, Singularity, Conda and test configuration profiles:
 
 * `docker`
-  * A generic configuration profile to be used with [Docker](http://docker.com/)
-  * Pulls software from dockerhub: [`nfcore/dualrnaseq`](http://hub.docker.com/r/nfcore/dualrnaseq/)
+  * A generic configuration profile to be used with [Docker](https://docker.com/)
+  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
 * `singularity`
+<<<<<<< HEAD
+  * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
+* `podman`
+  * A generic configuration profile to be used with [Podman](https://podman.io/)
+  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
+=======
   * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
   * Pulls software from SingularityHub: [`nfcore/dualrnaseq`](https://singularity-hub.org/)
+>>>>>>> dev
 * `conda`
-  * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker or Singularity.
+  * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity or Podman.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
   * Pulls most software from [Bioconda](https://bioconda.github.io/)
 * `test`
   * A profile with a complete configuration for automated testing
   * Includes links to test data, requiring no other parameters
 
+<<<<<<< HEAD
+### `-resume`
+
+Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
+
+You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
+
+### `-c`
+
+Specify the path to a specific config file (this is a core Nextflow command). See the [nf-core website documentation](https://nf-co.re/usage/configuration) for more information.
+
+#### Custom resource requests
+
+Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with an error code of `143` (exceeded requested resources) it will automatically resubmit with higher requests (2 x original, then 3 x original). If it still fails after three times then the pipeline is stopped.
+
+Whilst these default requirements will hopefully work for most people with most data, you may find that you want to customise the compute resources that the pipeline requests. You can do this by creating a custom config file. For example, to give the workflow process `star` 32GB of memory, you could use the following config:
+
+```nextflow
+process {
+  withName: star {
+    memory = 32.GB
+  }
+}
+```
+
+See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information.
+
+If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition above). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
+
+If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
+
+### Running in the background
+
+Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
+
+The Nextflow `-bg` flag launches Nextflow in the background, detached from your terminal so that the workflow does not stop if you log out of your session. The logs are saved to a file.
+
+Alternatively, you can use `screen` / `tmux` or similar tool to create a detached session which you can log back into at a later time.
+Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).
+
+#### Nextflow memory requirements
+
+In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
+We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
+
+```bash
+NXF_OPTS='-Xms1g -Xmx4g'
+```
+=======
 ## 3. Input sequence reads
 
 `--reads`
@@ -478,3 +561,4 @@ Running the pipeline on AWS Batch requires a couple of specific parameters to be
 `--awscli`  The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation) path in your custom AMI. Default: `/home/ec2-user/miniconda/bin/aws`.
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
+>>>>>>> dev
