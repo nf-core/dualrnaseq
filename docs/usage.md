@@ -1,14 +1,4 @@
 # nf-core/dualrnaseq: Running the pipeline
-
-<<<<<<< HEAD
-## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/dualrnaseq/usage](https://nf-co.re/dualrnaseq/usage)
-
-> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
-
-## Introduction
-
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
-=======
 ## Table of contents
 
 1. [Running the pipeline](#1-running-the-pipeline)
@@ -56,22 +46,16 @@ nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --
 ```
 
 See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
->>>>>>> dev
-
 ### 1.2 Basic run
 
 Once ready, a basic command for running the pipeline would be the following:
 
 ```bash
-<<<<<<< HEAD
-nextflow run nf-core/dualrnaseq --input '*_R{1,2}.fastq.gz' -profile docker
-=======
 nextflow run nf-core/dualrnaseq/main.nf -profile docker \
 --reads "/folder_to_reads/*_R{1,2}.fq.gz" \
 --fasta_host host.fa --fasta_pathogen pathogen.fa \
 --gff_host host.gff --gff_pathogen pathogen.gff \
 --run_star --outdir results
->>>>>>> dev
 ```
 
 This will launch the pipeline with the `docker` configuration profile (click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles).
@@ -102,23 +86,11 @@ To find the latest version number, go to the [nf-core/dualrnaseq releases page](
 
 ## 2. Configuration profile
 
-<<<<<<< HEAD
 ## Core Nextflow arguments
 
-> **NB:** These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
-=======
 **`-profile`**
->>>>>>> dev
-
 Use this parameter to choose a configuration profile, which can define specific presets for different compute environments.
-
-<<<<<<< HEAD
-Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
-
-Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Conda) - see below.
-=======
 Several generic profiles are bundled with the pipeline, instructing it to use software packaged within different container-based objects (Docker, Singularity, Conda) - see below.
->>>>>>> dev
 
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
@@ -134,16 +106,11 @@ The nf-core/dualrnaseq pipeline contains Docker, Singularity, Conda and test con
   * A generic configuration profile to be used with [Docker](https://docker.com/)
   * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
 * `singularity`
-<<<<<<< HEAD
   * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
   * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
 * `podman`
   * A generic configuration profile to be used with [Podman](https://podman.io/)
   * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-=======
-  * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-  * Pulls software from SingularityHub: [`nfcore/dualrnaseq`](https://singularity-hub.org/)
->>>>>>> dev
 * `conda`
   * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity or Podman.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
@@ -152,7 +119,6 @@ The nf-core/dualrnaseq pipeline contains Docker, Singularity, Conda and test con
   * A profile with a complete configuration for automated testing
   * Includes links to test data, requiring no other parameters
 
-<<<<<<< HEAD
 ### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
@@ -561,4 +527,3 @@ Running the pipeline on AWS Batch requires a couple of specific parameters to be
 `--awscli`  The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation) path in your custom AMI. Default: `/home/ec2-user/miniconda/bin/aws`.
 
 Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't.
->>>>>>> dev
