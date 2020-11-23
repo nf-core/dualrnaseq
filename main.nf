@@ -404,10 +404,10 @@ if (workflow.profile.contains('awsbatch')) {
 
 //----------
 // Stage config files
-ch_multiqc_config = file("$projectDir/assets/multiqc_config.yaml", checkIfExists: true)
+ch_multiqc_config = file("$workflow.projectDir/assets/multiqc_config.yaml", checkIfExists: true)
 ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-ch_output_docs = file("$projectDir/docs/output.md", checkIfExists: true)
-ch_output_docs_images = file("$projectDir/docs/images/", checkIfExists: true)
+ch_output_docs = file("$workflow.projectDir/docs/output.md", checkIfExists: true)
+ch_output_docs_images = file("$workflow.projectDir/docs/images/", checkIfExists: true)
 
 
 
@@ -4181,7 +4181,7 @@ process output_documentation {
 
     output:
     file "results_description.html"
-    file images from ch_output_docs_images
+//    file images from ch_output_docs_images
 
     script:
     """
