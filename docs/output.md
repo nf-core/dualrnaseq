@@ -148,7 +148,6 @@ Contents:
 * `host_combined_quant_annotations.tsv` and `pathogen_combined_quant_annotations.tsv`
   * Tab delimited files containing quantification results for either host or pathogen and annotations extracted from gff files including gene_id, gene_name, gene_type and gene length.
 
-
 ## References
 
 The pipeline creates chimeric references of the pathogen and host, and here you can find references used for the mapping, quantification and collecting statistics.
@@ -417,7 +416,6 @@ Contents:
   * Directory containing plots from within the .html report, saved as `PDF`, `PNG` and `SVG`
 
 For more information about how to use MultiQC reports, see [http://multiqc.info](http://multiqc.info).
-
 
 ## Pipeline information
 

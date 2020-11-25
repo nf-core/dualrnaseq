@@ -1,6 +1,6 @@
 # ![nf-core/dualrnaseq](docs/images/nf-core-dualrnaseq_logo.png)
 
-**Dual RNA-seq pipeline**.
+
 
 [![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
@@ -9,6 +9,12 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/nfcore/dualrnaseq)
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23dualrnaseq-4A154B?logo=slack)](https://nfcore.slack.com/channels/dualrnaseq)
+
+## Dual RNA-seq pipeline
+
+**nf-core/dualrnaseq** is a pipeline for the analysis of Dual RNA-seq data. Dual RNA-seq is an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq.
+
+The workflow merges host and pathogen genome annotations taking into account differences in annotation conventions, then processes raw data from FastQ inputs ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),   quantifies gene expression ([STAR](https://github.com/alexdobin/STAR) and [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR](https://github.com/alexdobin/STAR), [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon](https://combine-lab.github.io/salmon/) in quasimapping mode and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)), and performs quality-control on the results ([MultiQC](http://multiqc.info/)), as well as generating a number of custom summary plots and separate results tables for the pathogen and host. See the [output documentation](docs/output.md) for more details of the results.
 
 ## Introduction
 
@@ -30,51 +36,11 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 
 4. Start running your own analysis!
 
-    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
-
     ```bash
-    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --genome GRCh37
+    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --genome GRCh38
     ```
 
 See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available options when running the pipeline.
-
-## Documentation
-
-The nf-core/dualrnaseq pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/dualrnaseq/usage) and [output](https://nf-co.re/dualrnaseq/output).
-
-<!-- TODO nf-core: Add a brief overview of what the pipeline does and how it works -->
-
-## Credits
-
-nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz, Regan Hayward.
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
-[![nf-core](https://img.shields.io/badge/nf--core-pipeline-brightgreen.svg)](https://nf-co.re/)
-
-[![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
-[![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
-
-[![Docker Container available](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/dualrnaseq/dualrnaseq/)
-[![Install with Singularity](https://img.shields.io/badge/use%20with-singularity-purple.svg)](https://www.sylabs.io/docs/)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](http://bioconda.github.io/)
-
-## Dual RNA-seq pipeline
-
-### Description
-
-**nf-core/dualrnaseq** is an analysis pipeline for the analysis of Dual RNA-seq data. Dual RNA-seq is an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq.
-
-The workflow merges host and pathogen genome annotations taking into account differences in annotation conventions, then processes raw data from
- FastQ inputs ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/),
- [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),
-  quantifies gene expression
-   ([STAR](https://github.com/alexdobin/STAR) and
-    [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR](https://github.com/alexdobin/STAR), [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon](https://combine-lab.github.io/salmon/) in quasimapping mode and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)),
-     and performs quality-control on the results
-          ([MultiQC](http://multiqc.info/)), as well as generating a number of custom summary plots and separate results tables for the pathogen and host. See the [output documentation](docs/output.md) for more details of the results.
-
-### Nextflow
-
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with Docker containers making installation trivial and results highly reproducible.
 
 ## Documentation
 
@@ -93,7 +59,7 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 
 ## Credits
 
-nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz with support from Regan Hayward.
+nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz, Regan Hayward.
 
 ## Contributions and Support
 

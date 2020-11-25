@@ -1,4 +1,5 @@
 # nf-core/dualrnaseq: Running the pipeline
+
 ## Table of contents
 
 1. [Running the pipeline](#1-running-the-pipeline)
@@ -46,6 +47,7 @@ nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --
 ```
 
 See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
+
 ### 1.2 Basic run
 
 Once ready, a basic command for running the pipeline would be the following:
