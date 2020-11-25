@@ -4249,19 +4249,19 @@ workflow.onComplete {
 
     // Render the TXT template
     def engine = new groovy.text.GStringTemplateEngine()
-    def tf = new File("$workflow.projectDir/assets/email_template.txt")
-    def txt_template = engine.createTemplate(tf).make(email_fields)
+    def tf = new File("workflow.projectDir/assets/email_template.txt")
+//    def txt_template = engine.createTemplate(tf).make(email_fields)
     def email_txt = txt_template.toString()
 
     // Render the HTML template
-    def hf = new File("$workflow.projectDir/assets/email_template.html")
-    def html_template = engine.createTemplate(hf).make(email_fields)
+    def hf = new File("workflow.projectDir/assets/email_template.html")
+//    def html_template = engine.createTemplate(hf).make(email_fields)
     def email_html = html_template.toString()
 
     // Render the sendmail template
     def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$workflow.projectDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
-    def sf = new File("$workflow.projectDir/assets/sendmail_template.txt")
-    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
+    def sf = new File("workflow.projectDir/assets/sendmail_template.txt")
+//    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
     def sendmail_html = sendmail_template.toString()
 
     // Send the HTML e-mail
