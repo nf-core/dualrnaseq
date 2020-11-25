@@ -113,7 +113,7 @@ def helpMessage() {
                                (Default: 11)
       --hdist        [int]     Maximum Hamming distance for ref kmers (subs only).
                                (Default: 1)
-      --adapters     [file]    Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)
+      --adapters     [file]    Fasta file with adapter sequences (Default: $projectDir/data/adapters.fa)
       --BBDuk_params [str]     Set of additional BBDuk parameters 
     
     Basic quality control is reported through FastQC, which is run on raw reads and trimmed reads.
@@ -264,7 +264,7 @@ def helpMessage() {
       --RNA_classes_to_replace_host      [file]   Located within the data/ directory, this tab delimited file contains headers which 
                                                   groups similar types of RNA classes together. This helps to keep the RNA-class 
                                                   names simplified for plotting purposes.
-                                                  (Default: $baseDir/data/RNA_classes_to_replace.tsv)
+                                                  (Default: $projectDir/data/RNA_classes_to_replace.tsv)
    
     Report options:
       --email                   [email]   Set this parameter to your e-mail address to get a summary e-mail with details of the 
@@ -4250,18 +4250,18 @@ workflow.onComplete {
     // Render the TXT template
     def engine = new groovy.text.GStringTemplateEngine()
     def tf = new File("workflow.projectDir/assets/email_template.txt")
-//    def txt_template = engine.createTemplate(tf).make(email_fields)
+    def txt_template = engine.createTemplate(tf).make(email_fields)
     def email_txt = txt_template.toString()
 
     // Render the HTML template
     def hf = new File("workflow.projectDir/assets/email_template.html")
-//    def html_template = engine.createTemplate(hf).make(email_fields)
+    def html_template = engine.createTemplate(hf).make(email_fields)
     def email_html = html_template.toString()
 
     // Render the sendmail template
-    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$workflow.projectDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
+    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, projectDir: "workflow.projectDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
     def sf = new File("workflow.projectDir/assets/sendmail_template.txt")
-//    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
+    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
     def sendmail_html = sendmail_template.toString()
 
     // Send the HTML e-mail
