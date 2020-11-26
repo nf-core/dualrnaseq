@@ -85,9 +85,9 @@
             "description": "",
             "default": "",
             "properties": {
-                "skipFastqc": {
+                "skip_fastqc": {
                     "type": "string",
-                    "description": "An option to skip the Fastqc step"
+                    "description": "An option to skip the FastQC step"
                 },
                 "fastqc_params": {
                     "type": "string",
@@ -176,7 +176,7 @@
                     "default": "data/adapters.fa",
                     "description": "Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)"
                 },
-                "BBDuk_params": {
+                "bbduk_params": {
                     "type": "string",
                     "description": "Set of additional BBDuk parameters"
                 }
@@ -257,11 +257,11 @@
                     "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
                     "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file."
                 },
-                "salmon_SA_params_index": {
+                "salmon_sa_params_index": {
                     "type": "string",
                     "description": "Set of additional parameters for creating an index with Salmon Selective Alignment"
                 },
-                "salmon_SA_params_mapping": {
+                "salmon_sa_params_mapping": {
                     "type": "string",
                     "description": "Set of additional parameters for mapping with Salmon Selective Alignment"
                 }
@@ -364,11 +364,11 @@
                     "type": "string",
                     "default": "Stranded"
                 },
-                "STAR_index_params": {
+                "star_index_params": {
                     "type": "string",
                     "description": "Set of additional parameters for creating an index with STAR"
                 },
-                "STAR_alignment_params": {
+                "star_alignment_params": {
                     "type": "string",
                     "description": "Set of additional parameters for alignment with STAR"
                 }
@@ -380,11 +380,11 @@
             "description": "",
             "default": "",
             "properties": {
-                "STAR_salmon_index_params": {
+                "star_salmon_index_params": {
                     "type": "string",
                     "description": "Set of additional parameters for creating an index with STAR in salmon"
                 },
-                "STAR_salmon_alignment_params": {
+                "star_salmon_alignment_params": {
                     "type": "string",
                     "description": "Set of additional parameters for alignment with STAR in salmon alignment-based mode"
                 },
@@ -455,7 +455,7 @@
                     "type": "string",
                     "description": "Option to generate mapping statistics, creating plots and summaries"
                 },
-                "RNA_classes_to_replace_host": {
+                "rna_classes_to_replace_host": {
                     "type": "string",
                     "default": "{base_dir}/data/RNA_classes_to_replace.csv",
                     "description": "Tab delimited file contains headers which groups similar types of RNA classes together. This helps to keep the RNA-class names simplified for plotting purposes"
