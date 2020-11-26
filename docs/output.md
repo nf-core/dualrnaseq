@@ -5,37 +5,21 @@
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 * [FastQC](#fastqc)
-
 * [Trimming reads](#trimming-reads)
-
 * [Mapping/Quantification](#mappingquantification)
-
   * [Salmon selective alignment](#A-Salmon-selective-alignment)
-  
   * [STAR + Salmon - alignment based](#B-STAR--Salmon---alignment-based)
-  
   * [STAR + HTSeq](#C-STAR--HTSeq)
-  
 * [MultiQC](#multiqc)
-
 * [References](#References)
-
   * [Salmon Selective Alignment references](#Salmon-Selective-Alignment-references)
-  
   * [Salmon-Alignment-based-mode-references](#Salmon-Alignment-based-mode-references)
-  
   * [STAR and HTSeq references](#STAR-and-HTSeq-references)
-  
 * [Mapping statistics](#Mapping-statistics)
-
   * [STAR](#STAR-resultsmapping_statisticsSTAR)
-  
   * [HTSeq](#HTSeq-resultsmapping_statisticsHTSeq)
-  
   * [Salmon](#Salmon-resultsmapping_statisticssalmon)
-  
   * [Salmon alignment based](#Salmon-alignment-based-resultsmapping_statisticssalmon_alignment_based)
-  
 * [Pipeline info](#pipeline-info)
 
 ## FastQC

@@ -43,7 +43,7 @@ nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institut
 iv. Start running your own analysis!
 
 ```bash
-nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --reads '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
+nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --input '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
 ```
 
 See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
@@ -54,7 +54,7 @@ Once ready, a basic command for running the pipeline would be the following:
 
 ```bash
 nextflow run nf-core/dualrnaseq/main.nf -profile docker \
---reads "/folder_to_reads/*_R{1,2}.fq.gz" \
+--input "/folder_to_reads/*_R{1,2}.fq.gz" \
 --fasta_host host.fa --fasta_pathogen pathogen.fa \
 --gff_host host.gff --gff_pathogen pathogen.gff \
 --run_star --outdir results
@@ -171,7 +171,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 ## 3. Input sequence reads
 
-`--reads`
+`--input`
 
 Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R` or lower case `r`, and read number `1` or `2` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
 
@@ -190,7 +190,7 @@ Input files can be read as either .fastq or .fastq.gz. They should be named desc
 | Host_pathogen_MOI_1_10h_r3_1.fq |  |
 | Host_pathogen_MOI_1_10h_r3_2.fq |  |
 
-Once correctly named, instead of typing all files, the folder containing these files can be specified, such as `--reads "folder_to_files/*.fq.gz"`. Or, for paired-end `--reads "folder_to_files/*{1,2}.fastq.gz"`
+Once correctly named, instead of typing all files, the folder containing these files can be specified, such as `--input "folder_to_files/*.fq.gz"`. Or, for paired-end `--input "folder_to_files/*{1,2}.fastq.gz"`
 
 Please note the following requirements:
 
@@ -423,7 +423,7 @@ As discussed above in the [Read mapping and quantification section](#62-salmon--
 ```bash
 nextflow run dualrnaseq/main.nf -profile docker,cluster \
 --genome_host "GRCh38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
---reads "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end \
 --outdir "/outdir_folder/" \
 --run_salmon_selective_alignment \
 ```
@@ -443,7 +443,7 @@ nextflow run dualrnaseq/main.nf -profile docker,cluster \
  ```bash
 qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
 --genome_host "GRCm38" --genome_pathogen "C_trachomatis_strain_d" \
---reads "folder_to_reads/*{1,2}.fastq.gz" \
+--input "folder_to_reads/*{1,2}.fastq.gz" \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
 ```
@@ -463,7 +463,7 @@ qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
  ```bash
 nextflow run dualrnaseq/main.nf -profile singularity \
 --genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
---reads "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end \
 --outdir /outdir_folder/ \
 --run_star --run_htseq_uniquely_mapped \
 ```
@@ -483,7 +483,7 @@ nextflow run dualrnaseq/main.nf -profile singularity \
 ```bash
 qsub -q all.q nextflow run dualrnaseq/main.nf -profile singularity,cluster \
 --genome_host "GRCH38" --genome_pathogen "Salmonella_typhimurium" \
---reads "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "SF" \
 --run_salmon_selective_alignment \

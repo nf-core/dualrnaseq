@@ -29,7 +29,7 @@
         * [`--transcriptome_host`](#--transcriptome_host)
         * [`--transcriptome_pathogen`](#--transcriptome_pathogen)
 3. [Input sequence reads](#3-input-sequence-reads)
-    * [`--reads`](#--reads)
+    * [`--input`](#--input)
 4. [FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
    * [FastQC](#FastQC)
         * [`--skip_fastqc`](#--skip_fastqc)
@@ -275,7 +275,7 @@ The first two parameters are set to `False`. If supplying custom transcriptome f
 
 Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions.
 
-#### `--reads`
+#### `--input`
 
 Please note the following requirements:
 
@@ -285,7 +285,7 @@ Please note the following requirements:
 * If left unspecified, a default pattern is used: `"data/*{1,2}.fastq.gz"`
 * It is not possible to run a mixture of single-end and paired-end files in one run
 
-> Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --reads '*.fastq'`
+> Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --input '*.fastq'`
 
 To learn more about best practices for raw fastq file naming, please check `Input sequence reads` section of the [usage.md](docs/usage.md).
 
