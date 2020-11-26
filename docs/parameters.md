@@ -407,7 +407,10 @@ By default, this is set to `0.0`, to ensure that only mappings or alignments tha
 
 #### `--generate_salmon_uniq_ambig`
 
-Option to extract all of the unique and ambiguous reads after quantification. Works for both Selective alignment and alignment-based modes (Default: False).
+Option to extract all of the unique and ambiguous reads after quantification. 
+This is useful to analyse reads which multimap across or within genomes. This option merges the `quant.sf` file with the `aux_info/ambig_info.tsv` file, combining columns which show how the underlying reads were processed and assigned. If a read maps uniquely to a feature, then the read will be added to *UniqueCount* column. If the read maps to more than one location, it will be summed against each of the features and shown in the *AmbigCount* column. The underlying statistical model of Salmon is able to assign many of these multimapping reads to a specific feature and hense will appear in the *NumReads* column. The output file is located under the `aux_info` folder.
+
+Works for both Selective alignment and alignment-based modes (Default: False).
 
 #### `--gene_feature_gff_to_create_transcriptome_host "[exon, tRNA]"`
 
