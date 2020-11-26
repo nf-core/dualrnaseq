@@ -421,7 +421,7 @@ As discussed above in the [Read mapping and quantification section](#62-salmon--
 * Salmon - Selective alignment
 
 ```bash
-nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
+nextflow run dualrnaseq/main.nf -profile docker,cluster \
 --genome_host "GRCh38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
 --reads "folder_to_reads/*.fq.gz" --single_end \
 --outdir "/outdir_folder/" \
@@ -441,7 +441,7 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile docker,cluster \
 * Custom kmer length
 
  ```bash
-qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
+qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
 --genome_host "GRCm38" --genome_pathogen "C_trachomatis_strain_d" \
 --reads "folder_to_reads/*{1,2}.fastq.gz" \
 --outdir "/outdir_folder/" \
@@ -461,7 +461,7 @@ qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile docker \
 * HTSeq - quantification of uniquely mapped reads
 
  ```bash
-nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
+nextflow run dualrnaseq/main.nf -profile singularity \
 --genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
 --reads "folder_to_reads/*.fq.gz" --single_end \
 --outdir /outdir_folder/ \
@@ -481,7 +481,7 @@ nextflow run nf-core-dualrnaseq/main.nf" -profile singularity \
 * All three modes with custom gene attributes
 
 ```bash
-qsub -q all.q nextflow run nf-core-dualrnaseq/main.nf" -profile singularity,cluster \
+qsub -q all.q nextflow run dualrnaseq/main.nf -profile singularity,cluster \
 --genome_host "GRCH38" --genome_pathogen "Salmonella_typhimurium" \
 --reads "folder_to_reads/*.fq.gz" --single_end \
 --outdir "/outdir_folder/" \

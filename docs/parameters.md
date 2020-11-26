@@ -32,7 +32,7 @@
     * [`--reads`](#--reads)
 4. [FastQC and adapter trimming](#4-fastqc-and-adapter-trimming)
    * [FastQC](#FastQC)
-        * [`--skipFastqc`](#--skipFastqc)
+        * [`--skip_fastqc`](#--skip_fastqc)
         * [`--fastqc_params`](#--fastqc_params---param_a-4---param_b-5--param_x)
    * [Adapter trimming](#Adapter-trimming)
         * [Cutadapt](#Cutadapt)
@@ -51,7 +51,7 @@
             * [`--mink`](#--mink-11)
             * [`--hdist`](#--hdist-1)
             * [`--adapters`](#--adapters)
-            * [`--BBDuk_params`](#--BBDuk_params---param_a-4---param_b-5--param_x)
+            * [`--bbduk_params`](#--bbduk_params---param_a-4---param_b-5--param_x)
 5. [Salmon](#5-salmon)
    * [General parameters](#General-parameters)
         * [`--libtype`](#--libtype-SF)
@@ -69,8 +69,8 @@
         * [`--dumpEq`](#--dumpEq)
         * [`--writeMappings`](#--writeMappings)
         * [`--keepDuplicates`](#--keepDuplicates)
-        * [`--salmon_SA_params_indexcates`](#--salmon_SA_params_index---param_a-4---param_b-5--param_x)
-        * [`--salmon_SA_params_mapping`](#--salmon_SA_params_mapping---param_a-4---param_b-5--param_x)
+        * [`--salmon_sa_params_indexcates`](#--salmon_sa_params_index---param_a-4---param_b-5--param_x)
+        * [`--salmon_sa_params_mapping`](#--salmon_sa_params_mapping---param_a-4---param_b-5--param_x)
    * [Salmon alignment based mode](#Salmon-alignment-based-mode)
         * [`--run_salmon_alignment_based_mode`](#--run_salmon_alignment_based_mode)
         * [`--salmon_alignment_based_params`](#--salmon_alignment_based_params---param_a-4---param_b-5--param_x)
@@ -94,11 +94,12 @@
    * [STAR for HTSeq](#STAR-for-HTSeq)
         * [`--outWigType`](#--outWigType-None)
         * [`--outWigStrand`](#--outWigStrand-Stranded)
-        * [`--STAR_index_params`](#--STAR_index_params---param_a-4---param_b-5--param_x)
-        * [`--STAR_alignment_params`](#--STAR_alignment_params---param_a-4---param_b-5--param_x)
+        * [`--star_index_params`](#--star_index_params---param_a-4---param_b-5--param_x)
+        * [`--star_alignment_params`](#--star_alignment_params---param_a-4---param_b-5--param_x)
    * [STAR for Salmon alignment-based mode](#STAR-for-Salmon-alignment-based-mode)
         * [`--quantTranscriptomeBan`](#--quantTranscriptomeBan-Singleend)
-        * [`--STAR_salmon_alignment_params`](#--STAR_salmon_alignment_params---param_a-4---param_b-5--param_x)
+        * [`--star_salmon_alignment_params`](#--star_salmon_alignment_params---param_a-4---param_b-5--param_x)
+        * [`--star_salmon_index_params`](#--star_salmon_index_params---param_a-4---param_b-5--param_x)
 7. [HTSeq](#7-htseq)
    * [Parameters](#Parameters)
         * [`--run_htseq_uniquely_mapped`](#--run_htseq_uniquely_mapped)
@@ -115,7 +116,7 @@
             * [`--pathogen_gff_attribute`](#--pathogen_gff_attribute-locus_tag)
 8. [RNA mapping statistics](#8-rna-mapping-statistics)
     * [`--mapping_statistics`](#--mapping_statistics)
-    * [`--RNA_classes_to_replace_host`](#--RNA_classes_to_replace_host-baseDirdataRNA_classes_to_replacecsv)
+    * [`--rna_classes_to_replace_host`](#--RNA_classes_to_replace_host-baseDirdataRNA_classes_to_replacecsv)
 9. [Other](#9-other)
    * [Reports](#Reports)
         * [`--email`](#--email)
@@ -294,7 +295,7 @@ To learn more about best practices for raw fastq file naming, please check `Inpu
 
 By default, the pipeline utilizes FastQC tool for quality control of raw sequencing reads. To learn more on FastQC, please check [`FastQC website.`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
-#### `--skipFastqc`
+#### `--skip_fastqc`
 
 An option to not run FastQC. (Default: False)
 
@@ -384,7 +385,7 @@ Maximum Hamming distance for ref kmers (subs only).
 
 Fasta file with adapter sequences (Default: `$baseDir/data/adapters.fa`).
 
-#### `--BBDuk_params "--param_a 4 --param_b 5 -param_x"`
+#### `--bbduk_params "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional BBDuk parameters you wish to use, except -Xmx1g which is already specified in the dualrnaseq pipeline.
 
@@ -470,11 +471,11 @@ If set to `True`, the pipeline will create a `mapping.sam` file containing mappi
 
 By default salmon removes/collapses identical transcripts during the indexing stage. The list of both restored and removed transcripts will be saved in the `duplicate_clusters.tsv` file of the `transcripts_index` folder. If you want to obtain quantification results for all duplicates, please specify this option `--keepDuplicates`. (Default: False).
 
-#### `--salmon_SA_params_index "--param_a 4 --param_b 5 -param_x"`
+#### `--salmon_sa_params_index "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional salmon index parameters you wish to use in selective alignment mode.
 
-#### `--salmon_SA_params_mapping "--param_a 4 --param_b 5 -param_x"`
+#### `--salmon_sa_params_mapping "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional salmon quant parameters you wish to use.
 
@@ -574,11 +575,11 @@ By default, the pipeline does not generate any of these files.
 
 Options are `Stranded` or `Unstranded` when defining the strandedness of wiggle/bedGraph output. See [`STAR documentation`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-#### `--STAR_index_params "--param_a 4 --param_b 5 -param_x"`
+#### `--star_index_params "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional star parameters to create an index.
 
-#### `--STAR_alignment_params "--param_a 4 --param_b 5 -param_x"`
+#### `--star_alignment_params "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional star alignment parameters.
 
@@ -588,9 +589,13 @@ Define a set of additional star alignment parameters.
 
 The nf-core/dualrnaseq pipeline runs STAR to generate transcriptomic alignments. By default, it allows for insertions, deletions and soft-clips (`Singleend` option). To prohibit this behaviour, please specify `IndelSoftclipSingleend`. See the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf) for more information.
 
-#### `--STAR_salmon_alignment_params "--param_a 4 --param_b 5 -param_x"`
+#### `--star_salmon_alignment_params "--param_a 4 --param_b 5 -param_x"`
 
 Define a set of additional alignment parameters for STAR in salmon alignment-based mode.
+
+#### `--star_salmon_index_params "--param_a 4 --param_b 5 -param_x"`
+
+Define a set of additional alignment parameters for STAR in salmon when indexing.
 
 ## 7. HTSeq
 
@@ -652,7 +657,7 @@ This will create the following:
 * Plots of the % of mapped/quantified reads
 * Plots of RNA-class statistics (as many types can be identified, the parameter below `--RNA_classes_to_replace_host` can help to summarise these)
 
-#### `--RNA_classes_to_replace_host "$baseDir/data/RNA_classes_to_replace.csv"`
+#### `--rna_classes_to_replace_host "$baseDir/data/RNA_classes_to_replace.csv"`
 
 Located within the `data/` folder of dualrnaseq, this tab delimited file contains headers which groups similar types of RNA classes together. This helps to keep the RNA-class names simplified for plotting purposes.
 
