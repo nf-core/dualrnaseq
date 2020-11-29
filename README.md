@@ -24,7 +24,7 @@ The workflow merges host and pathogen genome annotations taking into account dif
 
 The workflow diagram below gives a simplified visual overview of how dualrnaseq has been designed.
 
-![nf-core/dualrnaseq](images/Workflow_diagram_dualrnaseq.png)
+![nf-core/dualrnaseq](docs/images/Workflow_diagram_dualrnaseq.png)
 
 ## Quick Start
 
