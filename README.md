@@ -10,15 +10,25 @@
 
 ## Dual RNA-seq pipeline
 
+### Introduction
+
 **nf-core/dualrnaseq** is a pipeline for the analysis of Dual RNA-seq data. Dual RNA-seq is an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq.
 
-The workflow merges host and pathogen genome annotations taking into account differences in annotation conventions, then processes raw data from FastQ inputs ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),   quantifies gene expression ([STAR](https://github.com/alexdobin/STAR) and [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR](https://github.com/alexdobin/STAR), [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon](https://combine-lab.github.io/salmon/) in quasimapping mode and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)), and summarises the results ([MultiQC](http://multiqc.info/)), as well as generating a number of custom summary plots and separate results tables for the pathogen and host. See the [output documentation](docs/output.md) for more details of the results.
+This pipeline has been initially tested with eukaryotic host's including Human and Mouse, and pathogens including *Salmonella enterica*, *Orientia tsutsugamushi*, *Streptococcus penumoniae*, *Escherichia coli* and *Mycobacterium leprae*. The workflow should work with any eukaryotic and bacterial organisms with an available reference genome and annotation.
 
-## Introduction
+### Method
 
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+The workflow merges host and pathogen genome annotations taking into account differences in annotation conventions, then processes raw data from FastQ inputs ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/), [BBDuk](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)),   quantifies gene expression ([STAR](https://github.com/alexdobin/STAR) and [HTSeq](https://htseq.readthedocs.io/en/master/); [STAR](https://github.com/alexdobin/STAR), [Salmon](https://combine-lab.github.io/salmon/) and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html); or [Salmon](https://combine-lab.github.io/salmon/) in quasimapping mode and [tximport](https://bioconductor.org/packages/release/bioc/html/tximport.html)), and summarises the results ([MultiQC](http://multiqc.info/)), as well as generating a number of custom summary plots and separate results tables for the pathogen and host. See the [output documentation](docs/output.md) for more details.
+
+### Workflow
+
+The workflow diagram below gives a simplified visual overview of how dualrnaseq has been designed.
+
+![nf-core/dualrnaseq](images/Workflow_diagram_dualrnaseq.png)
 
 ## Quick Start
+
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 1. Install [`nextflow`](https://nf-co.re/usage/installation)
 
@@ -44,16 +54,15 @@ See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available opt
 
 The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
 
-1. [Introduction](docs/introduction.md)
-2. [Installation](https://nf-co.re/usage/installation)
-3. Pipeline configuration
+1. [Installation](https://nf-co.re/usage/installation)
+2. Pipeline configuration
     * [Local installation](https://nf-co.re/usage/local_installation)
     * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
     * [Reference genomes](https://nf-co.re/usage/reference_genomes)
     * [Parameters](docs/parameters.md)
-4. [Running the pipeline](docs/usage.md)
-5. [Output and how to interpret the results](docs/output.md)
-6. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+3. [Running the pipeline](docs/usage.md)
+4. [Output and how to interpret the results](docs/output.md)
+5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 ## Credits
 
