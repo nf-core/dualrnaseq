@@ -3285,7 +3285,7 @@ if(params.run_star) {
 	 */
 
 	process STARindex {
-            publishDir "${params.outdir}/STAR", mode: params.publish_dir_mode
+      publishDir "${params.outdir}/STAR", mode: params.publish_dir_mode
 	    storeDir "${params.outdir}/STAR" 
 	    tag "build_star_index"
 
@@ -3297,7 +3297,7 @@ if(params.run_star) {
 	    file(gff) from gff_host_star_alignment_gff
 
 	    output:
-                file "index/*" into star_index_genome_alignment
+      file "index/*" into star_index_genome_alignment
 
 	    script:
 	    sjdbOverhang = params.sjdbOverhang
@@ -3314,10 +3314,10 @@ if(params.run_star) {
 
 	process ALIGNMENTstar {
 	    tag "${sample_name}"
-            publishDir "${params.outdir}/STAR", mode: params.publish_dir_mode
+      publishDir "${params.outdir}/STAR", mode: params.publish_dir_mode
 	    storeDir "${params.outdir}/STAR" 
 
-            label 'process_high'
+      label 'process_high'
 	
 	    input:
 	    set val(sample_name),file(reads) from  trimming_results_star_htseq
@@ -4259,8 +4259,8 @@ workflow.onComplete {
     def email_html = html_template.toString()
 
     // Render the sendmail template
-    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, projectDir: "workflow.projectDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
-    def sf = new File("$workflow.projectDir/assets/sendmail_template.txt")
+    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, projectDir: "$projectDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
+    def sf = new File("$projectDir/assets/sendmail_template.txt")
     def sendmail_template = engine.createTemplate(sf).make(smail_fields)
     def sendmail_html = sendmail_template.toString()
 

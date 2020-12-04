@@ -10,9 +10,11 @@
 
 ## Dual RNA-seq pipeline
 
+**nf-core/dualrnaseq** is a bioinformatic pipeline built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+
 ### Introduction
 
-**nf-core/dualrnaseq** is a pipeline for the analysis of Dual RNA-seq data. Dual RNA-seq is an experimental method for interrogating host-pathogen interactions through simultaneous RNA-seq.
+**nf-core/dualrnaseq** is specifically used for the analysis of Dual RNA-seq data, interrogating host-pathogen interactions through simultaneous RNA-seq.
 
 This pipeline has been initially tested with eukaryotic host's including Human and Mouse, and pathogens including *Salmonella enterica*, *Orientia tsutsugamushi*, *Streptococcus penumoniae*, *Escherichia coli* and *Mycobacterium leprae*. The workflow should work with any eukaryotic and bacterial organisms with an available reference genome and annotation.
 
@@ -25,30 +27,6 @@ The workflow merges host and pathogen genome annotations taking into account dif
 The workflow diagram below gives a simplified visual overview of how dualrnaseq has been designed.
 
 ![nf-core/dualrnaseq](docs/images/Workflow_diagram_dualrnaseq.png)
-
-## Quick Start
-
-The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
-
-1. Install [`nextflow`](https://nf-co.re/usage/installation)
-
-2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) or [`Podman`](https://podman.io/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
-
-3. Download the pipeline and test it on a minimal dataset with a single command:
-
-    ```bash
-    nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/podman/conda/institute>
-    ```
-
-    > Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
-
-4. Start running your own analysis!
-
-    ```bash
-    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/conda/institute> --input '*_R{1,2}.fastq.gz' --genome GRCh38
-    ```
-
-See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available options when running the pipeline.
 
 ## Documentation
 
@@ -68,13 +46,16 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 
 nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz, Regan Hayward.
 
+We thank the following people for their extensive assistance in the development
+of this pipeline:
+
 ## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
 For further information or help, don't hesitate to get in touch on the [Slack `#dualrnaseq` channel](https://nfcore.slack.com/channels/dualrnaseq) (you can join with [this invite](https://nf-co.re/join/slack)).
 
-## Citation
+## Citations
 
 You can cite the `nf-core` publication as follows:
 
@@ -84,3 +65,7 @@ You can cite the `nf-core` publication as follows:
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 > ReadCube: [Full Access Link](https://rdcu.be/b1GjZ)
+
+In addition, references of tools and data used in this pipeline are as follows:
+
+<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
