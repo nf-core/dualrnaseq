@@ -16,6 +16,7 @@
             "properties": {
                 "input": {
                     "type": "string",
+                    "default": "data/*{1,2}.fastq.gz",
                     "fa_icon": "fas fa-dna",
                     "description": "Input FastQ files.",
                     "help_text": "Use this to specify the location of your input FastQ files. For example:\n\n```bash\n--input 'path/to/data/sample_*_{1,2}.fastq'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.\n\nIf left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`"
@@ -38,40 +39,423 @@
                     "fa_icon": "fas fa-envelope",
                     "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "fasta_host": {
+                    "type": "string",
+                    "description": "Host fasta file"
+                },
+                "fasta_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen fasta file"
+                },
+                "gff_host_genome": {
+                    "type": "string",
+                    "description": "Host GFF file"
+                },
+                "gff_host_tRNA": {
+                    "type": "string",
+                    "description": "Host GFF file for tRNAs (optional)"
+                },
+                "gff_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen GFF"
+                },
+                "transcriptome_host": {
+                    "type": "string",
+                    "description": "Host transcriptome file"
+                },
+                "transcriptome_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen transcriptome file"
+                },
+                "read_transcriptome_fasta_host_from_file": {
+                    "type": "string"
+                },
+                "read_transcriptome_fasta_pathogen_from_file": {
+                    "type": "string"
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "fastqc": {
+            "title": "FastQC",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Options for the reference genome indices used to align reads.",
+            "description": "",
+            "default": "",
             "properties": {
-                "genome": {
+                "skip_fastqc": {
                     "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`.\n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "description": "An option to skip the FastQC step"
                 },
-                "fasta": {
+                "fastqc_params": {
                     "type": "string",
-                    "fa_icon": "fas fa-font",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "If you have no genome reference available, the pipeline can build one using a FASTA file. This requires additional time and resources, so it's better to use a pre-build index if possible."
-                },
-                "igenomes_base": {
+                    "description": "Set of additional fastqc parameters if needed"
+                }
+            }
+        },
+        "cutadapt": {
+            "title": "Cutadapt",
+            "type": "object",
+            "description": "Adapter and read trimming",
+            "default": "",
+            "properties": {
+                "run_cutadapt": {
                     "type": "string",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes/",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
+                    "description": "To run Cutadapt"
                 },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+                "a": {
+                    "type": "string",
+                    "default": "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA",
+                    "description": "Adaptor for For single-end reads as well as the first reads of paired-end data"
+                },
+                "A": {
+                    "type": "string",
+                    "default": "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT",
+                    "description": "For paired-end data, the adapter sequence for the second reads can be defined here"
+                },
+                "quality_cutoff": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Cutadapt can also remove low-quality read ends. By default, the 3\\u2019 end of each read is trimmed using a cutoff of 10. If you specify two comma-separated cutoffs, the first value represents the 5' cutoff, and the second one the 3' cutoff"
+                },
+                "cutadapt_params": {
+                    "type": "string",
+                    "description": "Additional parameters if needed"
+                }
+            }
+        },
+        "bbduk": {
+            "title": "BBDuk",
+            "type": "object",
+            "description": "Adapter and read trimming",
+            "default": "",
+            "properties": {
+                "run_bbduk": {
+                    "type": "string",
+                    "description": "To run BBDuk"
+                },
+                "minlen": {
+                    "type": "integer",
+                    "default": 18,
+                    "description": "eads shorter than this after trimming will be discarded"
+                },
+                "qtrim": {
+                    "type": "string",
+                    "default": "r",
+                    "description": "To trim read ends to remove bases with quality below trimq"
+                },
+                "trimq": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Cutoff to trim regions with average quality BELOW given value"
+                },
+                "ktrim": {
+                    "type": "string",
+                    "default": "r",
+                    "description": "To trim reads to remove bases matching reference kmers. Avaiable options: f (don't trim), r (trim to the right - 3' adapters) l (trim to the left - 5' adapters)"
+                },
+                "k": {
+                    "type": "integer",
+                    "default": 17,
+                    "description": "Kmer length used for finding contaminants (adapters). Contaminants shorter than k will not be found. k must be at least 1"
+                },
+                "mink": {
+                    "type": "integer",
+                    "default": 11,
+                    "description": "Look for shorter kmers at read tips down to this length when k-trimming or masking. 0 means disabled.  Enabling this will disable maskmiddle"
+                },
+                "hdist": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Maximum Hamming distance for ref kmers (subs only)"
+                },
+                "adapters": {
+                    "type": "string",
+                    "default": "data/adapters.fa",
+                    "description": "Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)"
+                },
+                "bbduk_params": {
+                    "type": "string",
+                    "description": "Set of additional BBDuk parameters"
+                }
+            }
+        },
+        "salmon_general": {
+            "title": "Salmon - general",
+            "type": "object",
+            "description": "See the Salmon docmentation for more specific details",
+            "default": "",
+            "properties": {
+                "libtype": {
+                    "type": "string",
+                    "description": "Options for setting the library type. A = automatic detection"
+                },
+                "kmer_length": {
+                    "type": "integer",
+                    "default": 21,
+                    "description": "To define the k-mer length (-k parameter in Salmon)"
+                },
+                "writeUnmappedNames": {
+                    "type": "string",
+                    "description": "By default the pipeline saves names of unmapped reads"
+                },
+                "softclipOverhangs": {
+                    "type": "string",
+                    "description": "By default, the pipeline allows soft-clipping of reads"
+                },
+                "incompatPrior": {
+                    "type": "integer",
+                    "description": "By default, this is set to 0.0, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon"
+                },
+                "dumpEq": {
+                    "type": "string",
+                    "description": "o save the equivalence classes and their counts (Salmon)"
+                },
+                "writeMappings": {
+                    "type": "string",
+                    "description": "set to True, the pipeline will create a mapping.sam file containing mapping information"
+                },
+                "keepDuplicates": {
+                    "type": "string",
+                    "description": "Option to keep duplicate transcripts (True) or collapse duplicate transcripts into a single one (False))"
+                },
+                "generate_salmon_uniq_ambig": {
+                    "type": "string",
+                    "description": "To extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes"
+                }
+            }
+        },
+        "salmon_selective_alignment": {
+            "title": "Salmon - Selective alignment",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_salmon_selective_alignment": {
+                    "type": "string",
+                    "description": "Run Salmon selective alignment"
+                },
+                "gene_attribute_gff_to_create_transcriptome_host": {
+                    "type": "string",
+                    "default": "transcript_id",
+                    "description": "This flag defines the gene attribute from the 9th column of the host annotative (gff3) file, where the transcript names are extracted.  By default, the pipeline extracts transcript_id from the --gff_host file"
+                },
+                "gene_feature_gff_to_create_transcriptome_host": {
+                    "type": "string",
+                    "default": "['exon', 'tRNA']",
+                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host file and tRNA from the --gff_host_tRNA file"
+                },
+                "gene_attribute_gff_to_create_transcriptome_pathogen": {
+                    "type": "string",
+                    "default": "locus_tag",
+                    "description": "This flag defines the gene attribute from the 9th column of the pathogen annotative (gff3) file, where transcript, genes or CDS regions are extracted.  By default, the pipeline extracts locus_tag from the --gff_pathogen file"
+                },
+                "gene_feature_gff_to_create_transcriptome_pathogen": {
+                    "type": "string",
+                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
+                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file."
+                },
+                "salmon_sa_params_index": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with Salmon Selective Alignment"
+                },
+                "salmon_sa_params_mapping": {
+                    "type": "string",
+                    "description": "Set of additional parameters for mapping with Salmon Selective Alignment"
+                }
+            }
+        },
+        "salmon_alignment_based_mode": {
+            "title": "Salmon - Alignment based mode",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_salmon_alignment_based_mode": {
+                    "type": "string",
+                    "description": "To run Salmon AB"
+                },
+                "salmon_alignment_based_params": {
+                    "type": "string",
+                    "description": "Additional params"
+                }
+            }
+        },
+        "star_general": {
+            "title": "STAR - general",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_star": {
+                    "type": "string",
+                    "description": "To run STAR"
+                },
+                "outSAMunmapped": {
+                    "type": "string",
+                    "default": "Within"
+                },
+                "outSAMattributes": {
+                    "type": "string",
+                    "default": "Standard"
+                },
+                "outFilterMultimapNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "outFilterType": {
+                    "type": "string",
+                    "default": "BySJout"
+                },
+                "alignSJoverhangMin": {
+                    "type": "integer",
+                    "default": 8
+                },
+                "alignSJDBoverhangMin": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "outFilterMismatchNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "outFilterMismatchNoverReadLmax": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "alignIntronMin": {
+                    "type": "integer",
+                    "default": 20
+                },
+                "alignIntronMax": {
+                    "type": "integer",
+                    "default": 1000000
+                },
+                "alignMatesGapMax": {
+                    "type": "integer",
+                    "default": 1000000
+                },
+                "limitBAMsortRAM": {
+                    "type": "integer"
+                },
+                "winAnchorMultimapNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "sjdbOverhang": {
+                    "type": "integer",
+                    "default": 100
+                }
+            }
+        },
+        "star_genome_mapping": {
+            "title": "STAR - genome mapping",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "outWigType": {
+                    "type": "string",
+                    "default": "None"
+                },
+                "outWigStrand": {
+                    "type": "string",
+                    "default": "Stranded"
+                },
+                "star_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR"
+                },
+                "star_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR"
+                }
+            }
+        },
+        "star_salmon_alignment_based_mode": {
+            "title": "STAR - Salmon - alignment-based mode",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "star_salmon_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR in salmon"
+                },
+                "star_salmon_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR in salmon alignment-based mode"
+                },
+                "quantTranscriptomeBan": {
+                    "type": "string",
+                    "default": "Singleend"
+                }
+            }
+        },
+        "htseq": {
+            "title": "HTSeq",
+            "type": "object",
+            "description": "The parameters below are used to extract gene features from both the host and pathogen. These values may need to be changed, especially for the pathogen, as many different names exist, such as ID, Gene, Name, locus_tag etc",
+            "default": "",
+            "properties": {
+                "run_htseq_uniquely_mapped": {
+                    "type": "string",
+                    "description": "Used to run HTSeq-count and extract uniquely mapped reads from both the host and pathogen"
+                },
+                "stranded": {
+                    "type": "string",
+                    "default": "yes",
+                    "description": "A parameter for the library type. Options include \"yes\" or \"no\""
+                },
+                "max_reads_in_buffer": {
+                    "type": "integer",
+                    "default": 30000000,
+                    "description": "Option to define the number of maximum reads allowed to stay in memory until the mates are found. Has an effect for paired-end reads"
+                },
+                "minaqual": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "To specify a threshold for a minimal MAPQ alignment quality"
+                },
+                "gene_feature_gff_to_quantify_host": {
+                    "type": "string",
+                    "default": "['exon', 'tRNA']",
+                    "description": "Host - gene feature to quantify"
+                },
+                "host_gff_attribute": {
+                    "type": "string",
+                    "default": "gene_id",
+                    "description": "Host - GFF attribute"
+                },
+                "gene_feature_gff_to_quantify_pathogen": {
+                    "type": "string",
+                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
+                    "description": "Pathogen - gene feature to quantify"
+                },
+                "pathogen_gff_attribute": {
+                    "type": "string",
+                    "default": "locus_tag",
+                    "description": "Pathogen - GFF attribute"
+                },
+                "htseq_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for HTSeq"
+                }
+            }
+        },
+        "rna_mapping_statistics": {
+            "title": "RNA mapping statistics",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "mapping_statistics": {
+                    "type": "string",
+                    "description": "Option to generate mapping statistics, creating plots and summaries"
+                },
+                "rna_classes_to_replace_host": {
+                    "type": "string",
+                    "default": "{base_dir}/data/RNA_classes_to_replace.csv",
+                    "description": "Tab delimited file contains headers which groups similar types of RNA classes together. This helps to keep the RNA-class names simplified for plotting purposes"
                 }
             }
         },
@@ -244,7 +628,37 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/fastqc"
+        },
+        {
+            "$ref": "#/definitions/cutadapt"
+        },
+        {
+            "$ref": "#/definitions/bbduk"
+        },
+        {
+            "$ref": "#/definitions/salmon_general"
+        },
+        {
+            "$ref": "#/definitions/salmon_selective_alignment"
+        },
+        {
+            "$ref": "#/definitions/salmon_alignment_based_mode"
+        },
+        {
+            "$ref": "#/definitions/star_general"
+        },
+        {
+            "$ref": "#/definitions/star_genome_mapping"
+        },
+        {
+            "$ref": "#/definitions/star_salmon_alignment_based_mode"
+        },
+        {
+            "$ref": "#/definitions/htseq"
+        },
+        {
+            "$ref": "#/definitions/rna_mapping_statistics"
         },
         {
             "$ref": "#/definitions/generic_options"
