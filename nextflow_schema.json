@@ -1,0 +1,673 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/dualrnaseq/master/nextflow_schema.json",
+    "title": "nf-core/dualrnaseq pipeline parameters",
+    "description": "Dual RNA-seq pipeline",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "input"
+            ],
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "default": "data/*{1,2}.fastq.gz",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Input FastQ files.",
+                    "help_text": "Use this to specify the location of your input FastQ files. For example:\n\n```bash\n--input 'path/to/data/sample_*_{1,2}.fastq'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.\n\nIf left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`"
+                },
+                "single_end": {
+                    "type": "boolean",
+                    "description": "Specifies that the input is single-end reads.",
+                    "fa_icon": "fas fa-align-center",
+                    "help_text": "By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--input`. For example:\n\n```bash\n--single_end --input '*.fastq'\n```\n\nIt is not possible to run a mixture of single-end and paired-end files in one run."
+                },
+                "outdir": {
+                    "type": "string",
+                    "description": "The output directory where the results will be saved.",
+                    "default": "./results",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "fasta_host": {
+                    "type": "string",
+                    "description": "Host fasta file"
+                },
+                "fasta_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen fasta file"
+                },
+                "gff_host_genome": {
+                    "type": "string",
+                    "description": "Host GFF file"
+                },
+                "gff_host_tRNA": {
+                    "type": "string",
+                    "description": "Host GFF file for tRNAs (optional)"
+                },
+                "gff_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen GFF"
+                },
+                "transcriptome_host": {
+                    "type": "string",
+                    "description": "Host transcriptome file"
+                },
+                "transcriptome_pathogen": {
+                    "type": "string",
+                    "description": "Pathogen transcriptome file"
+                },
+                "read_transcriptome_fasta_host_from_file": {
+                    "type": "string"
+                },
+                "read_transcriptome_fasta_pathogen_from_file": {
+                    "type": "string"
+                }
+            }
+        },
+        "fastqc": {
+            "title": "FastQC",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "skip_fastqc": {
+                    "type": "string",
+                    "description": "An option to skip the FastQC step"
+                },
+                "fastqc_params": {
+                    "type": "string",
+                    "description": "Set of additional fastqc parameters if needed"
+                }
+            }
+        },
+        "cutadapt": {
+            "title": "Cutadapt",
+            "type": "object",
+            "description": "Adapter and read trimming",
+            "default": "",
+            "properties": {
+                "run_cutadapt": {
+                    "type": "string",
+                    "description": "To run Cutadapt"
+                },
+                "a": {
+                    "type": "string",
+                    "default": "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA",
+                    "description": "Adaptor for For single-end reads as well as the first reads of paired-end data"
+                },
+                "A": {
+                    "type": "string",
+                    "default": "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT",
+                    "description": "For paired-end data, the adapter sequence for the second reads can be defined here"
+                },
+                "quality_cutoff": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Cutadapt can also remove low-quality read ends. By default, the 3\\u2019 end of each read is trimmed using a cutoff of 10. If you specify two comma-separated cutoffs, the first value represents the 5' cutoff, and the second one the 3' cutoff"
+                },
+                "cutadapt_params": {
+                    "type": "string",
+                    "description": "Additional parameters if needed"
+                }
+            }
+        },
+        "bbduk": {
+            "title": "BBDuk",
+            "type": "object",
+            "description": "Adapter and read trimming",
+            "default": "",
+            "properties": {
+                "run_bbduk": {
+                    "type": "string",
+                    "description": "To run BBDuk"
+                },
+                "minlen": {
+                    "type": "integer",
+                    "default": 18,
+                    "description": "eads shorter than this after trimming will be discarded"
+                },
+                "qtrim": {
+                    "type": "string",
+                    "default": "r",
+                    "description": "To trim read ends to remove bases with quality below trimq"
+                },
+                "trimq": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Cutoff to trim regions with average quality BELOW given value"
+                },
+                "ktrim": {
+                    "type": "string",
+                    "default": "r",
+                    "description": "To trim reads to remove bases matching reference kmers. Avaiable options: f (don't trim), r (trim to the right - 3' adapters) l (trim to the left - 5' adapters)"
+                },
+                "k": {
+                    "type": "integer",
+                    "default": 17,
+                    "description": "Kmer length used for finding contaminants (adapters). Contaminants shorter than k will not be found. k must be at least 1"
+                },
+                "mink": {
+                    "type": "integer",
+                    "default": 11,
+                    "description": "Look for shorter kmers at read tips down to this length when k-trimming or masking. 0 means disabled.  Enabling this will disable maskmiddle"
+                },
+                "hdist": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Maximum Hamming distance for ref kmers (subs only)"
+                },
+                "adapters": {
+                    "type": "string",
+                    "default": "data/adapters.fa",
+                    "description": "Fasta file with adapter sequences (Default: $baseDir/data/adapters.fa)"
+                },
+                "bbduk_params": {
+                    "type": "string",
+                    "description": "Set of additional BBDuk parameters"
+                }
+            }
+        },
+        "salmon_general": {
+            "title": "Salmon - general",
+            "type": "object",
+            "description": "See the Salmon docmentation for more specific details",
+            "default": "",
+            "properties": {
+                "libtype": {
+                    "type": "string",
+                    "description": "Options for setting the library type. A = automatic detection"
+                },
+                "kmer_length": {
+                    "type": "integer",
+                    "default": 21,
+                    "description": "To define the k-mer length (-k parameter in Salmon)"
+                },
+                "writeUnmappedNames": {
+                    "type": "string",
+                    "description": "By default the pipeline saves names of unmapped reads"
+                },
+                "softclipOverhangs": {
+                    "type": "string",
+                    "description": "By default, the pipeline allows soft-clipping of reads"
+                },
+                "incompatPrior": {
+                    "type": "integer",
+                    "description": "By default, this is set to 0.0, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon"
+                },
+                "dumpEq": {
+                    "type": "string",
+                    "description": "o save the equivalence classes and their counts (Salmon)"
+                },
+                "writeMappings": {
+                    "type": "string",
+                    "description": "set to True, the pipeline will create a mapping.sam file containing mapping information"
+                },
+                "keepDuplicates": {
+                    "type": "string",
+                    "description": "Option to keep duplicate transcripts (True) or collapse duplicate transcripts into a single one (False))"
+                },
+                "generate_salmon_uniq_ambig": {
+                    "type": "string",
+                    "description": "To extract all of the unique and ambigious reads after quantification. Works for both Selective alignment and alignment-based modes"
+                }
+            }
+        },
+        "salmon_selective_alignment": {
+            "title": "Salmon - Selective alignment",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_salmon_selective_alignment": {
+                    "type": "string",
+                    "description": "Run Salmon selective alignment"
+                },
+                "gene_attribute_gff_to_create_transcriptome_host": {
+                    "type": "string",
+                    "default": "transcript_id",
+                    "description": "This flag defines the gene attribute from the 9th column of the host annotative (gff3) file, where the transcript names are extracted.  By default, the pipeline extracts transcript_id from the --gff_host file"
+                },
+                "gene_feature_gff_to_create_transcriptome_host": {
+                    "type": "string",
+                    "default": "['exon', 'tRNA']",
+                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host file and tRNA from the --gff_host_tRNA file"
+                },
+                "gene_attribute_gff_to_create_transcriptome_pathogen": {
+                    "type": "string",
+                    "default": "locus_tag",
+                    "description": "This flag defines the gene attribute from the 9th column of the pathogen annotative (gff3) file, where transcript, genes or CDS regions are extracted.  By default, the pipeline extracts locus_tag from the --gff_pathogen file"
+                },
+                "gene_feature_gff_to_create_transcriptome_pathogen": {
+                    "type": "string",
+                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
+                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file."
+                },
+                "salmon_sa_params_index": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with Salmon Selective Alignment"
+                },
+                "salmon_sa_params_mapping": {
+                    "type": "string",
+                    "description": "Set of additional parameters for mapping with Salmon Selective Alignment"
+                }
+            }
+        },
+        "salmon_alignment_based_mode": {
+            "title": "Salmon - Alignment based mode",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_salmon_alignment_based_mode": {
+                    "type": "string",
+                    "description": "To run Salmon AB"
+                },
+                "salmon_alignment_based_params": {
+                    "type": "string",
+                    "description": "Additional params"
+                }
+            }
+        },
+        "star_general": {
+            "title": "STAR - general",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "run_star": {
+                    "type": "string",
+                    "description": "To run STAR"
+                },
+                "outSAMunmapped": {
+                    "type": "string",
+                    "default": "Within"
+                },
+                "outSAMattributes": {
+                    "type": "string",
+                    "default": "Standard"
+                },
+                "outFilterMultimapNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "outFilterType": {
+                    "type": "string",
+                    "default": "BySJout"
+                },
+                "alignSJoverhangMin": {
+                    "type": "integer",
+                    "default": 8
+                },
+                "alignSJDBoverhangMin": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "outFilterMismatchNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "outFilterMismatchNoverReadLmax": {
+                    "type": "integer",
+                    "default": 1
+                },
+                "alignIntronMin": {
+                    "type": "integer",
+                    "default": 20
+                },
+                "alignIntronMax": {
+                    "type": "integer",
+                    "default": 1000000
+                },
+                "alignMatesGapMax": {
+                    "type": "integer",
+                    "default": 1000000
+                },
+                "limitBAMsortRAM": {
+                    "type": "integer"
+                },
+                "winAnchorMultimapNmax": {
+                    "type": "integer",
+                    "default": 999
+                },
+                "sjdbOverhang": {
+                    "type": "integer",
+                    "default": 100
+                }
+            }
+        },
+        "star_genome_mapping": {
+            "title": "STAR - genome mapping",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "outWigType": {
+                    "type": "string",
+                    "default": "None"
+                },
+                "outWigStrand": {
+                    "type": "string",
+                    "default": "Stranded"
+                },
+                "star_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR"
+                },
+                "star_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR"
+                }
+            }
+        },
+        "star_salmon_alignment_based_mode": {
+            "title": "STAR - Salmon - alignment-based mode",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "star_salmon_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR in salmon"
+                },
+                "star_salmon_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR in salmon alignment-based mode"
+                },
+                "quantTranscriptomeBan": {
+                    "type": "string",
+                    "default": "Singleend"
+                }
+            }
+        },
+        "htseq": {
+            "title": "HTSeq",
+            "type": "object",
+            "description": "The parameters below are used to extract gene features from both the host and pathogen. These values may need to be changed, especially for the pathogen, as many different names exist, such as ID, Gene, Name, locus_tag etc",
+            "default": "",
+            "properties": {
+                "run_htseq_uniquely_mapped": {
+                    "type": "string",
+                    "description": "Used to run HTSeq-count and extract uniquely mapped reads from both the host and pathogen"
+                },
+                "stranded": {
+                    "type": "string",
+                    "default": "yes",
+                    "description": "A parameter for the library type. Options include \"yes\" or \"no\""
+                },
+                "max_reads_in_buffer": {
+                    "type": "integer",
+                    "default": 30000000,
+                    "description": "Option to define the number of maximum reads allowed to stay in memory until the mates are found. Has an effect for paired-end reads"
+                },
+                "minaqual": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "To specify a threshold for a minimal MAPQ alignment quality"
+                },
+                "gene_feature_gff_to_quantify_host": {
+                    "type": "string",
+                    "default": "['exon', 'tRNA']",
+                    "description": "Host - gene feature to quantify"
+                },
+                "host_gff_attribute": {
+                    "type": "string",
+                    "default": "gene_id",
+                    "description": "Host - GFF attribute"
+                },
+                "gene_feature_gff_to_quantify_pathogen": {
+                    "type": "string",
+                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
+                    "description": "Pathogen - gene feature to quantify"
+                },
+                "pathogen_gff_attribute": {
+                    "type": "string",
+                    "default": "locus_tag",
+                    "description": "Pathogen - GFF attribute"
+                },
+                "htseq_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for HTSeq"
+                }
+            }
+        },
+        "rna_mapping_statistics": {
+            "title": "RNA mapping statistics",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "mapping_statistics": {
+                    "type": "string",
+                    "description": "Option to generate mapping statistics, creating plots and summaries"
+                },
+                "rna_classes_to_replace_host": {
+                    "type": "string",
+                    "default": "{base_dir}/data/RNA_classes_to_replace.csv",
+                    "description": "Tab delimited file contains headers which groups similar types of RNA classes together. This helps to keep the RNA-class names simplified for plotting purposes"
+                }
+            }
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "properties": {
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-question-circle"
+                },
+                "publish_dir_mode": {
+                    "type": "string",
+                    "default": "copy",
+                    "hidden": true,
+                    "description": "Method used to save pipeline results to output directory.",
+                    "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
+                    "fa_icon": "fas fa-copy",
+                    "enum": [
+                        "symlink",
+                        "rellink",
+                        "link",
+                        "copy",
+                        "copyNoFollow",
+                        "move"
+                    ]
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Workflow name.",
+                    "fa_icon": "fas fa-fingerprint",
+                    "hidden": true,
+                    "help_text": "A custom name for the pipeline run. Unlike the core nextflow `-name` option with one hyphen this parameter can be reused multiple times, for example if using `-resume`. Passed through to steps such as MultiQC and used for things like report filenames and titles."
+                },
+                "email_on_fail": {
+                    "type": "string",
+                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "fa_icon": "fas fa-exclamation-triangle",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+                    "hidden": true,
+                    "help_text": "This works exactly as with `--email`, except emails are only sent if the workflow is not successful."
+                },
+                "plaintext_email": {
+                    "type": "boolean",
+                    "description": "Send plain-text email instead of HTML.",
+                    "fa_icon": "fas fa-remove-format",
+                    "hidden": true,
+                    "help_text": "Set to receive plain-text e-mails instead of HTML formatted."
+                },
+                "max_multiqc_email_size": {
+                    "type": "string",
+                    "description": "File size limit when attaching MultiQC reports to summary emails.",
+                    "default": "25.MB",
+                    "fa_icon": "fas fa-file-upload",
+                    "hidden": true,
+                    "help_text": "If file generated by pipeline exceeds the threshold, it will not be attached."
+                },
+                "monochrome_logs": {
+                    "type": "boolean",
+                    "description": "Do not use coloured log outputs.",
+                    "fa_icon": "fas fa-palette",
+                    "hidden": true,
+                    "help_text": "Set to disable colourful command line output and live life in monochrome."
+                },
+                "multiqc_config": {
+                    "type": "string",
+                    "description": "Custom config file to supply to MultiQC.",
+                    "fa_icon": "fas fa-cog",
+                    "hidden": true
+                },
+                "tracedir": {
+                    "type": "string",
+                    "description": "Directory to keep pipeline Nextflow logs and reports.",
+                    "default": "${params.outdir}/pipeline_info",
+                    "fa_icon": "fas fa-cogs",
+                    "hidden": true
+                }
+            }
+        },
+        "max_job_request_options": {
+            "title": "Max job request options",
+            "type": "object",
+            "fa_icon": "fab fa-acquisitions-incorporated",
+            "description": "Set the top limit for requested resources for any single job.",
+            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "description": "Maximum number of CPUs that can be requested    for any single job.",
+                    "default": 16,
+                    "fa_icon": "fas fa-microchip",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
+                },
+                "max_memory": {
+                    "type": "string",
+                    "description": "Maximum amount of memory that can be requested for any single job.",
+                    "default": "128.GB",
+                    "fa_icon": "fas fa-memory",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
+                },
+                "max_time": {
+                    "type": "string",
+                    "description": "Maximum amount of time that can be requested for any single job.",
+                    "default": "240.h",
+                    "fa_icon": "far fa-clock",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                }
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "custom_config_version": {
+                    "type": "string",
+                    "description": "Git commit id for Institutional configs.",
+                    "default": "master",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog",
+                    "help_text": "Provide git commit id for custom Institutional configs hosted at `nf-core/configs`. This was implemented for reproducibility purposes. Default: `master`.\n\n```bash\n## Download and use config file with following git commit id\n--custom_config_version d52db660777c4bf36546ddb188ec530c3ada1b96\n```"
+                },
+                "custom_config_base": {
+                    "type": "string",
+                    "description": "Base directory for Institutional configs.",
+                    "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+                    "hidden": true,
+                    "help_text": "If you're running offline, nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell nextflow where to find them with the `custom_config_base` option. For example:\n\n```bash\n## Download and unzip the config files\ncd /path/to/my/configs\nwget https://github.com/nf-core/configs/archive/master.zip\nunzip master.zip\n\n## Run the pipeline\ncd /path/to/my/data\nnextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs-master/\n```\n\n> Note that the nf-core/tools helper package has a `download` command to download all required pipeline files + singularity containers + institutional configs in one go for you, to make this process easier.",
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "hostnames": {
+                    "type": "string",
+                    "description": "Institutional configs hostname.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_description": {
+                    "type": "string",
+                    "description": "Institutional config description.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_contact": {
+                    "type": "string",
+                    "description": "Institutional config contact information.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_url": {
+                    "type": "string",
+                    "description": "Institutional config URL link.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/fastqc"
+        },
+        {
+            "$ref": "#/definitions/cutadapt"
+        },
+        {
+            "$ref": "#/definitions/bbduk"
+        },
+        {
+            "$ref": "#/definitions/salmon_general"
+        },
+        {
+            "$ref": "#/definitions/salmon_selective_alignment"
+        },
+        {
+            "$ref": "#/definitions/salmon_alignment_based_mode"
+        },
+        {
+            "$ref": "#/definitions/star_general"
+        },
+        {
+            "$ref": "#/definitions/star_genome_mapping"
+        },
+        {
+            "$ref": "#/definitions/star_salmon_alignment_based_mode"
+        },
+        {
+            "$ref": "#/definitions/htseq"
+        },
+        {
+            "$ref": "#/definitions/rna_mapping_statistics"
+        },
+        {
+            "$ref": "#/definitions/generic_options"
+        },
+        {
+            "$ref": "#/definitions/max_job_request_options"
+        },
+        {
+            "$ref": "#/definitions/institutional_config_options"
+        }
+    ]
+}
