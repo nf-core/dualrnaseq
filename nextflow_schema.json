@@ -73,6 +73,11 @@
                 },
                 "read_transcriptome_fasta_pathogen_from_file": {
                     "type": "string"
+                },
+                "genome": {
+                    "type": "string",
+                    "hidden": true,
+                    "description": "Required by nf - but not used"
                 }
             }
         },
