@@ -10,7 +10,7 @@
 
 ## Dual RNA-seq pipeline
 
-**nf-core/dualrnaseq** is a bioinformatic pipeline built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
+**nf-core/dualrnaseq** is a bioinformatics pipeline built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 ### Introduction
 
@@ -44,7 +44,7 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, fou
 
 ## Credits
 
-nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz, Regan Hayward.
+nf-core/dualrnaseq was coded and written by Bozena Mika-Gospodorz and Regan Hayward.
 
 We thank the following people for their extensive assistance in the development
 of this pipeline:
