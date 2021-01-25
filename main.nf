@@ -1488,10 +1488,8 @@ if (!params.skip_fastqc) {
 	    tag "$name"
 	    label 'process_medium'
 
-	    publishDir "${params.outdir}/fastqc", mode: params.publish_dir_mode,
-	    saveAs: { filename ->
-	              filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"
-		        }
+	    publishDir "${params.outdir}/fastqc", mode: params.publish_dir_mode
+      //saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 	    storeDir "${params.outdir}/fastqc"
 
 	    input:
@@ -1640,7 +1638,8 @@ if (params.run_cutadapt | params.run_bbduk) {
 if (params.run_cutadapt | params.run_bbduk & !params.skip_fastqc) {
 	process fastqc_after_trimming {
 	    tag "$sample_name"
-	    publishDir "${params.outdir}/fastqc_after_trimming", mode: params.publish_dir_mode, saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
+	    publishDir "${params.outdir}/fastqc_after_trimming", mode: params.publish_dir_mode
+      //saveAs: {filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename"}
 	    storeDir "${params.outdir}/fastqc_after_trimming"
 
 	    label 'process_medium'
