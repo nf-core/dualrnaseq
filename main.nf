@@ -38,7 +38,7 @@ def helpMessage() {
     Mandatory arguments:
       --input [file]                  Path to input data (must be surrounded with quotes)
       -profile [str]                  Configuration profile to use. Can use multiple (comma separated)
-                                      Available: conda, docker, singularity, test, awsbatch, <institute> and more
+                                      Available: conda, docker, singularity, test, podman, awsbatch, <institute> and more
 
     References and annotative files can be specified in the configuration file.
     Alternatively, the following params can be edited directly.
