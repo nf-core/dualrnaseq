@@ -57,6 +57,8 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
+An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
+
 You can cite the `nf-core` publication as follows:
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
