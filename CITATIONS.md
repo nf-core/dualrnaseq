@@ -13,7 +13,7 @@
 * [BBTools](https://jgi.doe.gov/data-and-tools/bbtools/)
 
 * [Cutadapt](https://doi.org/10.14806/ej.17.1.200)
-  > Martin, M. (2011). Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.journal, 17(1), pp. 10-12. doi:https://doi.org/10.14806/ej.17.1.200.
+  > Martin, M. (2011). Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.journal, 17(1), pp. 10-12
 
 * [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
