@@ -5,20 +5,23 @@
     "description": "Dual RNA-seq pipeline",
     "type": "object",
     "definitions": {
-        "input_output_options": {
-            "title": "Input/output options",
+        "pipeline_basics": {
+            "title": "Pipeline - basics",
             "type": "object",
-            "fa_icon": "fas fa-terminal",
-            "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "input"
-            ],
+            "description": "Primary parameters for runtime",
+            "default": "",
             "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Workflow name.",
+                    "fa_icon": "fas fa-fingerprint",
+                    "help_text": "A custom name for the pipeline run. Unlike the core nextflow `-name` option with one hyphen this parameter can be reused multiple times, for example if using `-resume`. Passed through to steps such as MultiQC and used for things like report filenames and titles."
+                },
                 "input": {
                     "type": "string",
                     "default": "data/*{1,2}.fastq.gz",
                     "fa_icon": "fas fa-dna",
-                    "description": "Input FastQ files.",
+                    "description": "Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions.",
                     "help_text": "Use this to specify the location of your input FastQ files. For example:\n\n```bash\n--input 'path/to/data/sample_*_{1,2}.fastq'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.\n\nIf left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`"
                 },
                 "single_end": {
@@ -32,14 +35,50 @@
                     "description": "The output directory where the results will be saved.",
                     "default": "./results",
                     "fa_icon": "fas fa-folder-open"
+                }
+            },
+            "required": [
+                "input"
+            ]
+        },
+        "pipeline_resources": {
+            "title": "Pipeline resources",
+            "type": "object",
+            "fa_icon": "fab fa-acquisitions-incorporated",
+            "description": "Set the top limit for requested resources for any single job.",
+            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
+            "properties": {
+                "max_cpus": {
+                    "type": "integer",
+                    "description": "Maximum number of CPUs that can be requested    for any single job.",
+                    "default": 16,
+                    "fa_icon": "fas fa-microchip",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
                 },
-                "email": {
+                "max_memory": {
                     "type": "string",
-                    "description": "Email address for completion summary.",
-                    "fa_icon": "fas fa-envelope",
-                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
-                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                    "description": "Maximum amount of memory that can be requested for any single job.",
+                    "default": "128.GB",
+                    "fa_icon": "fas fa-memory",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
                 },
+                "max_time": {
+                    "type": "string",
+                    "description": "Maximum amount of time that can be requested for any single job.",
+                    "default": "240.h",
+                    "fa_icon": "far fa-clock",
+                    "hidden": true,
+                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                }
+            }
+        },
+        "genome_references_and_annotation": {
+            "title": "Genome references and annotation",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "properties": {
                 "fasta_host": {
                     "type": "string",
                     "description": "Host fasta file"
@@ -69,38 +108,51 @@
                     "description": "Pathogen transcriptome file"
                 },
                 "read_transcriptome_fasta_host_from_file": {
-                    "type": "string"
+                    "type": "boolean",
+                    "description": "If supplying custom transcriptome files"
                 },
                 "read_transcriptome_fasta_pathogen_from_file": {
-                    "type": "string"
+                    "type": "boolean",
+                    "description": "If supplying custom transcriptome files"
                 },
-                "genome": {
+                "genome_host": {
                     "type": "string",
+                    "default": "GRCh38",
                     "hidden": true,
-                    "description": "Required by nf - but not used"
+                    "description": "Name of host genome in the genomes.conf file"
+                },
+                "genome_pathogen": {
+                    "type": "string",
+                    "default": "SL1344",
+                    "hidden": true,
+                    "description": "Name of host genome in the genomes.conf file"
+                },
+                "genomes_ignore": {
+                    "type": "string"
                 }
-            }
+            },
+            "description": "If used, the path to the files should be enclosed by quotes \"../..\""
         },
         "fastqc": {
             "title": "FastQC",
             "type": "object",
-            "description": "",
+            "description": "By default, the pipeline utilizes FastQC tool for quality control of raw sequencing reads",
             "default": "",
             "properties": {
                 "skip_fastqc": {
                     "type": "string",
-                    "description": "An option to skip the FastQC step"
+                    "description": "An option to not run FastQC. (Default: False)  This is set to False within the configuration files, but only needs to be passed on the command line to become True."
                 },
                 "fastqc_params": {
                     "type": "string",
-                    "description": "Set of additional fastqc parameters if needed"
+                    "description": "Define a set of additional fastqc parameters you wish to use, except --quiet --threads --noextract flags which are already specified in the dualrnaseq pipeline"
                 }
             }
         },
         "cutadapt": {
             "title": "Cutadapt",
             "type": "object",
-            "description": "Adapter and read trimming",
+            "description": "Adapter and read trimming is performed by either Cutadapt or BBDuk with the following related options",
             "default": "",
             "properties": {
                 "run_cutadapt": {
@@ -120,7 +172,8 @@
                 "quality_cutoff": {
                     "type": "integer",
                     "default": 10,
-                    "description": "Cutadapt can also remove low-quality read ends. By default, the 3\\u2019 end of each read is trimmed using a cutoff of 10. If you specify two comma-separated cutoffs, the first value represents the 5' cutoff, and the second one the 3' cutoff"
+                    "description": "Cutadapt can also remove low-quality read ends. By default, the 3\\u2019 end of each read is trimmed using a cutoff of 10. If you specify two comma-separated cutoffs, the first value represents the 5' cutoff, and the second one the 3' cutoff",
+                    "help_text": ""
                 },
                 "cutadapt_params": {
                     "type": "string",
@@ -131,7 +184,7 @@
         "bbduk": {
             "title": "BBDuk",
             "type": "object",
-            "description": "Adapter and read trimming",
+            "description": "Adapter and read trimming is performed by either Cutadapt or BBDuk with the following related options",
             "default": "",
             "properties": {
                 "run_bbduk": {
@@ -471,17 +524,11 @@
             "description": "Less common options for the pipeline, typically set in a config file.",
             "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
             "properties": {
-                "help": {
-                    "type": "boolean",
-                    "description": "Display help text.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-question-circle"
-                },
                 "publish_dir_mode": {
                     "type": "string",
                     "default": "copy",
                     "hidden": true,
-                    "description": "Method used to save pipeline results to output directory.",
+                    "description": "Method used to save pipeline results to output directory (please don't change).",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
                     "enum": [
@@ -492,13 +539,6 @@
                         "copyNoFollow",
                         "move"
                     ]
-                },
-                "name": {
-                    "type": "string",
-                    "description": "Workflow name.",
-                    "fa_icon": "fas fa-fingerprint",
-                    "hidden": true,
-                    "help_text": "A custom name for the pipeline run. Unlike the core nextflow `-name` option with one hyphen this parameter can be reused multiple times, for example if using `-resume`. Passed through to steps such as MultiQC and used for things like report filenames and titles."
                 },
                 "email_on_fail": {
                     "type": "string",
@@ -542,39 +582,19 @@
                     "default": "${params.outdir}/pipeline_info",
                     "fa_icon": "fas fa-cogs",
                     "hidden": true
-                }
-            }
-        },
-        "max_job_request_options": {
-            "title": "Max job request options",
-            "type": "object",
-            "fa_icon": "fab fa-acquisitions-incorporated",
-            "description": "Set the top limit for requested resources for any single job.",
-            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
-            "properties": {
-                "max_cpus": {
-                    "type": "integer",
-                    "description": "Maximum number of CPUs that can be requested    for any single job.",
-                    "default": 16,
-                    "fa_icon": "fas fa-microchip",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
                 },
-                "max_memory": {
-                    "type": "string",
-                    "description": "Maximum amount of memory that can be requested for any single job.",
-                    "default": "128.GB",
-                    "fa_icon": "fas fa-memory",
+                "help": {
+                    "type": "boolean",
+                    "description": "Display help text.",
                     "hidden": true,
-                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
+                    "fa_icon": "fas fa-question-circle"
                 },
-                "max_time": {
+                "email": {
                     "type": "string",
-                    "description": "Maximum amount of time that can be requested for any single job.",
-                    "default": "240.h",
-                    "fa_icon": "far fa-clock",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
                 }
             }
         },
@@ -630,7 +650,13 @@
     },
     "allOf": [
         {
-            "$ref": "#/definitions/input_output_options"
+            "$ref": "#/definitions/pipeline_basics"
+        },
+        {
+            "$ref": "#/definitions/pipeline_resources"
+        },
+        {
+            "$ref": "#/definitions/genome_references_and_annotation"
         },
         {
             "$ref": "#/definitions/fastqc"
@@ -667,9 +693,6 @@
         },
         {
             "$ref": "#/definitions/generic_options"
-        },
-        {
-            "$ref": "#/definitions/max_job_request_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
