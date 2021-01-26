@@ -307,10 +307,15 @@ SET UP CONFIGURATIONs AND IDENTIFY USER-SPECIFIED VARIABLES
  */
 
 //----------
-// Check if genome exists in the config file
+// Check if genomes exists in the config file
 //----------
-if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-    exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+
+if (params.genomes && params.genome_host && !params.genomes.containsKey(params.genome_host)) {
+    exit 1, "The provided genome '${params.genome_host}' is not available in the genomes.config file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+}
+
+if (params.genomes && params.genome_pathogen && !params.genomes.containsKey(params.genome_pathogen)) {
+    exit 1, "The provided genome '${params.genome_pathogen}' is not available in the genomes.config file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
 }
 
 
