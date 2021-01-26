@@ -3397,7 +3397,7 @@ if(params.run_star) {
 		    	"""
 		    } else {
 		    	"""
-		    	$workflow.projectDir/bin/remove_crossmapped_read_paires_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
+		    	$workflow.projectDir/bin/remove_crossmapped_read_pairs_BAM.sh $alignment $workflow.projectDir/bin $host_reference $pathogen_reference $cross_mapped_reads $bam_file_without_crossmapped
 		    	"""
 		    }
 		}
