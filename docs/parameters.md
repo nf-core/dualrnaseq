@@ -1,5 +1,9 @@
 # nf-core/dualrnaseq: Parameters
 
+Below are the full list of parameters that can be changed based on varying input data and required results.
+
+Users may benefit from using the nf-core [launch a pipeline from the web tool](https://nf-co.re/launch), which contains the same information listed below, but in a more graphically friendly format. You can fill out the fields and this tool will create the corresponding command line syntax.
+
 ## Table of contents
 
 1. [Nextflow](#1-nextflow)
