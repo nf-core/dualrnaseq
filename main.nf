@@ -473,7 +473,7 @@ Channel
 
 Channel
     .value( ch_fasta_host )
-    .into { genome_fasta_host_to_combine; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
+    .into { genome_fasta_host_to_combine; genome_fasta_host_to_decoys; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
 
 
 //----------
@@ -1771,7 +1771,9 @@ if(params.run_salmon_selective_alignment) {
 	    label 'process_high'
 
 	    input:
-	    file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
+	    file(host_fa) from genome_fasta_host_to_decoys
+      //file(host_tr_fa) from host_transcriptome_to_combine
+      file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file(host_pathogen_transcriptome_fasta) from transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 
 	    output:
@@ -1780,7 +1782,7 @@ if(params.run_salmon_selective_alignment) {
 
 	    shell:
 	    '''
-	    grep ">" !{host_pathogen_genome_fasta} | cut -d " " -f 1 > decoys.txt
+	    grep ">" !{host_fa} | cut -d " " -f 1 > decoys.txt
 	    sed -i -e 's/>//g' decoys.txt
 	    cat !{host_pathogen_transcriptome_fasta} !{host_pathogen_genome_fasta} > gentrome.fasta
 	    '''
