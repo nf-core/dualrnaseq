@@ -386,6 +386,7 @@ if (params.run_htseq_uniquely_mapped){
 	if (!params.run_star){
     exit 1, "HTSeq: There is no alignment file. Please specify --run_star"
 }
+}
 
 //----------
 // Salmon alignment based mode - check if there is an alignment file
@@ -394,7 +395,7 @@ if (params.run_salmon_alignment_based_mode){
 	if (!params.run_star){
     exit 1, "Salmon: There is no alignment file. Please specify --run_star"
 }
-
+}
 
 //----------
 // Mapping stats
