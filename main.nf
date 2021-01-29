@@ -38,7 +38,7 @@ def helpMessage() {
     Mandatory arguments:
       --input [file]                  Path to input data (must be surrounded with quotes)
       -profile [str]                  Configuration profile to use. Can use multiple (comma separated)
-                                      Available: conda, docker, singularity, test, awsbatch, <institute> and more
+                                      Available: conda, docker, singularity, test, podman, awsbatch, <institute> and more
 
     References and annotative files can be specified in the configuration file.
     Alternatively, the following params can be edited directly.
@@ -385,8 +385,10 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 if (params.run_htseq_uniquely_mapped){
 	if (!params.run_star){
     exit 1, "HTSeq: There is no alignment file. Please specify --run_star"
+  }
 }
 }
+
 
 //----------
 // Salmon alignment based mode - check if there is an alignment file
@@ -394,6 +396,7 @@ if (params.run_htseq_uniquely_mapped){
 if (params.run_salmon_alignment_based_mode){
 	if (!params.run_star){
     exit 1, "Salmon: There is no alignment file. Please specify --run_star"
+  }
 }
 }
 
@@ -471,7 +474,7 @@ Channel
 
 Channel
     .value( ch_fasta_host )
-    .into { genome_fasta_host_to_combine; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
+    .into { genome_fasta_host_to_combine; genome_fasta_host_to_decoys; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
 
 
 //----------
@@ -1769,7 +1772,9 @@ if(params.run_salmon_selective_alignment) {
 	    label 'process_high'
 
 	    input:
-	    file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
+	    file(host_fa) from genome_fasta_host_to_decoys
+      //file(host_tr_fa) from host_transcriptome_to_combine
+      file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file(host_pathogen_transcriptome_fasta) from transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 
 	    output:
@@ -1778,7 +1783,7 @@ if(params.run_salmon_selective_alignment) {
 
 	    shell:
 	    '''
-	    grep ">" !{host_pathogen_genome_fasta} | cut -d " " -f 1 > decoys.txt
+	    grep ">" !{host_fa} | cut -d " " -f 1 > decoys.txt
 	    sed -i -e 's/>//g' decoys.txt
 	    cat !{host_pathogen_transcriptome_fasta} !{host_pathogen_genome_fasta} > gentrome.fasta
 	    '''
