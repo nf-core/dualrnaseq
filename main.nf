@@ -387,7 +387,6 @@ if (params.run_htseq_uniquely_mapped){
     exit 1, "HTSeq: There is no alignment file. Please specify --run_star"
   }
 }
-}
 
 
 //----------
@@ -397,7 +396,6 @@ if (params.run_salmon_alignment_based_mode){
 	if (!params.run_star){
     exit 1, "Salmon: There is no alignment file. Please specify --run_star"
   }
-}
 }
 
 //----------
