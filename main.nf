@@ -468,11 +468,11 @@ if (params.input_paths) {
 Channel
     .value( ch_fasta_pathogen)
     .collect()
-    .into { genome_fasta_pathogen_to_combine; genome_fasta_pathogen_ref_names; genome_fasta_pathogen_to_transcriptome}
+    .set { genome_fasta_pathogen_to_unzip}
 
 Channel
     .value( ch_fasta_host )
-    .into { genome_fasta_host_to_combine; genome_fasta_host_to_decoys; genome_fasta_host_ref_names; genome_fasta_host_to_transcriptome; genome_fasta_host_to_transcriptome_tRNA}
+    .set { genome_fasta_host_to_unzip}
 
 
 //----------
@@ -789,6 +789,86 @@ if(params.mapping_statistics) {
  * STEP 2 - Prepare reference files
  */
 
+process unzip_pathogen_fasta_genome {
+    tag "unzip_genome_fa_files"
+    publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+    label 'process_high'
+
+    input:
+    each file(f_ext) from genome_fasta_pathogen_to_unzip.collect()
+
+    output:
+    file "${base_name_file}.fasta" into genome_fasta_pathogen_to_combine
+    file "${base_name_file}.fasta" into genome_fasta_pathogen_ref_names
+    file "${base_name_file}.fasta" into genome_fasta_pathogen_to_transcriptome
+
+    shell:
+    ext_file = f_ext.getExtension()
+    base_name_file = f_ext.getBaseName()
+    if (ext_file == "fasta" | ext_file == "fa"){
+	'''
+	cp -n !{f_ext} !{base_name_file}.fasta
+	'''
+    }else if(ext_file == "zip"){
+    old_base_name_file = base_name_file
+    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	'''
+	gunzip -f -S .zip !{f_ext}
+	cp -n !{old_base_name_file} !{base_name_file}.fasta
+	'''
+    }else if(ext_file == "gz"){
+    old_base_name_file = base_name_file
+    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	'''
+	gunzip !{f_ext}
+	cp -n !{old_base_name_file} !{base_name_file}.fasta
+	'''
+    }
+}
+
+
+process unzip_host_fasta_genome {
+    tag "unzip_genome_fa_files"
+    publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+    label 'process_high'
+
+    input:
+    file(f_ext) from genome_fasta_host_to_unzip
+
+    output:
+    file "${base_name_file}.fasta" into genome_fasta_host_to_combine
+    file "${base_name_file}.fasta" into genome_fasta_host_to_decoys
+    file "${base_name_file}.fasta" into genome_fasta_host_ref_names
+    file "${base_name_file}.fasta" into genome_fasta_host_to_transcriptome
+    file "${base_name_file}.fasta" into genome_fasta_host_to_transcriptome_tRNA
+
+    shell:
+    ext_file = f_ext.getExtension()
+    base_name_file = f_ext.getBaseName()
+    if (ext_file == "fasta" | ext_file == "fa"){
+	'''
+	cp -n !{f_ext} !{base_name_file}.fasta
+	'''
+    }else if(ext_file == "zip"){
+    old_base_name_file = base_name_file
+    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	'''
+	gunzip -f -S .zip !{f_ext}
+	cp -n !{old_base_name_file} !{base_name_file}.fasta
+	'''
+    }else if(ext_file == "gz"){
+    old_base_name_file = base_name_file
+    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	'''
+	gunzip !{f_ext}
+	cp -n !{old_base_name_file} !{base_name_file}.fasta
+	'''
+    }
+}
+
+
 
 /*
  * combine pathogen and host genome fasta files
@@ -803,7 +883,7 @@ process combine_pathogen_host_fasta_genome {
 
     input:
     file(host_fa) from genome_fasta_host_to_combine
-    file(pathogen_fa) from genome_fasta_pathogen_to_combine 
+    file(pathogen_fa) from genome_fasta_pathogen_to_combine.collect()
 
     output:
     file "host_pathogen.fasta" into host_pathogen_fasta_index
@@ -1057,7 +1137,7 @@ if(params.run_star | params.run_salmon_alignment_based_mode) {
 		    label 'process_high'
 
 		    input:
-		    file(pathogen_fa) from genome_fasta_pathogen_ref_names
+		    file(pathogen_fa) from genome_fasta_pathogen_ref_names.collect()
 
 		    output:
 		    file "reference_pathogen_names.txt" into reference_pathogen_names_uniquelymapped
@@ -1399,7 +1479,7 @@ if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mod
 
 		    input:
 		    file(gff) from gff_pathogen_create_transcriptome
-		    file(pathogen_fa) from genome_fasta_pathogen_to_transcriptome
+		    file(pathogen_fa) from genome_fasta_pathogen_to_transcriptome.collect()
 		    val(features) from gene_feature_gff_to_create_transcriptome_pathogen_salmon
 		    val(attribute) from gene_attribute_gff_to_create_transcriptome_pathogen_salmon
 
