@@ -789,8 +789,8 @@ if(params.mapping_statistics) {
  * STEP 2 - Prepare reference files
  */
 
-process unzip_pathogen_fasta_genome {
-    tag "unzip_genome_fa_files"
+process uncompress_pathogen_fasta_genome {
+    tag "uncompress_pathogen_genome"
     publishDir "${params.outdir}/references", mode: params.publish_dir_mode
 
     label 'process_high'
@@ -821,15 +821,19 @@ process unzip_pathogen_fasta_genome {
     old_base_name_file = base_name_file
     base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
 	'''
-	gunzip !{f_ext}
+	gunzip -f !{f_ext}
 	cp -n !{old_base_name_file} !{base_name_file}.fasta
 	'''
+    }else {
+      '''
+      echo "Your pathogen genome files appear to have the wrong extension. \n Currently, the pipeline only supports .fasta or .fa, or compressed files with .zip or .gz extensions."
+      '''
     }
 }
 
 
-process unzip_host_fasta_genome {
-    tag "unzip_genome_fa_files"
+process uncompress_host_fasta_genome {
+    tag "uncompress_host_genome"
     publishDir "${params.outdir}/references", mode: params.publish_dir_mode
 
     label 'process_high'
@@ -845,6 +849,8 @@ process unzip_host_fasta_genome {
     file "${base_name_file}.fasta" into genome_fasta_host_to_transcriptome_tRNA
 
     shell:
+    //Tests to see if the input files are compressed. 
+    //At this stage, only accepts fasta or .fa files, or .gz or .zip genome files.
     ext_file = f_ext.getExtension()
     base_name_file = f_ext.getBaseName()
     if (ext_file == "fasta" | ext_file == "fa"){
@@ -862,9 +868,13 @@ process unzip_host_fasta_genome {
     old_base_name_file = base_name_file
     base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
 	'''
-	gunzip !{f_ext}
+	gunzip -f !{f_ext}
 	cp -n !{old_base_name_file} !{base_name_file}.fasta
 	'''
+    }else {
+      '''
+      echo "Your host genome files appear to have the wrong extension. \n Currently, the pipeline only supports .fasta or .fa, or compressed files with .zip or .gz extensions."
+      '''
     }
 }
 
