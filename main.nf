@@ -498,7 +498,7 @@ if(params.gff_host_tRNA){
 //----------
 Channel
     .value(ch_gff_pathogen)
-    .into {gff_feature_quant_pathogen_salmon_alignment; gff_pathogen_create_transcriptome; gff_feature_quant_pathogen_htseq; extract_annotations_pathogen_gff_htseq}
+    .into {pathogen_gff_to_unzip}
 
 
 //----------
@@ -550,8 +550,6 @@ if (params.run_bbduk){
 //----------
 // Channel to capture Salmon-based params
 //----------
-
-
 if (params.run_salmon_selective_alignment){
 	Channel
 	    .value(params.kmer_length)
@@ -734,7 +732,6 @@ process get_software_versions {
     samtools --version > v_samtools.txt
     gffread --version > v_gffread.txt
     salmon --version > v_salmon.txt
-
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
@@ -874,6 +871,55 @@ process uncompress_host_fasta_genome {
     }else {
       '''
       echo "Your host genome files appear to have the wrong extension. \n Currently, the pipeline only supports .fasta or .fa, or compressed files with .zip or .gz extensions."
+      '''
+    }
+}
+
+
+
+
+process uncompress_pathogen_gff {
+    tag "uncompress_pathogen_GFF"
+    publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+    label 'process_high'
+
+    input:
+    file(f_ext) from pathogen_gff_to_unzip
+
+    output:
+    file "${base_name_file}.gff3" into gff_feature_quant_pathogen_salmon_alignment
+    file "${base_name_file}.gff3" into gff_pathogen_create_transcriptome
+    file "${base_name_file}.gff3" into gff_feature_quant_pathogen_htseq
+    file "${base_name_file}.gff3" into extract_annotations_pathogen_gff_htseq
+
+    shell:
+    //Tests to see if the input files are compressed. 
+    //At this stage, only accepts .gff or gff3, or .gz or .zip annotation files.
+    ext_file = f_ext.getExtension()
+    base_name_file = f_ext.getBaseName()
+
+    if (ext_file == "gff" | ext_file == "gff3"){
+      '''
+      cp -n !{f_ext} !{base_name_file}.gff3
+      '''
+    }else if(ext_file == "zip"){
+      '''
+      gunzip -f -S .zip !{f_ext}
+      cp -n !{base_name_file} !{base_name_file}.gff3
+      '''
+    }else if(ext_file == "gz"){
+      //if gff or gff3, need to save as .gff3
+      old_base_name_file = base_name_file
+    base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
+  '''
+  gunzip -f !{f_ext}
+  cp -n !{old_base_name_file} !{base_name_file}.gff3
+      
+      '''
+    }else {
+      '''
+      echo "Your pathogen GFF file appears to be in the wrong format or has the wrong extension. \n Currently, the pipeline only supports .gff or .gff3, or compressed files with .zip or .gz extensions."
       '''
     }
 }
