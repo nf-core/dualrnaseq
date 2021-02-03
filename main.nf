@@ -481,15 +481,14 @@ Channel
 if(params.gff_host_tRNA){
 	Channel
 	    .value(ch_gff_host_tRNA)
-	    .into {change_attrubute_gff_host_tRNA_salmon_alignment;gff_host_create_transcriptome_tRNA; combine_gff_host_tRNA_htseq}
-
+	    .set {host_gff_trna_file_to_unzip}
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into { gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; combine_gff_host_genome_htseq; gff_host_star_alignment_gff;gff_host_star_htseq_alignment_gff;genome_gff_star_index}
+	    .set {host_gff_trna_to_unzip} 
 }else{
 	Channel
 	    .value(ch_gff_host_genome)
-	    .into {gff_host_genome_star_salmon_change_atr;gff_host_create_transcriptome; gff_host_genome_htseq; extract_annotations_host_gff_htseq; gff_host_star_alignment_gff; gff_host_star_htseq_alignment_gff; genome_gff_star_index }
+	    .set {host_gff_to_unzip}
 }
 
 
@@ -498,7 +497,7 @@ if(params.gff_host_tRNA){
 //----------
 Channel
     .value(ch_gff_pathogen)
-    .into {pathogen_gff_to_unzip}
+    .set {pathogen_gff_to_unzip}
 
 
 //----------
@@ -754,7 +753,6 @@ if(params.mapping_statistics) {
 			.map { tag, file -> tag }
 			.set {scatter_plots}
 
-
 	process check_replicates {
 	    tag "check_replicates"
 
@@ -762,7 +760,6 @@ if(params.mapping_statistics) {
 
 	    input:
 	    val(sample_name) from scatter_plots.collect()
-
 	    
 	    output:
 	    stdout repl_scatter_plots_salmon_pathogen
@@ -777,7 +774,6 @@ if(params.mapping_statistics) {
 	    python !{workflow.projectDir}/bin/check_replicates.py -s !{sample_name} 2>&1
 	    '''
 	}
-
 }
 
 
@@ -786,6 +782,7 @@ if(params.mapping_statistics) {
  * STEP 2 - Prepare reference files
  */
 
+//Uncompress Pathogen genome
 process uncompress_pathogen_fasta_genome {
     tag "uncompress_pathogen_genome"
     publishDir "${params.outdir}/references", mode: params.publish_dir_mode
@@ -804,23 +801,23 @@ process uncompress_pathogen_fasta_genome {
     ext_file = f_ext.getExtension()
     base_name_file = f_ext.getBaseName()
     if (ext_file == "fasta" | ext_file == "fa"){
-	'''
-	cp -n !{f_ext} !{base_name_file}.fasta
-	'''
+	    '''
+	    cp -n !{f_ext} !{base_name_file}.fasta
+	    '''
     }else if(ext_file == "zip"){
-    old_base_name_file = base_name_file
-    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
-	'''
-	gunzip -f -S .zip !{f_ext}
-	cp -n !{old_base_name_file} !{base_name_file}.fasta
-	'''
+      old_base_name_file = base_name_file
+      base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	    '''
+      gunzip -f -S .zip !{f_ext}
+	    cp -n !{old_base_name_file} !{base_name_file}.fasta
+	    '''
     }else if(ext_file == "gz"){
-    old_base_name_file = base_name_file
-    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
-	'''
-	gunzip -f !{f_ext}
-	cp -n !{old_base_name_file} !{base_name_file}.fasta
-	'''
+      old_base_name_file = base_name_file
+      base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	    '''
+	    gunzip -f !{f_ext}
+	    cp -n !{old_base_name_file} !{base_name_file}.fasta
+	    '''
     }else {
       '''
       echo "Your pathogen genome files appear to have the wrong extension. \n Currently, the pipeline only supports .fasta or .fa, or compressed files with .zip or .gz extensions."
@@ -829,6 +826,7 @@ process uncompress_pathogen_fasta_genome {
 }
 
 
+//Uncompress Host genome
 process uncompress_host_fasta_genome {
     tag "uncompress_host_genome"
     publishDir "${params.outdir}/references", mode: params.publish_dir_mode
@@ -851,23 +849,23 @@ process uncompress_host_fasta_genome {
     ext_file = f_ext.getExtension()
     base_name_file = f_ext.getBaseName()
     if (ext_file == "fasta" | ext_file == "fa"){
-	'''
-	cp -n !{f_ext} !{base_name_file}.fasta
-	'''
+    	'''
+    	cp -n !{f_ext} !{base_name_file}.fasta
+    	'''
     }else if(ext_file == "zip"){
-    old_base_name_file = base_name_file
-    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
-	'''
-	gunzip -f -S .zip !{f_ext}
-	cp -n !{old_base_name_file} !{base_name_file}.fasta
-	'''
+      old_base_name_file = base_name_file
+      base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+  	  '''
+  	  gunzip -f -S .zip !{f_ext}
+  	  cp -n !{old_base_name_file} !{base_name_file}.fasta
+  	  '''
     }else if(ext_file == "gz"){
-    old_base_name_file = base_name_file
-    base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
-	'''
-	gunzip -f !{f_ext}
-	cp -n !{old_base_name_file} !{base_name_file}.fasta
-	'''
+      old_base_name_file = base_name_file
+      base_name_file = old_base_name_file.replaceAll(/.fasta|.fa/,"")
+	    '''
+	    gunzip -f !{f_ext}
+	    cp -n !{old_base_name_file} !{base_name_file}.fasta
+	    '''
     }else {
       '''
       echo "Your host genome files appear to have the wrong extension. \n Currently, the pipeline only supports .fasta or .fa, or compressed files with .zip or .gz extensions."
@@ -877,7 +875,7 @@ process uncompress_host_fasta_genome {
 
 
 
-
+//Uncompress Pathogen GFF
 process uncompress_pathogen_gff {
     tag "uncompress_pathogen_GFF"
     publishDir "${params.outdir}/references", mode: params.publish_dir_mode
@@ -911,11 +909,10 @@ process uncompress_pathogen_gff {
     }else if(ext_file == "gz"){
       //if gff or gff3, need to save as .gff3
       old_base_name_file = base_name_file
-    base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
-  '''
-  gunzip -f !{f_ext}
-  cp -n !{old_base_name_file} !{base_name_file}.gff3
-      
+      base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
+      '''
+      gunzip -f !{f_ext}
+      cp -n !{old_base_name_file} !{base_name_file}.gff3
       '''
     }else {
       '''
@@ -923,6 +920,159 @@ process uncompress_pathogen_gff {
       '''
     }
 }
+
+
+
+
+//Uncompress host GFF (no tRNA)
+process uncompress_host_gff {
+    tag "uncompress_host_GFF"
+    publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+    label 'process_high'
+
+    input:
+    file(f_ext) from host_gff_to_unzip
+
+    output:
+    file "${base_name_file}.gff3" into gff_host_genome_star_salmon_change_atr
+    file "${base_name_file}.gff3" into gff_host_create_transcriptome
+    file "${base_name_file}.gff3" into gff_host_genome_htseq
+    file "${base_name_file}.gff3" into extract_annotations_host_gff_htseq
+    file "${base_name_file}.gff3" into gff_host_star_alignment_gff
+    file "${base_name_file}.gff3" into gff_host_star_htseq_alignment_gff
+    file "${base_name_file}.gff3" into genome_gff_star_index
+
+    shell:
+    //Tests to see if the input files are compressed. 
+    //At this stage, only accepts .gff or gff3, or .gz or .zip annotation files.
+    ext_file = f_ext.getExtension()
+    base_name_file = f_ext.getBaseName()
+
+    if (ext_file == "gff" | ext_file == "gff3"){
+      '''
+      cp -n !{f_ext} !{base_name_file}.gff3
+      '''
+    }else if(ext_file == "zip"){
+      '''
+      gunzip -f -S .zip !{f_ext}
+      cp -n !{base_name_file} !{base_name_file}.gff3
+      '''
+    }else if(ext_file == "gz"){
+      //if gff or gff3, need to save as .gff3
+      old_base_name_file = base_name_file
+      base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
+      '''
+      gunzip -f !{f_ext}
+      cp -n !{old_base_name_file} !{base_name_file}.gff3
+      '''
+    }else {
+      '''
+      echo "Your host GFF file appears to be in the wrong format or has the wrong extension. \n Currently, the pipeline only supports .gff or .gff3, or compressed files with .zip or .gz extensions."
+      '''
+    }
+}
+
+
+
+
+if(params.gff_host_tRNA){
+  //Uncompress host GFF (with tRNA)
+  process uncompress_host_gff_trna {
+      tag "uncompress_host_GFF_trna"
+      publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+      label 'process_high'
+
+      input:
+      file(f_ext) from host_gff_trna_to_unzip
+
+      output:
+      file "${base_name_file}.gff3" into gff_host_genome_star_salmon_change_atr
+      file "${base_name_file}.gff3" into gff_host_create_transcriptome
+      file "${base_name_file}.gff3" into combine_gff_host_genome_htseq
+      file "${base_name_file}.gff3" into gff_host_star_alignment_gff
+      file "${base_name_file}.gff3" into gff_host_star_htseq_alignment_gff
+      file "${base_name_file}.gff3" into genome_gff_star_index
+
+      shell:
+      //Tests to see if the input files are compressed. 
+      //At this stage, only accepts .gff or gff3, or .gz or .zip annotation files.
+      ext_file = f_ext.getExtension()
+      base_name_file = f_ext.getBaseName()
+
+      if (ext_file == "gff" | ext_file == "gff3"){
+        '''
+        cp -n !{f_ext} !{base_name_file}.gff3
+        '''
+      }else if(ext_file == "zip"){
+        '''
+        gunzip -f -S .zip !{f_ext}
+        cp -n !{base_name_file} !{base_name_file}.gff3
+        '''
+      }else if(ext_file == "gz"){
+        //if gff or gff3, need to save as .gff3
+        old_base_name_file = base_name_file
+        base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
+        '''
+        gunzip -f !{f_ext}
+        cp -n !{old_base_name_file} !{base_name_file}.gff3
+        '''
+      }else {
+        '''
+        echo "Your host GFF file appears to be in the wrong format or has the wrong extension. \n Currently, the pipeline only supports .gff or .gff3, or compressed files with .zip or .gz extensions."
+        '''
+      }
+  }
+
+
+    //Uncompress host GFF (with tRNA)
+  process uncompress_host_gff_trna_file {
+      tag "uncompress_host_GFF_trna_file"
+      publishDir "${params.outdir}/references", mode: params.publish_dir_mode
+
+      label 'process_high'
+
+      input:
+      file(f_ext) from host_gff_trna_file_to_unzip
+
+      output:
+      file "${base_name_file}.gff3" into change_attrubute_gff_host_tRNA_salmon_alignment
+      file "${base_name_file}.gff3" into gff_host_create_transcriptome_tRNA
+      file "${base_name_file}.gff3" into combine_gff_host_tRNA_htseq
+
+      shell:
+      //Tests to see if the input files are compressed. 
+      //At this stage, only accepts .gff or gff3, or .gz or .zip annotation files.
+      ext_file = f_ext.getExtension()
+      base_name_file = f_ext.getBaseName()
+
+      if (ext_file == "gff" | ext_file == "gff3"){
+        '''
+        cp -n !{f_ext} !{base_name_file}.gff3
+        '''
+      }else if(ext_file == "zip"){
+        '''
+        gunzip -f -S .zip !{f_ext}
+        cp -n !{base_name_file} !{base_name_file}.gff3
+        '''
+      }else if(ext_file == "gz"){
+        //if gff or gff3, need to save as .gff3
+        old_base_name_file = base_name_file
+        base_name_file = old_base_name_file.replaceAll(/.gff|.gff3/,"")
+        '''
+        gunzip -f !{f_ext}
+        cp -n !{old_base_name_file} !{base_name_file}.gff3
+        '''
+      }else {
+        '''
+        echo "Your host GFF tRNA file appears to be in the wrong format or has the wrong extension. \n Currently, the pipeline only supports .gff or .gff3, or compressed files with .zip or .gz extensions."
+        '''
+      }
+  }
+
+} // end of "if(params.gff_host_tRNA){"
+
 
 
 
