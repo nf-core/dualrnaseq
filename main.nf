@@ -1978,12 +1978,12 @@ if (params.run_cutadapt | params.run_bbduk & !params.skip_fastqc) {
 if(params.run_cutadapt | params.run_bbduk & params.mapping_statistics) {
 
 	raw_read_count
-		.map { tag, file -> file }
-		.set {raw_read_count_file}
-		/*
+	    .map { tag, file -> file }
+	    .set {raw_read_count_file}
+	 /*
 	 * count total number of raw single-end reads
 	 */
-		process count_total_reads {
+	 process count_total_reads {
 	    tag "count_total_reads"
 	    publishDir "${params.outdir}/mapping_statistics", mode: params.publish_dir_mode
 	    storeDir "${params.outdir}/mapping_statistics"
@@ -2057,8 +2057,8 @@ if(params.run_salmon_selective_alignment) {
 
 	    input:
 	    file(host_fa) from genome_fasta_host_to_decoys
-      //file(host_tr_fa) from host_transcriptome_to_combine
-      file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
+      	    //file(host_tr_fa) from host_transcriptome_to_combine
+            file(host_pathogen_genome_fasta) from genome_fasta_file_host_pathogen_to_decoy_transcriptome
 	    file(host_pathogen_transcriptome_fasta) from transcriptome_fasta_file_host_pathogen_to_decoy_transcriptome
 
 	    output:
@@ -2069,7 +2069,7 @@ if(params.run_salmon_selective_alignment) {
 	    '''
 	    grep ">" !{host_fa} | cut -d " " -f 1 > decoys.txt
 	    sed -i -e 's/>//g' decoys.txt
-	    cat !{host_pathogen_transcriptome_fasta} !{host_pathogen_genome_fasta} > gentrome.fasta
+	    cat !{host_pathogen_transcriptome_fasta} !{host_fa} > gentrome.fasta
 	    '''
 	}
 
