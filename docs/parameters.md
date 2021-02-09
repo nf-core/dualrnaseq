@@ -21,6 +21,7 @@ Users may benefit from using the nf-core [launch a pipeline from the web tool](h
         * [`--custom_config_version`](#--custom_config_version)
 2. [Genome references and annotation](#2-genome-references-and-annotation)
    * [Genomes](#Genomes)
+        * [`--genomes_ignore`](#--geomes_ignore)
         * [`--fasta_host`](#--fasta_host)
         * [`--fasta_pathogen`](#--fasta_pathogen)
    * [References](#References)
@@ -137,7 +138,7 @@ Users may benefit from using the nf-core [launch a pipeline from the web tool](h
 ### General comment
 
 > All of the parameters listed here can be found in either the main configuration file `nextflow.config` or `base.config`. Alternatively, each parameter can be specified by the user when they require adjustments to the default settings. The format for parameters is either a flag telling the pipeline to run something, such as `--run_STAR`, or to specify a particular value `--max_cpus 16`, string `--outWigStrand "Stranded"` or file `--outdir "/path_to_file/file"`.
-Although many of the parameters listed below are set as `False` in the configuration files - their usage on the command line will generally not require setting them to either True or False. Instead, by passing a parameter it becomes set to True.
+Although many of the parameters listed below are set as `False` in the configuration files - their usage on the command line will generally not require setting them to either True or False. Instead, by passing a parameter it becomes set to True. An example of this is the option to pass single end reads - this can be selected by just including `--single_end`.
 
 ## 1. Nextflow
 
@@ -219,6 +220,12 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 
 ### Genomes
 
+Genomes can be either compressed (.gz or .zip) or uncompressed.
+
+#### `--fasta_host`
+
+This provides an opton to use a custom configuration file (which is included in `conf/genomes.conf`). The default is `false` and thus the config file will be used. When using a custom genome config file you can simply pass `--genomes_ignore` on the command line.
+
 #### `--fasta_host`
 
 ```bash
@@ -232,6 +239,8 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 ```
 
 ### References
+
+References/annotation files can be either compressed (.gz or .zip) or uncompressed.
 
 #### `--gff_host`
 
@@ -277,7 +286,7 @@ The first two parameters are set to `False`. If supplying custom transcriptome f
 
 ### Details
 
-Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions.
+IInput files can be read as either uncompressed or compressed (gzip) fasta or fastq files. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions.
 
 #### `--input`
 
@@ -291,13 +300,13 @@ Please note the following requirements:
 
 > Note: by default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched. For example: `--single_end --input '*.fastq'`
 
-To learn more about best practices for raw fastq file naming, please check `Input sequence reads` section of the [usage.md](docs/usage.md).
+To learn more about best practices for file naming, please see the `Input sequence reads` section from [usage.md](docs/usage.md).
 
 ## 4. FastQC and Adapter trimming
 
 ### FastQC
 
-By default, the pipeline utilizes FastQC tool for quality control of raw sequencing reads. To learn more on FastQC, please check [`FastQC website.`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+By default, the pipeline uses FastQC to generate quality control metrics from raw sequencing reads. To learn more on FastQC, please check [`FastQC website.`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 #### `--skip_fastqc`
 
@@ -345,7 +354,7 @@ Define a set of additional cutadapt parameters you wish to use, except -m and -j
 
 ### BBDuk
 
-BBDuk does not require any prior knowledge about adapter types, searching for common adapter sequences from the file `$baseDir/data/adapters.fa`.
+BBDuk does not require any prior knowledge about adapter types, searching for common adapter sequences from the file `$baseDir/assets/adapters.fa`.
 
 To learn more about BBDuk and its parameters visit the [`BBDuk website.`](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
 
@@ -387,7 +396,7 @@ Maximum Hamming distance for ref kmers (subs only).
 
 #### `--adapters`
 
-Fasta file with adapter sequences (Default: `$baseDir/data/adapters.fa`).
+Fasta file with adapter sequences (Default: `$baseDir/assets/adapters.fa`).
 
 #### `--bbduk_params "--param_a 4 --param_b 5 -param_x"`
 

@@ -357,7 +357,7 @@ Cutadapt is best suited when the library preparation steps and adapter types are
 
 ### 5.2 BBDuk
 
-The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/data/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
+The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/assets/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
 
 ## 6. Read mapping and quantification
 
