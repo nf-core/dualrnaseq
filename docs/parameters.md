@@ -222,7 +222,7 @@ nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs
 
 Genomes can be either compressed (.gz or .zip) or uncompressed.
 
-#### `--fasta_host`
+#### `--geomes_ignore`
 
 This provides an opton to use a custom configuration file (which is included in `conf/genomes.conf`). The default is `false` and thus the config file will be used. When using a custom genome config file you can simply pass `--genomes_ignore` on the command line.
 
