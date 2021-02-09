@@ -18,7 +18,7 @@
 6. [Read mapping and quantification](#6-read-mapping-and-quantification)
    * [Salmon - Selective alignment](#61-salmon---selective-alignment)
    * [Salmon - quantification in alignment-based mode](#62-salmon---quantification-in-alignment-based-mode)
-   * [STAR - alignment-based genome mapping + quantification with HTSeq](#63-star---alignment-based-genome-mapping-+-quantification-with-HTSeq)
+   * [STAR - alignment-based genome mapping + quantification with HTSeq](#63-star---alignment-based-genome-mapping-+-feature-counting-with-HTSeq)
 7. [Mapping statistics](#7-mapping-statistics)
 8. [Example usage](#8-example-usage)
 9. [Output files](#9-output-files)
@@ -46,7 +46,7 @@ iv. Start running your own analysis!
 nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --input '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
 ```
 
-See [parameters docs](parameters.md) for all of the available parameters when running the pipeline.
+To see all of the available parameters when running the pipeline, click [here](parameters.md), or [here](https://nf-co.re/launch) for a interactive web-based tool.
 
 ### 1.2 Basic run
 
@@ -60,7 +60,7 @@ nextflow run nf-core/dualrnaseq/main.nf -profile docker \
 --run_star --outdir results
 ```
 
-This will launch the pipeline with the `docker` configuration profile (click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles).
+This will launch the pipeline with the `docker` configuration profile. Click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles.
 It takes all compressed .fq files in the specified folder and will map the reads (using STAR) to the supplied host and pathogen genomes.
 
 Note that the pipeline will create the following files in your working directory:
@@ -173,7 +173,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 `--input`
 
-Input files can be read as either .fastq or .fastq.gz. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R` or lower case `r`, and read number `1` or `2` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
+Input files can be read as either uncompressed or compressed (gzip) fasta or fastq files. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R` or lower case `r`, and read number `1` or `2` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
 
 | Paired-end | Single-end |
 | --- | --- |
@@ -204,9 +204,9 @@ If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
 
 The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values.
 
-`--single_end`
+`--single_end = false`
 
-`--stranded "yes"`
+`--stranded = "yes"`
 
 By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched.
 
@@ -222,11 +222,13 @@ These parameters can be used in two ways:
 
 #### A) Using a configuration file
 
-You can create your own configuration file with sets of reference files and save it here: `...conf/genomes.config`
+You can create your own configuration file with sets of reference files and save it to this file which is read each time the pipeline is run: `...conf/genomes.config`
+
+If using a custom genome configuration file, you will need to enable genomes_ignore by passing `genomes_ignore = true`
 
 > See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) and [Reference genomes](https://nf-co.re/usage/reference_genomes) for instructions.
 
-The syntax for this reference configuration would be the following:
+The syntax for this reference file follows this syntax:
 
 ```nextflow
 params {
@@ -244,7 +246,7 @@ params {
              }
           }
         // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line
-      genome_host = 'GRCm38'
+      genome_host = 'GRCh38'
       genome_pathogen = 'SL1344'
         }
 ```
@@ -253,11 +255,11 @@ Defining default genomes in your configuration file is optional. You can specify
 
 `--genome_pathogen SL1344`
 
-`--genome_host GRCm38`
+`--genome_host GRCh38`
 
 > Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
 
-If using a custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
+If using your own custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
 
 ```bash
 includeConfig 'conf/custom_genomes.config'
@@ -268,13 +270,13 @@ Note:
 * The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or
 ```--read_transcriptome_fasta_pathogen_from_file```
 
-* If `gff_host_tRNA` file is provided, the pipeline combines `gff_host` and `gff_host_tRNA` files to create host gff file.
+* If `gff_host_tRNA` file is provided, the pipeline combines the files from `gff_host` and `gff_host_tRNA` to create a single host gff file.
 
-* You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as this will be created if needed.
+* You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as all transcriptome-based files are created automatically if needed.
 
 #### B) Using pipeline-specific parameters
 
-If preferred, you can specify each parameter manually and link to appropriate files.
+If preferred, you can specify each parameter manually and link to appropriate files. Reference and annotation files (`fasta` and `GFF3`) can be compressed (`.gz` or `.zip`) or uncompressed.
 
 Host:
 
@@ -302,11 +304,11 @@ Pathogen:
 
 ##### Host tRNA
 
-We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non-coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding other gff file in the tRNA gff file path place.
+We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non-coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding different GFF files in its place.
 
 ##### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes
 
-Many nf-core pipelines provide a possibility to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality.
+Many nf-core pipelines provide an option to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality. Thie pipeline requires GFF files and not GTF files.
 
 ### 4.2 Annotation
 
@@ -337,7 +339,7 @@ Pathogen:
 
 #### Features within pathogen annotation files
 
-As previously mentioned, bacterial annotative files can be challenging to work with due to the non-uniformity. We find that summarising the contents of the GFF can help to identify which features you may want to examine. The following bash script can do this easily:
+As previously mentioned, bacterial annotative files can be challenging to work with due to non-uniformity. We find that summarising the contents of the GFF can help to identify which features you may want to examine. The following bash script can do this easily:
 
 ```bash
 awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
@@ -347,7 +349,7 @@ awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
 
 By default, trimming and adapter removal is not run. To run either tool, you will need to specify either `run_cutadapt` or `run_bbduk` during run time.
 
-Two software options are provided to remove low quality reads and adapters:
+For convenience, two software options are provided to remove low quality reads and adapters:
 
 ### 5.1 Cutadapt
 
@@ -355,7 +357,7 @@ Cutadapt is best suited when the library preparation steps and adapter types are
 
 ### 5.2 BBDuk
 
-The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file contained with the pipeline (`$baseDir/data/adapters.fa`) which contains common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
+The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/data/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
 
 ## 6. Read mapping and quantification
 
@@ -370,7 +372,7 @@ The nf-core/dualrnaseq pipeline provides three strategies to map and quantify yo
 ### 6.1 Salmon - selective alignment
 
 Salmon is a transcriptome-based mapping tool that performs both mapping and quantification. In the first phase it performs indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
-To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline the decoy sequence is created from both host and pathogen genomes (which are both required).
+To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline, decoy sequences are created from only the host genome (please see our paper for more information *paper coming soon*).
 
 > Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the longest exact match - which increases accuracy. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
 
@@ -378,7 +380,7 @@ To summarize transcript-level estimates obtained with Salmon into gene-level abu
 
 ### 6.2 Salmon - quantification in alignment-based mode
 
-In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In the nf-core/dualrnaseq pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome fasta files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
+In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In this pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
 > Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](parameters.md).
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome (fasta) and annotative (gff) files.
@@ -386,12 +388,14 @@ In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-i
 
 Gene-level estimates are obtained using [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
 
-### 6.3 STAR - alignment-based genome mapping + quantification with HTSeq
+### 6.3 STAR - alignment-based genome mapping + feature counting with HTSeq
 
-STAR is a splice-aware alignment tool which aligns reads to a reference genome. In the nf-core/dualrnaseq pipeline, STAR generates a chimeric genome index, then identifies and maps spliced alignments across splice junctions.
-Therefore, the paths to host and pathogen genomes and host annotative file must be provided using the appropriate parameters: `--genome_host`, `--genome_pathogen` and `--gff_host`.
+STAR is a splice-aware alignment tool which aligns reads to a reference genome. In this pipeline, STAR generates a chimeric genome index (combining host and pathogen genomes), then identifies and maps spliced alignments across splice junctions.
+If using this method, the following three parameters (or links in a genome configuration file) are required: `--genome_host`, `--genome_pathogen` and `--gff_host`.
 
-To quantify uniquely mapped reads the nf-core/dualrnaseq pipeline uses HTSeq. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`.
+Users have the option to only run STAR if desired. If also running HTSeq-count, you will need to pass `--run_htseq_uniquely_mapped`.
+
+To quantify uniquely mapped host and pathogen reads, the pipeline uses HTSeq-count. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`.
 
 ## 7. Mapping statistics
 
@@ -402,9 +406,9 @@ This will create the following:
 * Count the total number of reads before and after trimming
 * Scatterplots comparing all replicates (separate for both host and pathogen genes)
 * Plots of the % of mapped/quantified reads
-* Plots of RNA-class statistics (for more information click [here](docs/parameters.md#9-rna-mapping-statistics)).
+* Plots of RNA-class statistics
 
-You can check examples of the outputs of this command in [output docs](output.md#mapping-statistics).
+To see examples of this output, [click here](output.md#mapping-statistics).
 
 ## 8. Example usage
 
@@ -423,7 +427,7 @@ As discussed above in the [Read mapping and quantification section](#62-salmon--
 ```bash
 nextflow run dualrnaseq/main.nf -profile docker,cluster \
 --genome_host "GRCh38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
---input "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
 --outdir "/outdir_folder/" \
 --run_salmon_selective_alignment \
 ```
@@ -443,7 +447,7 @@ nextflow run dualrnaseq/main.nf -profile docker,cluster \
  ```bash
 qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
 --genome_host "GRCm38" --genome_pathogen "C_trachomatis_strain_d" \
---input "folder_to_reads/*{1,2}.fastq.gz" \
+--input "folder_to_reads/*{1,2}.fastq.gz" --genomes_ignore = true \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
 ```
@@ -463,7 +467,7 @@ qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
  ```bash
 nextflow run dualrnaseq/main.nf -profile singularity \
 --genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
---input "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
 --outdir /outdir_folder/ \
 --run_star --run_htseq_uniquely_mapped \
 ```
@@ -483,13 +487,13 @@ nextflow run dualrnaseq/main.nf -profile singularity \
 ```bash
 qsub -q all.q nextflow run dualrnaseq/main.nf -profile singularity,cluster \
 --genome_host "GRCH38" --genome_pathogen "Salmonella_typhimurium" \
---input "folder_to_reads/*.fq.gz" --single_end \
+--input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
 --outdir "/outdir_folder/" \
 --run_salmon_alignment_based_mode --libtype "SF" \
 --run_salmon_selective_alignment \
 --run_star --run_htseq_uniquely_mapped \
 --gene_feature_gff_to_create_transcriptome_pathogen "[ID, sRNA, tRNA, rRNA]" \
---gene_feature_gff_to_quantify_pathogen "[locus_tag, sRNA, tRNA, rRNA]"
+--gene_feature_gff_to_quantify_pathogen "[ID, sRNA, tRNA, rRNA]"
 ```
 
 ## 9. Output files
