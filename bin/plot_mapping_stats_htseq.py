@@ -50,7 +50,7 @@ def plot_mapping_stats(df_comb,no_samples,profile, x_lab, xticks_np, percentage,
     # save used table
     df_comb.to_csv("mapping_stats_" + profile + ".tsv",sep='\t')  
     # save plot
-    plt.savefig('mapping_stats_star_' + profile + '.pdf', dpi = 300, orientation = 'landscape',transparent=False,bbox_inches='tight')
+    plt.savefig('mapping_stats_' + profile + '.pdf', dpi = 300, orientation = 'landscape',transparent=False,bbox_inches='tight')
 
 
 parser = argparse.ArgumentParser(description="""plot mapping statistics""")

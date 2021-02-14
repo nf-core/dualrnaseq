@@ -65,7 +65,7 @@ args = parser.parse_args()
 #Format features when multiple options are parsed 
 gene_features = [feature.replace('[' , '').replace(']','').replace(',','') for feature in args.gene_feature ]
 #Create empty dict.
-fasta_records_dict =  dict()
+fasta_records_dict = dict()
 #Add fasta into dict.
 for fasta_file in  args.fasta:
         fasta_records_dict.update(SeqIO.to_dict(SeqIO.parse(fasta_file, 'fasta')))
