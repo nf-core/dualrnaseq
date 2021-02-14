@@ -34,13 +34,13 @@ jobs:
 
       - name: Build new docker image
         if: env.MATCHED_FILES
-        run: docker build --no-cache . -t nfcore/dualrnaseq:1.0.0
+        run: docker build --no-cache . -t nfcore/dualrnaseq:dev
 
       - name: Pull docker image
         if: ${{ !env.MATCHED_FILES }}
         run: |
           docker pull nfcore/dualrnaseq:dev
-          docker tag nfcore/dualrnaseq:dev nfcore/dualrnaseq:1.0.0
+          docker tag nfcore/dualrnaseq:dev nfcore/dualrnaseq:dev
 
       - name: Install Nextflow
         env:
