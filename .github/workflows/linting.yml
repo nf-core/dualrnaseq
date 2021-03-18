@@ -59,7 +59,6 @@ jobs:
           GITHUB_COMMENTS_URL: ${{ github.event.pull_request.comments_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PR_COMMIT: ${{ github.event.pull_request.head.sha }}
-
         run: nf-core -l lint_log.txt lint ${GITHUB_WORKSPACE} --markdown lint_results.md
 
       - name: Save PR number
@@ -70,11 +69,9 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: linting-log-file
-
+          name: linting-logs
           path: |
             lint_log.txt
             lint_results.md
             PR_number.txt
-
 

@@ -1,34 +1,15 @@
-name: nf-core-dualrnaseq-1.0dev
-
+# You can use this file to create a conda environment for this pipeline:
+#   conda env create -f environment.yml
+name: nf-core-dualrnaseq-1.1.0dev
 channels:
   - conda-forge
   - bioconda
-  - anaconda
-  - agbiome
   - defaults
-
 dependencies:
-  - bioconda::fastqc=0.11.9
-  - bioconda::samtools=1.9
-  - bioconda::salmon=1.3.0
-  - bioconda::STAR=2.7.3a
-  - bioconda::gffread=0.12.1
-  - bioconda::multiqc=1.8
-  - bioconda::htseq=0.12.4
-  - bioconda::bioconductor-rtracklayer=1.48.0
-  - bioconda::bioconductor-tximport=1.16.0
-  - conda-forge::python=3.7.6
-  - conda-forge::r-plyr=1.8.6
+  - conda-forge::python=3.7.3
   - conda-forge::markdown=3.1.1
   - conda-forge::pymdown-extensions=6.0
-  - agbiome::bbtools=37.62
-  - pip=20.0.2
-
-  - pip:
-    - biopython==1.76
-    - numpy==1.18.2
-    - pandas==1.0.2
-    - pysam==0.15.4
-    - cutadapt==2.8
-    - matplotlib==3.1.1 # Don't upgrade - multiqc conflict
-    - seaborn==0.10.0
+  - conda-forge::pygments=2.5.2
+  # TODO nf-core: Add required software dependencies here
+  - bioconda::fastqc=0.11.8
+  - bioconda::multiqc=1.7
