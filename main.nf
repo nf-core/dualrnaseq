@@ -298,14 +298,14 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 	    .collect()
 	    .into { gene_feature_gff_host_salmon_alignment; gene_feature_gff_to_create_transcriptome_host_salmon}
 
-	// Convert csv into a Groovy list, then make a channel
-	gene_attribute_gff_to_create_transcriptome_pathogen_list = params.gene_attribute_gff_to_create_transcriptome_pathogen ? params.gene_attribute_gff_to_create_transcriptome_pathogen.split(',').collect{it.trim()} : []
 	Channel
-	    .value(gene_attribute_gff_to_create_transcriptome_pathogen_list)
+	    .value(params.gene_attribute_gff_to_create_transcriptome_pathogen)
 	    .into {pathogen_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_pathogen_salmon}
 
+	// Convert csv into a Groovy list, then make a channel
+	gene_feature_gff_to_create_transcriptome_pathogen_list = params.gene_feature_gff_to_create_transcriptome_pathogen ? params.gene_feature_gff_to_create_transcriptome_pathogen.split(',').collect{it.trim()} : []
 	Channel
-	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
+	    .value(gene_feature_gff_to_create_transcriptome_pathogen_list)
 	    .collect()
 	    .into {gene_feature_to_quantify_pathogen_salmon_alignment; gene_feature_to_extract_annotations_pathogen; gene_feature_gff_to_create_transcriptome_pathogen_salmon}
 
