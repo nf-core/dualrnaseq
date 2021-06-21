@@ -291,13 +291,17 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 	    .value(params.gene_attribute_gff_to_create_transcriptome_host)
 	    .into {host_gff_attribute_salmon_alignment_tRNA; gene_attribute_gff_to_create_transcriptome_host_salmon; host_atr_collect_data_salmon; combine_annot_quant_pathogen; combine_annot_quant_host; atr_scatter_plot_pathogen; atr_scatter_plot_host; attribute_quant_stats_salmon; host_annotations_RNA_class_stats_pathogen; attribute_host_RNA_class_stats; host_atr_collect_data_salmon_alignment_mode; combine_annot_quant_pathogen_salmon_alignment_based; combine_annot_quant_host_salmon_alignment_based; atr_scatter_plot_pathogen_alignment; atr_scatter_plot_host_alignment; attribute_quant_stats_salmon_alignment;host_annotations_RNA_class_stats_pathogen_alignment; attribute_host_RNA_class_stats_alignment}
 
+	// Convert csv into a Groovy list, then make a channel
+	gene_feature_gff_to_create_transcriptome_host_list = params.gene_feature_gff_to_create_transcriptome_host ? params.gene_feature_gff_to_create_transcriptome_host.split(',').collect{it.trim()} : []
 	Channel
-	    .value(params.gene_feature_gff_to_create_transcriptome_host)
+	    .value(gene_feature_gff_to_create_transcriptome_host_list)
 	    .collect()
 	    .into { gene_feature_gff_host_salmon_alignment; gene_feature_gff_to_create_transcriptome_host_salmon}
 
+	// Convert csv into a Groovy list, then make a channel
+	gene_attribute_gff_to_create_transcriptome_pathogen_list = params.gene_attribute_gff_to_create_transcriptome_pathogen ? params.gene_attribute_gff_to_create_transcriptome_pathogen.split(',').collect{it.trim()} : []
 	Channel
-	    .value(params.gene_attribute_gff_to_create_transcriptome_pathogen)
+	    .value(gene_attribute_gff_to_create_transcriptome_pathogen_list)
 	    .into {pathogen_gff_attribute_salmon_alignment; gene_attribute_gff_to_create_transcriptome_pathogen_salmon}
 
 	Channel
@@ -316,13 +320,17 @@ if (params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mo
 //----------
 if(params.run_htseq_uniquely_mapped | params.run_star){
 
+	// Convert csv into a Groovy list, then make a channel
+	gene_feature_gff_to_quantify_host_list = params.gene_feature_gff_to_quantify_host ? params.gene_feature_gff_to_quantify_host.split(',').collect{it.trim()} : []
 	Channel
-	    .value(params.gene_feature_gff_to_quantify_host)
+	    .value(gene_feature_gff_to_quantify_host_list)
 	    .collect()
 	    .into {gene_feature_to_quantify_host; gene_feature_to_extract_annotations_host_htseq}
 
+	// Convert csv into a Groovy list, then make a channel
+	gene_feature_gff_to_quantify_pathogen_list = params.gene_feature_gff_to_quantify_pathogen ? params.gene_feature_gff_to_quantify_pathogen.split(',').collect{it.trim()} : []
 	Channel
-	    .value(params.gene_feature_gff_to_quantify_pathogen)
+	    .value(gene_feature_gff_to_quantify_pathogen_list)
 	    .collect()
 	    .into {gene_feature_to_quantify_pathogen; gene_feature_to_extract_annotations_pathongen_htseq}
 

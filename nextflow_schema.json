@@ -302,14 +302,14 @@
                 },
                 "gene_feature_gff_to_create_transcriptome_host": {
                     "type": "string",
-                    "default": "['exon', 'tRNA']",
-                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host file and tRNA from the --gff_host_tRNA file",
+                    "default": "exon,tRNA",
+                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features `exon` from the `--gff_host` file and `tRNA` from the `--gff_host_tRNA` file. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_feature_gff_to_create_transcriptome_pathogen": {
                     "type": "string",
-                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
-                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file.",
+                    "default": "gene,sRNA,tRNA,rRNA",
+                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_attribute_gff_to_create_transcriptome_host": {
@@ -604,8 +604,8 @@
             "properties": {
                 "gene_feature_gff_to_quantify_host": {
                     "type": "string",
-                    "default": "['exon', 'tRNA']",
-                    "description": "Host - gene feature to quantify",
+                    "default": "exon,tRNA",
+                    "description": "Host - gene feature to quantify. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "host_gff_attribute": {
@@ -616,8 +616,8 @@
                 },
                 "gene_feature_gff_to_quantify_pathogen": {
                     "type": "string",
-                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
-                    "description": "Pathogen - gene feature to quantify (will likely need to be modified)",
+                    "default": "gene,sRNA,tRNA,rRNA",
+                    "description": "Pathogen - gene feature to quantify (will likely need to be modified). Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "pathogen_gff_attribute": {
