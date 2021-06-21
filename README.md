@@ -45,10 +45,14 @@ The workflow diagram below gives a simplified visual overview of how dualrnaseq 
 
 4. Start running your own analysis!
 
-    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
-
     ```bash
-    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> --input '*_R{1,2}.fastq.gz'
+    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
+        --input '*_R{1,2}.fastq.gz' \
+        --fasta_host 'host.fa' \
+        --fasta_pathogen 'pathogen.fa' \
+        --gff_host 'host.gff' \
+        --gff_pathogen 'pathogen.gff' \
+        --run_star
     ```
 
 See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available options when running the pipeline.
@@ -60,11 +64,6 @@ The nf-core/dualrnaseq pipeline comes with documentation about the pipeline: [us
 ## Credits
 
 nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz and Regan Hayward.
-
-We thank the following people for their extensive assistance in the development
-of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 

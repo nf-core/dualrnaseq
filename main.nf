@@ -370,13 +370,12 @@ log.info NfcoreSchema.params_summary_log(workflow, params, json_schema)
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = workflow.runName
-// TODO nf-core: Report custom parameters here
 summary['Input']            = params.input
-summary['Host Fasta Ref']        = params.fasta_host
-summary['Pathogen Fasta Ref']        = params.fasta_pathogen
-summary['Host tRNA gff Ref']        = params.gff_host_tRNA
-summary['Host genome gff Ref']        = params.gff_host_genome
-summary['Pathogen genome gff Ref']        = params.gff_pathogen
+summary['Host Fasta Ref']          = params.fasta_host
+summary['Pathogen Fasta Ref']      = params.fasta_pathogen
+summary['Host tRNA gff Ref']       = params.gff_host_tRNA
+summary['Host genome gff Ref']     = params.gff_host_genome
+summary['Pathogen genome gff Ref'] = params.gff_pathogen
 summary['Data Type']        = params.single_end ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
