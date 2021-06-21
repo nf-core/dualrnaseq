@@ -139,6 +139,20 @@
                 },
                 "genomes_ignore": {
                     "type": "boolean"
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "description": "Directory / URL base for iGenomes references.",
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "fa_icon": "fas fa-cloud-download-alt",
+                    "hidden": true
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "description": "Do not load the iGenomes reference config.",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
                 }
             },
             "description": "If used, the path to the files should be enclosed by quotes \"../..\""
@@ -730,6 +744,13 @@
                     "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
                     "hidden": true
+                },
+                "show_hidden_params": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-eye-slash",
+                    "description": "Show all params when using `--help`",
+                    "hidden": true,
+                    "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
                 }
             }
         },
