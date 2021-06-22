@@ -52,7 +52,14 @@ iv. Start running your own analysis!
 nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --input '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
 ```
 
-To see all of the available parameters when running the pipeline, click [here](parameters.md), or [here](https://nf-co.re/launch) for a interactive web-based tool.
+To see all of the available parameters when running the pipeline, please see [the parameter documentation](https://nf-co.re/dualrnaseq/parameters).
+
+You can also use the [interactive launch tool](https://nf-co.re/launch?pipeline=dualrnaseq), which has embedded help and descriptions for each parameter.
+There is a web-based interface or a purely command-line interface. Launch via the web link above or on the command line:
+
+```bash
+nf-core launch dualrnaseq
+```
 
 ### 1.2 Basic run
 
@@ -373,11 +380,12 @@ For convenience, two software options are provided to remove low quality reads a
 
 ### 5.1 Cutadapt
 
-Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are set up to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end). For the full list of parameters, click [here](parameters.md#-Cutadapt)
+Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are set up to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end).
+For the full list of parameters, click [here](https://nf-co.re/dualrnaseq/parameters#cutadapt).
 
 ### 5.2 BBDuk
 
-The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/assets/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](parameters.md#-BBDuk)
+The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/assets/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](https://nf-co.re/dualrnaseq/parameters#bbduk).
 
 ## 6. Read mapping and quantification
 
@@ -402,7 +410,7 @@ To summarize transcript-level estimates obtained with Salmon into gene-level abu
 
 In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In this pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
 
-> Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](parameters.md).
+> Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](https://nf-co.re/dualrnaseq/parameters#star---general).
 > Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome (fasta) and annotative (gff) files.
 > When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
 

@@ -264,7 +264,7 @@ Contents:
   * `host_RNA_classes_percentage_htseq.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_htseq.tsv` table expressed in percentage.
   * `host_gene_types_groups_gene.tsv`
-    * Tab delimited file containing list of host genes, including gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results.
+    * Tab delimited file containing list of host genes, including gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [the parameter documentation](https://nf-co.re/dualrnaseq/parameters). This table is created only for examination of results.
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_htseq.tsv` table.
 
@@ -321,7 +321,7 @@ Contents:
   * `host_RNA_classes_percentage_salmon.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_salmonhead.tsv` table expressed in percentage.
   * `host_gene_types_groups_transcript.tsv`
-    * Tab delimited file containing list of host transcripts, including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results.
+    * Tab delimited file containing list of host transcripts, including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [the parameter documentation](https://nf-co.re/dualrnaseq/parameters). This table is created only for examination of results.
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table.
 
@@ -372,7 +372,7 @@ Contents:
   * `host_RNA_classes_percentage_salmon.tsv`
     * Host RNA class statistics from `host_RNA_classes_sum_counts_salmon.tsv` table expressed in percentage.
   * `host_gene_types_groups_transcript.tsv`
-    * Tab delimited file containing list of host transcripts, including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [parameters.md](parameters.md). This table is created only for examination of results.
+    * Tab delimited file containing list of host transcripts, including transcript_id, transcript_name, gene ids, gene names, counts obtained from quantification, and gene types assigned to each gene considering RNA class groups defined by `--RNA_classes_to_replace_host`. For more information check [the parameter documentation](https://nf-co.re/dualrnaseq/parameters). This table is created only for examination of results.
   * `RNA_class_stats_combined_host.pdf`
     * Visualization of host RNA class statistics for all samples from `host_RNA_classes_percentage_salmon.tsv` table.
 
