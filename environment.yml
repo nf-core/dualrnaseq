@@ -1,6 +1,5 @@
-# This file contains all of the dependencies to setup the dualrnaseq pipeline
-# It can also be used to setup an environment to replicate the pipeline (for testing, local analysis etc)
-# To do this, use the following command: conda env create -f environment.yml
+# You can use this file to create a conda environment for this pipeline:
+#   conda env create -f environment.yml
 name: nf-core-dualrnaseq-1.1.0dev
 channels:
   - conda-forge

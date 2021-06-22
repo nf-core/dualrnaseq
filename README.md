@@ -1,20 +1,21 @@
 # ![nf-core/dualrnaseq](docs/images/nf-core-dualrnaseq_logo.png)
 
+**Dual RNA-seq pipeline**.
+
 [![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 [![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/dualrnaseq/actions)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A520.10.0-brightgreen.svg)](https://www.nextflow.io/)
+[![DOI](https://zenodo.org/badge/309982089.svg)](https://zenodo.org/badge/latestdoi/309982089)
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/)
 [![Docker](https://img.shields.io/docker/automated/nfcore/dualrnaseq.svg)](https://hub.docker.com/r/nfcore/dualrnaseq)
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23dualrnaseq-4A154B?logo=slack)](https://nfcore.slack.com/channels/dualrnaseq)
 
-## Dual RNA-seq pipeline
-
-**nf-core/dualrnaseq** is a bioinformatics pipeline built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
-
-### Introduction
+## Introduction
 
 **nf-core/dualrnaseq** is specifically used for the analysis of Dual RNA-seq data, interrogating host-pathogen interactions through simultaneous RNA-seq.
+
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
 This pipeline has been initially tested with eukaryotic host's including Human and Mouse, and pathogens including *Salmonella enterica*, *Orientia tsutsugamushi*, *Streptococcus penumoniae*, *Escherichia coli* and *Mycobacterium leprae*. The workflow should work with any eukaryotic and bacterial organisms with an available reference genome and annotation.
 
@@ -28,25 +29,41 @@ The workflow diagram below gives a simplified visual overview of how dualrnaseq 
 
 ![nf-core/dualrnaseq](docs/images/Workflow_diagram_dualrnaseq.png)
 
+## Quick Start
+
+1. Install [`nextflow`](https://nf-co.re/usage/installation) (`>=20.04.0`)
+
+2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
+
+3. Download the pipeline and test it on a minimal dataset with a single command:
+
+    ```bash
+    nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
+    ```
+
+    > Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+
+4. Start running your own analysis!
+
+    ```bash
+    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
+        --input '*_R{1,2}.fastq.gz' \
+        --fasta_host 'host.fa' \
+        --fasta_pathogen 'pathogen.fa' \
+        --gff_host 'host.gff' \
+        --gff_pathogen 'pathogen.gff' \
+        --run_star
+    ```
+
+See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available options when running the pipeline.
+
 ## Documentation
 
-The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
-
-1. [Installation](https://nf-co.re/usage/installation)
-2. Pipeline configuration
-    * [Local installation](https://nf-co.re/usage/local_installation)
-    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
-    * [Parameters](docs/parameters.md)
-3. [Running the pipeline](docs/usage.md)
-4. [Output and how to interpret the results](docs/output.md)
-5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
+The nf-core/dualrnaseq pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/dualrnaseq/usage) and [output](https://nf-co.re/dualrnaseq/output).
 
 ## Credits
 
-nf-core/dualrnaseq was coded and written by Bozena Mika-Gospodorz and Regan Hayward.
-
-We thank the following people for their extensive assistance in the development
-of this pipeline:
+nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz and Regan Hayward.
 
 ## Contributions and Support
 
@@ -63,6 +80,5 @@ You can cite the `nf-core` publication as follows:
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
-> ReadCube: [Full Access Link](https://rdcu.be/b1GjZ)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.

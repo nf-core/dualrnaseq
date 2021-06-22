@@ -11,12 +11,6 @@
             "description": "Primary parameters for runtime",
             "default": "",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "Workflow name.",
-                    "fa_icon": "fas fa-fingerprint",
-                    "help_text": "A custom name for the pipeline run. Unlike the core nextflow `-name` option with one hyphen this parameter can be reused multiple times, for example if using `-resume`. Passed through to steps such as MultiQC and used for things like report filenames and titles."
-                },
                 "input": {
                     "type": "string",
                     "default": "data/*{1,2}.fastq.gz",
@@ -139,6 +133,20 @@
                 },
                 "genomes_ignore": {
                     "type": "boolean"
+                },
+                "igenomes_base": {
+                    "type": "string",
+                    "description": "Directory / URL base for iGenomes references.",
+                    "default": "s3://ngi-igenomes/igenomes",
+                    "fa_icon": "fas fa-cloud-download-alt",
+                    "hidden": true
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "description": "Do not load the iGenomes reference config.",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
                 }
             },
             "description": "If used, the path to the files should be enclosed by quotes \"../..\""
@@ -294,14 +302,14 @@
                 },
                 "gene_feature_gff_to_create_transcriptome_host": {
                     "type": "string",
-                    "default": "['exon', 'tRNA']",
-                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host file and tRNA from the --gff_host_tRNA file",
+                    "default": "exon,tRNA",
+                    "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features `exon` from the `--gff_host` file and `tRNA` from the `--gff_host_tRNA` file. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_feature_gff_to_create_transcriptome_pathogen": {
                     "type": "string",
-                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
-                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file.",
+                    "default": "gene,sRNA,tRNA,rRNA",
+                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_attribute_gff_to_create_transcriptome_host": {
@@ -596,8 +604,8 @@
             "properties": {
                 "gene_feature_gff_to_quantify_host": {
                     "type": "string",
-                    "default": "['exon', 'tRNA']",
-                    "description": "Host - gene feature to quantify",
+                    "default": "exon,tRNA",
+                    "description": "Host - gene feature to quantify. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "host_gff_attribute": {
@@ -608,8 +616,8 @@
                 },
                 "gene_feature_gff_to_quantify_pathogen": {
                     "type": "string",
-                    "default": "['gene', 'sRNA', 'tRNA', 'rRNA']",
-                    "description": "Pathogen - gene feature to quantify (will likely need to be modified)",
+                    "default": "gene,sRNA,tRNA,rRNA",
+                    "description": "Pathogen - gene feature to quantify (will likely need to be modified). Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "pathogen_gff_attribute": {
@@ -655,7 +663,7 @@
                     "type": "string",
                     "default": "copy",
                     "hidden": true,
-                    "description": "Method used to save pipeline results to output directory (please don't change).",
+                    "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
                     "enum": [
@@ -666,6 +674,13 @@
                         "copyNoFollow",
                         "move"
                     ]
+                },
+                "validate_params": {
+                    "type": "boolean",
+                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
                 },
                 "email_on_fail": {
                     "type": "string",
@@ -723,6 +738,13 @@
                     "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
                     "hidden": true
+                },
+                "show_hidden_params": {
+                    "type": "boolean",
+                    "fa_icon": "far fa-eye-slash",
+                    "description": "Show all params when using `--help`",
+                    "hidden": true,
+                    "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
                 }
             }
         },
@@ -752,6 +774,12 @@
                 "hostnames": {
                     "type": "string",
                     "description": "Institutional configs hostname.",
+                    "hidden": true,
+                    "fa_icon": "fas fa-users-cog"
+                },
+                "config_profile_name": {
+                    "type": "string",
+                    "description": "Institutional config name.",
                     "hidden": true,
                     "fa_icon": "fas fa-users-cog"
                 },
