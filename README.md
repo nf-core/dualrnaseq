@@ -29,35 +29,18 @@ The workflow diagram below gives a simplified visual overview of how dualrnaseq 
 
 ![nf-core/dualrnaseq](docs/images/Workflow_diagram_dualrnaseq.png)
 
-## Quick Start
-
-1. Install [`nextflow`](https://nf-co.re/usage/installation) (`>=20.04.0`)
-
-2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
-
-3. Download the pipeline and test it on a minimal dataset with a single command:
-
-    ```bash
-    nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
-    ```
-
-    > Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
-
-4. Start running your own analysis!
-
-    ```bash
-    nextflow run nf-core/dualrnaseq -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
-        --input '*_R{1,2}.fastq.gz' \
-        --fasta_host 'host.fa' \
-        --fasta_pathogen 'pathogen.fa' \
-        --gff_host 'host.gff' \
-        --gff_pathogen 'pathogen.gff' \
-        --run_star
-    ```
-
-See [usage docs](https://nf-co.re/dualrnaseq/usage) for all of the available options when running the pipeline.
-
 ## Documentation
+
+The nf-core/dualrnaseq pipeline comes with documentation about the pipeline, found in the `docs/` directory:
+
+1. [Installation](https://nf-co.re/usage/installation)
+2. Pipeline configuration
+    * [Local installation](https://nf-co.re/usage/local_installation)
+    * [Adding your own system config](https://nf-co.re/usage/adding_own_config)
+    * [Parameters](docs/parameters.md)
+3. [Running the pipeline](docs/usage.md)
+4. [Output and how to interpret the results](docs/output.md)
+5. [Troubleshooting](https://nf-co.re/usage/troubleshooting)
 
 The nf-core/dualrnaseq pipeline comes with documentation about the pipeline: [usage](https://nf-co.re/dualrnaseq/usage) and [output](https://nf-co.re/dualrnaseq/output).
 
