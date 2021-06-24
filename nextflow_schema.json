@@ -109,30 +109,17 @@
                     "description": "Pathogen transcriptome file",
                     "fa_icon": "fas fa-file-alt"
                 },
-                "read_transcriptome_fasta_host_from_file": {
-                    "type": "boolean",
-                    "description": "If supplying custom transcriptome files",
-                    "fa_icon": "far fa-file-alt"
-                },
-                "read_transcriptome_fasta_pathogen_from_file": {
-                    "type": "boolean",
-                    "description": "If supplying custom transcriptome files",
-                    "fa_icon": "fas fa-file-alt"
-                },
                 "genome_host": {
                     "type": "string",
-                    "default": "GRCh38",
-                    "description": "Name of host genome in the genomes.conf file",
-                    "fa_icon": "far fa-file"
+                    "description": "Key for the host genome in iGenomes / your custom genomes config file",
+                    "fa_icon": "far fa-file",
+                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required host reference genome files e.g. `--genome_host GRCh38`.\n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
                 "genome_pathogen": {
                     "type": "string",
-                    "default": "SL1344",
-                    "description": "Name of host genome in the genomes.conf file",
-                    "fa_icon": "fas fa-file"
-                },
-                "genomes_ignore": {
-                    "type": "boolean"
+                    "description": "Key for the pathogen genome in iGenomes / your custom genomes config file",
+                    "fa_icon": "fas fa-file",
+                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required pathogen reference genome files e.g. `--genome_pathogen SL1344`.\n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
                 "igenomes_base": {
                     "type": "string",
