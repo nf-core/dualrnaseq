@@ -287,12 +287,14 @@
                 "libtype": {
                     "type": "string",
                     "description": "Options for setting the library type. A = automatic detection",
-                    "fa_icon": "fas fa-sliders-h"
+                    "fa_icon": "fas fa-sliders-h",
+                    "default": "A"
                 },
                 "incompatPrior": {
-                    "type": "integer",
+                    "type": "string",
                     "description": "By default, this is set to 0.0, to ensure that only mappings or alignments that are compatible with the specified library type are considered by Salmon",
-                    "fa_icon": "fas fa-sliders-h"
+                    "fa_icon": "fas fa-sliders-h",
+                    "default": "0.0"
                 },
                 "generate_salmon_uniq_ambig": {
                     "type": "boolean",
@@ -309,7 +311,7 @@
                 "gene_feature_gff_to_create_transcriptome_pathogen": {
                     "type": "string",
                     "default": "gene,sRNA,tRNA,rRNA",
-                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file. Should be a comma-separated string.",
+                    "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as `gene`, `sRNA`, `tRNA` and `rRNA` from the `--gff_pathogen` file. Should be a comma-separated string.",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_attribute_gff_to_create_transcriptome_host": {
@@ -485,7 +487,7 @@
                 "limitBAMsortRAM": {
                     "type": "integer",
                     "description": "Option to limit RAM when sorting BAM file. If 0, will be set to the genome index size, which can be quite large when running on a desktop or laptop",
-                    "default": "0",
+                    "default": 0,
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "winAnchorMultimapNmax": {
@@ -499,6 +501,28 @@
                     "default": 100,
                     "description": "Option to specify the length of the donor/acceptor sequence on each side of the junctions used in constructing the splice junctions database. By default the option is set to 100. However, we recommend setting a value depending on the read length: read/mate length - 1.",
                     "fa_icon": "fas fa-sliders-h"
+                },
+                "outWigType": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "Used to generate signal outputs, such as \"wiggle\" and \"bedGraph\".",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "outWigStrand": {
+                    "type": "string",
+                    "default": "Stranded",
+                    "description": "Options are Stranded or Unstranded when defining the strandedness of wiggle/bedGraph output",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "star_index_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for creating an index with STAR",
+                    "fa_icon": "fas fa-ellipsis-h"
+                },
+                "star_alignment_params": {
+                    "type": "string",
+                    "description": "Set of additional parameters for alignment with STAR",
+                    "fa_icon": "fas fa-ellipsis-h"
                 }
             },
             "fa_icon": "fas fa-star"
@@ -523,37 +547,6 @@
                 "star_salmon_alignment_params": {
                     "type": "string",
                     "description": "Define additional parameters for alignment with STAR in salmon alignment-based mode",
-                    "fa_icon": "fas fa-ellipsis-h"
-                }
-            },
-            "fa_icon": "fas fa-star"
-        },
-        "star_htseq": {
-            "title": "STAR - HTseq",
-            "type": "object",
-            "description": "Parameters available for STAR - HTSeq",
-            "default": "",
-            "properties": {
-                "outWigType": {
-                    "type": "string",
-                    "default": "None",
-                    "description": "Used to generate signal outputs, such as \"wiggle\" and \"bedGraph\".",
-                    "fa_icon": "fas fa-sliders-h"
-                },
-                "outWigStrand": {
-                    "type": "string",
-                    "default": "Stranded",
-                    "description": "Options are Stranded or Unstranded when defining the strandedness of wiggle/bedGraph output",
-                    "fa_icon": "fas fa-sliders-h"
-                },
-                "star_index_params": {
-                    "type": "string",
-                    "description": "Set of additional parameters for creating an index with STAR",
-                    "fa_icon": "fas fa-ellipsis-h"
-                },
-                "star_alignment_params": {
-                    "type": "string",
-                    "description": "Set of additional parameters for alignment with STAR",
                     "fa_icon": "fas fa-ellipsis-h"
                 }
             },
@@ -837,9 +830,6 @@
         },
         {
             "$ref": "#/definitions/star_salmon_alignment_based_mode"
-        },
-        {
-            "$ref": "#/definitions/star_htseq"
         },
         {
             "$ref": "#/definitions/htseq_general"
