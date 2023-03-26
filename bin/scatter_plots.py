@@ -31,7 +31,12 @@ def scatter_plot(TPM_log, TPMs, name_1, name_2, lim_plot, organism):
     # calculate pearson's correlation coefficient
     stat = lambda a,b: stats.pearsonr(TPMs.rep1,TPMs.rep2)
     # add label with pearson's correlation coefficient
-    g1 =g1.annotate(stat, template="{stat}: {val:.4f}", stat="Pearson's r", loc="upper left", fontsize=15)  # {stat}: {val:.2f} (p = {p:.3g}) with p-value
+    # g1 =g1.annotate(stat, template="{stat}: {val:.4f}", stat="Pearson's r", loc="upper left", fontsize=15)  # {stat}: {val:.2f} (p = {p:.3g}) with p-value
+    # that 0.9.0 only, the following should ALSO work for v0.11.2
+    pearr = stats.pearsonr(TPMs.rep1, TPMs.rep2)
+    st=f"Pearson's r = {pearr[0]:.4f}"
+    g1.ax_joint.text(0.05, 0.95, st, fontsize=15, transform=g1.ax_joint.transAxes, verticalalignment='top')
+    # return to main
     g1.ax_marg_x.set_axis_off()
     g1.ax_marg_y.set_axis_off()
     plt.xlabel(r'$\mathrm{log_{10}TPM}$'+ '\n' + '\n' +  name_1.split('_TPM')[0] ,fontsize=15, labelpad= 5)
