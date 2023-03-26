@@ -247,15 +247,26 @@ The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gen
 
 These parameters can be used in two ways:
 
-#### A) Using a configuration file
+#### A) Using configuration files
 
-You can create your own configuration file with sets of reference files and save it to this file which is read each time the pipeline is run: `...conf/genomes.config`
-
-If using a custom genome configuration file, you will need to enable genomes_ignore by passing `genomes_ignore = true`
+Most nf-core pipelines, including this one, come with a pre-built set of reference genome indices that work out of the box.
+They are hosted in the cloud (see <https://ewels.github.io/AWS-iGenomes/>) and will be downloaded on demand.
+For this pipeline however, it is very likely that you will need to specify additional custom genomes to work with.
 
 > See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) and [Reference genomes](https://nf-co.re/usage/reference_genomes) for instructions.
 
-The syntax for this reference file follows this syntax:
+In short, the best way to do this is to extend the genomes config that comes with the pipeline, using the same configuration structure.
+You can then save this file in a number of different locations, according to your preference.
+See <https://nf-co.re/usage/configuration#custom-configuration-files> for details on this, but in short the common places are:
+
+* In the Nextflow home directory as a file called `config` (no file extensions). Typically this is in your user's home directory: `~/.nextflow/config`
+* As a file called `nextflow.config` in the current working directory when you run the pipeline.
+* Any custom path, which you will then need to specify on the command line with `-c`. eg: `-c path/to/config` (multiple files can be given like this)
+
+Depending on which location you use, you may want to disable the bundled igenomes to avoid conflicts.
+You can do this by setting `igenomes_ignore = true` in the config, or `--igenomes_ignore` on the command line.
+
+The syntax for a custom reference file follows this syntax:
 
 ```nextflow
 params {
@@ -265,69 +276,66 @@ params {
       gff_host = '<path to the genome annotation file>'
       gff_host_tRNA = '<path to the tRNA annotation file>' // Optional
       transcriptome_host = '<path to the transcriptome fasta file>' // Optional
-             }
+    }
     'SL1344' {
       fasta_pathogen  = '<path to the genome fasta file>'
       gff_pathogen = '<path to the genome gff annotation file>'
       transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
-             }
-          }
-        // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line
-      genome_host = 'GRCh38'
-      genome_pathogen = 'SL1344'
-        }
+    }
+  }
+  // Default genomes (optional).
+  // Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line
+  genome_host = 'GRCh38'
+  genome_pathogen = 'SL1344'
+}
 ```
 
 Defining default genomes in your configuration file is optional. You can specify the references using the following flags on command line:
 
-`--genome_pathogen SL1344`
+* `--genome_pathogen SL1344`
+* `--genome_host GRCh38`
 
-`--genome_host GRCh38`
+Any number of additional genome references can be added to this file and specified using the given genome key, through either `--genome_host` or `--genome_pathogen`.
 
-> Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
+Please note that:
 
-If using your own custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
-
-```bash
-includeConfig 'conf/custom_genomes.config'
-```
-
-Note:
-
-* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or
-```--read_transcriptome_fasta_pathogen_from_file```
-
+* If `--transcriptome_host` or `--transcriptome_pathogen` is not given, the transcriptome fasta will be created by the pipeline using the provided genome and annotation files.
 * If `gff_host_tRNA` file is provided, the pipeline combines the files from `gff_host` and `gff_host_tRNA` to create a single host gff file.
-
-* You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as all transcriptome-based files are created automatically if needed.
 
 #### B) Using pipeline-specific parameters
 
-If preferred, you can specify each parameter manually and link to appropriate files. Reference and annotation files (`fasta` and `GFF3`) can be compressed (`.gz` or `.zip`) or uncompressed.
+If you preferr, you can specify each parameter on the command line when you run the pipeline.
+Reference and annotation files (`fasta` and `GFF3`) can be compressed (`.gz` or `.zip`) or uncompressed.
 
 Host:
 
-`--fasta_host` "path to file"
-
-`--gff_host` "path to file"
-
-`--gff_host_tRNA` "path to file"
-
-`--read_transcriptome_fasta_host_from_file`
-
-`--transcriptome_host` "path to file"
+* `--fasta_host /path/to/file`
+* `--gff_host /path/to/file`
+* `--gff_host_tRNA /path/to/file`
+* `--transcriptome_host /path/to/file`
 
 Pathogen:
 
-`--fasta_pathogen` "path to file"
+* `--fasta_pathogen /path/to/file`
+* `--gff_pathogen /path/to/file`
+* `--transcriptome_pathogen /path/to/file`
 
-`--gff_pathogen` "path to file"
+These parameters can also be set in a nextflow config, or supplied in a JSON / YAML file with `-params-file`.
 
-`--read_transcriptome_fasta_pathogen_from_file`
+For example, with a file `my-config.yml`:
 
-`--transcriptome_pathogen` "path to file"
+```yaml
+fasta_host: /path/to/file
+gff_host: /path/to/file
+gff_host_tRNA: /path/to/file
+transcriptome_host: /path/to/file
+```
 
-> Note: Since many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. We recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
+You can run the pipeline with:
+
+```bash
+nextflow run nf-core/dualrnaseq -params-file my-config.yml
+```
 
 ##### Host tRNA
 
