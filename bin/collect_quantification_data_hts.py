@@ -6,11 +6,12 @@ Created on Thu Jul  4 15:00:57 2019
 @author: B. Mika-Gospodorz
 
 Input file: list of quantification tables
-Output files: quantification_stats_*.tsv, quantification_results_*.tsv (HTSeq option) or 
+Output files: quantification_stats_*.tsv, quantification_results_*.tsv (HTSeq option) or
 Description: Used to merge quantification results from all samples
 """
 
 import argparse
+
 import pandas as pd
 
 
@@ -18,31 +19,41 @@ import pandas as pd
 def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
     # initiate merged quantification data frame
     quant_merged_table = pd.DataFrame()
-    for input_file in input_files: #iterate over sample results
+    # iterate over sample results
+    for input_file in input_files:
         # read quantification data
-        quant_table = pd.read_csv(input_file,sep='\t',header=0)
-        if input_file == input_files[0]:        # initiate first column of quant_merged_table data frame
+        quant_table = pd.read_csv(input_file, sep="\t", header=0)
+        if input_file == input_files[0]:  # initiate first column of quant_merged_table data frame
             quant_merged_table = quant_table
-        else:                                   # extend quant_merged_table data frame with results of new sample
+        else:  # extend quant_merged_table data frame with results of new sample
             quant_merged_table = pd.concat([quant_merged_table, quant_table], axis=1)
     quant_merged_table.index.names = [gene_attribute]
-    # sort quant_merged_table by column labels 
+    # sort quant_merged_table by column labels
     quant_merged_table = quant_merged_table.sort_index(axis=1)
 
     # extract last 5 rows of HTSeq quantification table that contain statistics and save results
-    alignment_stats = quant_merged_table['__no_feature':'__alignment_not_unique']
-    alignment_stats.to_csv("quantification_stats_" + profile + ".tsv", sep='\t')
+    alignment_stats = quant_merged_table["__no_feature":"__alignment_not_unique"]
+    alignment_stats.to_csv("quantification_stats_" + profile + ".tsv", sep="\t")
     # remove statistics from quantification results and save quant_merged_table
-    quant_merged_table = quant_merged_table.drop(['__no_feature','__ambiguous','__too_low_aQual','__not_aligned','__alignment_not_unique'])
-    quant_merged_table.to_csv("quantification_results_" + profile + ".tsv",sep='\t')
+    quant_merged_table = quant_merged_table.drop(
+        ["__no_feature", "__ambiguous", "__too_low_aQual", "__not_aligned", "__alignment_not_unique"]
+    )
+    quant_merged_table.to_csv("quantification_results_" + profile + ".tsv", sep="\t")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""Combine counts from all samples""")
-    parser.add_argument("-i", "--input_files", metavar='<input_files>', nargs='+',help="Path to quantification results ")
-    parser.add_argument("-q", "--quantifier", metavar='<quantifier>',help="name of quantifier")
-    parser.add_argument("-a", "--gene_attribute", metavar='<gene_attribute>',help="gene attribute")
-    parser.add_argument("-org", "--organism", metavar='<organism>', help="host, pathogen, both, host_gene_level - option avaiable for Salmon")
+    parser.add_argument(
+        "-i", "--input_files", metavar="<input_files>", nargs="+", help="Path to quantification results "
+    )
+    parser.add_argument("-q", "--quantifier", metavar="<quantifier>", help="name of quantifier")
+    parser.add_argument("-a", "--gene_attribute", metavar="<gene_attribute>", help="gene attribute")
+    parser.add_argument(
+        "-org",
+        "--organism",
+        metavar="<organism>",
+        help="host, pathogen, both, host_gene_level - option avaiable for Salmon",
+    )
 
     args = parser.parse_args()
 
