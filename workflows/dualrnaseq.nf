@@ -77,14 +77,6 @@ workflow DUALRNASEQ {
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
     //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-    //
     // SUBWORKFLOW: Create salmon index and run the quantification
     //
     ch_genome_fasta     = Channel.fromPath(params.fasta_host, checkIfExists: true)
