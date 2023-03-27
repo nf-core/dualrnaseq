@@ -263,6 +263,13 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "skip_tools": {
+                    "type": "string",
+                    "fa_icon": "fas fa-forward",
+                    "description": "Disable specified tools.",
+                    "help_text": "Multiple tools can be specified, separated by commas.",
+                    "pattern": "^((baserecalibrator|baserecalibrator_report|bcftools|documentation|fastqc|markduplicates|markduplicates_report|mosdepth|multiqc|samtools|vcftools|versions)?,?)*[^,]+$"
                 }
             }
         }
