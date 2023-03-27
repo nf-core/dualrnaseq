@@ -38,6 +38,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,6 +75,30 @@ workflow DUALRNASEQ {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    //
+    // MODULE: Run FastQC
+    //
+    FASTQC (
+        INPUT_CHECK.out.reads
+    )
+    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // SUBWORKFLOW: Create salmon index and run the quantification
+    //
+    ch_genome_fasta     = Channel.fromPath(params.fasta_host, checkIfExists: true)
+    ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    // TODO change to gff in the future
+    ch_gtf              = Channel.fromPath(params.gff_host, checkIfExists: true)
+
+    SALMON_SELECTIVE_ALIGNMENT (
+        INPUT_CHECK.out.reads,
+        ch_genome_fasta,
+        ch_transcript_fasta,
+        ch_gtf
+    )
+    ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
