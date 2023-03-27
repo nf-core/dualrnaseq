@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul  4 15:00:57 2019
@@ -15,35 +15,19 @@ import argparse
 import pandas as pd
 
 
-def save_results(quant_merged_table, organism):
-    quant_merged_table.to_csv(f"combined_{organism}.tsv", sep="\t")
-
-
-def get_quant_table(input_file, organism):
-    if organism == "both":  # read quantification table containing both host and pathogen transcripts
-        quant_table = pd.read_csv(
-            input_file + "/quant.sf",
-            sep="\t",
-            header=0,
-            index_col=0,
-            dtype={"Name": str, "Length": int, "EffectiveLength": float, "TPM": float, "NumReads": float},
-        )
-    elif organism == "pathogen":  # read quantification table containing pathogen transcripts
-        quant_table = pd.read_csv(
-            input_file + "/pathogen_quant.sf",
-            sep="\t",
-            header=0,
-            index_col=0,
-            dtype={"Name": str, "Length": int, "EffectiveLength": float, "TPM": float, "NumReads": float},
-        )
-    elif organism == "host":  # read quantification table containing host transcripts
-        quant_table = pd.read_csv(
-            input_file + "/host_quant.sf",
-            sep="\t",
-            header=0,
-            index_col=0,
-            dtype={"Name": str, "Length": int, "EffectiveLength": float, "TPM": float, "NumReads": float},
-        )
+def get_quant_table(input_file: list, organism: str):
+    ORGANISM_TO_FILE = {
+        "both": input_file + "/quant.sf",
+        "pathogen": input_file + "/pathogen_quant.sf",
+        "host": input_file + "/host_quant.sf",
+    }
+    quant_table = pd.read_csv(
+        ORGANISM_TO_FILE[organism],
+        sep="\t",
+        header=0,
+        index_col=0,
+        dtype={"Name": str, "Length": int, "EffectiveLength": float, "TPM": float, "NumReads": float},
+    )
     return quant_table
 
 
@@ -68,7 +52,7 @@ def collect_quantification_data_salmon(input_files, gene_attribute, organism):
     # sort quant_merged_table by column labels
     quant_merged_table = quant_merged_table.sort_index(axis=1)
     # save results
-    save_results(quant_merged_table, organism)
+    quant_merged_table.to_csv(f"combined_{organism}.tsv", sep="\t")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul  4 15:00:57 2019
@@ -16,7 +16,7 @@ import pandas as pd
 
 
 # function to merge HTSeq quantification results
-def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
+def collect_quantification_data_HTseq(input_files: list, gene_attribute):
     # initiate merged quantification data frame
     quant_merged_table = pd.DataFrame()
     # iterate over sample results
@@ -33,12 +33,12 @@ def collect_quantification_data_HTseq(input_files, profile, gene_attribute):
 
     # extract last 5 rows of HTSeq quantification table that contain statistics and save results
     alignment_stats = quant_merged_table["__no_feature":"__alignment_not_unique"]
-    alignment_stats.to_csv("quantification_stats_" + profile + ".tsv", sep="\t")
+    alignment_stats.to_csv("quantification_stats_htseq.tsv", sep="\t")
     # remove statistics from quantification results and save quant_merged_table
     quant_merged_table = quant_merged_table.drop(
         ["__no_feature", "__ambiguous", "__too_low_aQual", "__not_aligned", "__alignment_not_unique"]
     )
-    quant_merged_table.to_csv("quantification_results_" + profile + ".tsv", sep="\t")
+    quant_merged_table.to_csv("quantification_results_htseq.tsv", sep="\t")
 
 
 if __name__ == "__main__":
@@ -46,16 +46,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-i", "--input_files", metavar="<input_files>", nargs="+", help="Path to quantification results "
     )
-    parser.add_argument("-q", "--quantifier", metavar="<quantifier>", help="name of quantifier")
     parser.add_argument("-a", "--gene_attribute", metavar="<gene_attribute>", help="gene attribute")
-    parser.add_argument(
-        "-org",
-        "--organism",
-        metavar="<organism>",
-        help="host, pathogen, both, host_gene_level - option avaiable for Salmon",
-    )
-
     args = parser.parse_args()
 
     # collect either Salmon or HTSeq quantification results
-    collect_quantification_data_HTseq(args.input_files, "htseq", args.gene_attribute)
+    collect_quantification_data_HTseq(args.input_files, args.gene_attribute)

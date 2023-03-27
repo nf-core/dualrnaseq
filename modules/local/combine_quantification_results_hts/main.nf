@@ -1,5 +1,8 @@
 process COMBINE_QUANTIFICATION_RESULTS_HTS {
     label 'process_high'
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/python:3.8.3' :
+        'nfcore/dualrnaseq:dev' }"
 
     input: 
 	    path input_quantification
