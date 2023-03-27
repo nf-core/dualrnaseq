@@ -19,6 +19,16 @@
                         "branch": "master",
                         "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
+                    },
+                    "salmon/index": {
+                        "branch": "master",
+                        "git_sha": "5d2c0dd6a8e2790e7ff511f7f4d761f4ed627a91",
+                        "installed_by": ["modules"]
+                    },
+                    "salmon/quant": {
+                        "branch": "master",
+                        "git_sha": "5d2c0dd6a8e2790e7ff511f7f4d761f4ed627a91",
+                        "installed_by": ["modules"]
                     }
                 }
             }
