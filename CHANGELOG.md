@@ -10,3 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Release name:** Tarnica is a peak in the Bieszczady Mountains in southern Poland
 
 **Description:** Initial release of nf-core/dualrnaseq, created with the [nf-core](https://nf-co.re/) template.
+
+
+## v2.0dev
+
+### `Added`
+
+### `Fixed`
+
+### `Dependencies`
+
+### `Deprecated`

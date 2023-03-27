@@ -1,4 +1,4 @@
-# nf-core/dualrnaseq: Running the pipeline
+# nf-core/dualrnaseq: Usage
 
 ## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/dualrnaseq/usage](https://nf-co.re/dualrnaseq/usage)
 
@@ -6,103 +6,86 @@
 
 ## Introduction
 
-## Table of contents
+<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
 
-1. [Running the pipeline](#1-running-the-pipeline)
-   * [Quick start](#11-quick-start)
-   * [Basic run](#12-basic-run)
-   * [Updating the pipeline](#13-updating-the-pipeline)
-   * [Reproducibility](#14-reproducibility)
-2. [Configuration profile](#2-configuration-profile)
-3. [Input sequence reads](#3-input-sequence-reads)
-4. [Reference genomes and annotation](#4-reference-genomes-and-annotation)
-   * [Genomes](#41-genomes)
-   * [Annotation](#42-annotation)
-5. [Trimming reads and adapters](#5-trimming-reads-and-adapters)
-   * [Cutadapt](#51-cutadapt)
-   * [BBDuk](#52-bbduk)
-6. [Read mapping and quantification](#6-read-mapping-and-quantification)
-   * [Salmon - Selective alignment](#61-salmon---selective-alignment)
-   * [Salmon - quantification in alignment-based mode](#62-salmon---quantification-in-alignment-based-mode)
-   * [STAR - alignment-based genome mapping + quantification with HTSeq](#63-star---alignment-based-genome-mapping-+-feature-counting-with-HTSeq)
-7. [Mapping statistics](#7-mapping-statistics)
-8. [Example usage](#8-example-usage)
-9. [Output files](#9-output-files)
-10. [Job resources](#10-job-resources-and-submission)
+## Samplesheet input
 
-## 1. Running the pipeline
-
-### 1.1 Quick Start
-
-i. Install [`nextflow`](https://nf-co.re/usage/installation)
-
-ii. Install either [`Docker`](https://docs.docker.com/engine/installation/) or [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/) for full pipeline reproducibility (please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))
-
-iii. Download the pipeline and test it on a minimal dataset with a single command
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```bash
-nextflow run nf-core/dualrnaseq -profile test,<docker/singularity/conda/institute>
+--input '[path to samplesheet file]'
 ```
 
-> Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+### Multiple runs of the same sample
 
-iv. Start running your own analysis!
+The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
+
+```console
+sample,fastq_1,fastq_2
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+```
+
+### Full samplesheet
+
+The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+
+```console
+sample,fastq_1,fastq_2
+CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
+CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
+TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
+TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
+TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
+TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
+```
+
+| Column    | Description                                                                                                                                                                            |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+
+An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+
+## Running the pipeline
+
+The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/dualrnaseq -profile <docker/singularity/conda/institute> --input '*_R{1,2}.fastq.gz' --genome_host GRCh38 --genome_pathogen SL1344
+nextflow run nf-core/dualrnaseq --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile docker
 ```
 
-To see all of the available parameters when running the pipeline, please see [the parameter documentation](https://nf-co.re/dualrnaseq/parameters).
-
-You can also use the [interactive launch tool](https://nf-co.re/launch?pipeline=dualrnaseq), which has embedded help and descriptions for each parameter.
-There is a web-based interface or a purely command-line interface. Launch via the web link above or on the command line:
-
-```bash
-nf-core launch dualrnaseq
-```
-
-### 1.2 Basic run
-
-Once ready, a basic command for running the pipeline would be the following:
-
-```bash
-nextflow run nf-core/dualrnaseq
-    -profile docker \
-    --input "/folder_to_reads/*_R{1,2}.fq.gz" \
-    --fasta_host host.fa \
-    --fasta_pathogen pathogen.fa \
-    --gff_host host.gff \
-    --gff_pathogen pathogen.gff \
-    --run_star --outdir results
-```
-
-This will launch the pipeline with the `docker` configuration profile. Click [here](#https://nf-co.re/usage/configuration), or see [below](#2-configuration-profile) for more information about profiles.
-It takes all compressed .fq files in the specified folder and will map the reads (using STAR) to the supplied host and pathogen genomes.
+This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
 Note that the pipeline will create the following files in your working directory:
 
 ```bash
-work            # Directory containing the nextflow working files
-results         # Finished results (configurable, see below)
-.nextflow_log   # Log file from Nextflow
-# Other nextflow hidden files, eg. history of pipeline runs and logs.
+work                # Directory containing the nextflow working files
+<OUTDIR>            # Finished results in specified location (defined with --outdir)
+.nextflow_log       # Log file from Nextflow
+# Other nextflow hidden files, eg. history of pipeline runs and old logs.
 ```
 
-### 1.3 Updating the pipeline
+### Updating the pipeline
 
-When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. Subsequent runs will use the cached version if available - even if the pipeline has since been updated. To make sure that you're running the latest version, make sure that you regularly run this command so the cached version is the most recent:
+When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
 nextflow pull nf-core/dualrnaseq
 ```
 
-### 1.4 Reproducibility
+### Reproducibility
 
-It's a good idea to specify a pipeline version when running on your data. This will ensure results can be reproduced more easily, and can be easily referenced or referred to, particularly when multiple versions are available. If a version number was't strictly defined in a previous run, it can be found in the various reports in the `results` directory.
+It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-To find the latest version number, go to the [nf-core/dualrnaseq releases page](https://github.com/nf-core/dualrnaseq/releases) - which will be a numeric value (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `nextflow run -r 1.3.1 nf-core/dualrnaseq/main.nf`.
+First, go to the [nf-core/dualrnaseq releases page](https://github.com/nf-core/dualrnaseq/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
 
-## 2. Configuration profile
+This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.
 
 ## Core Nextflow arguments
 
@@ -121,34 +104,27 @@ The pipeline also dynamically loads configurations from [https://github.com/nf-c
 Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
 They are loaded in sequence, so later profiles can overwrite earlier profiles.
 
-If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
 
-* `docker`
-  * A generic configuration profile to be used with [Docker](https://docker.com/)
-  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-* `singularity`
-  * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-* `podman`
-  * A generic configuration profile to be used with [Podman](https://podman.io/)
-  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-* `shifter`
-  * A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
-  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-* `charliecloud`
-  * A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
-  * Pulls software from Docker Hub: [`nfcore/dualrnaseq`](https://hub.docker.com/r/nfcore/dualrnaseq/)
-* `conda`
-  * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
-  * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
-  * Pulls most software from [Bioconda](https://bioconda.github.io/)
-* `test`
-  * A profile with a complete configuration for automated testing
-  * Includes links to test data so needs no other parameters
+- `test`
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
+- `docker`
+  - A generic configuration profile to be used with [Docker](https://docker.com/)
+- `singularity`
+  - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+- `podman`
+  - A generic configuration profile to be used with [Podman](https://podman.io/)
+- `shifter`
+  - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+- `charliecloud`
+  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+- `conda`
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter or Charliecloud.
 
 ### `-resume`
 
-Specify this when restarting a pipeline. Nextflow will used cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously.
+Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
 
 You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
 
@@ -156,29 +132,126 @@ You can also supply a run name to resume a specific run: `-resume [run-name]`. U
 
 Specify the path to a specific config file (this is a core Nextflow command). See the [nf-core website documentation](https://nf-co.re/usage/configuration) for more information.
 
-#### Custom resource requests
+## Custom configuration
 
-Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with an error code of `143` (exceeded requested resources) it will automatically resubmit with higher requests (2 x original, then 3 x original). If it still fails after three times then the pipeline is stopped.
+### Resource requests
 
-Whilst these default requirements will hopefully work for most people with most data, you may find that you want to customise the compute resources that the pipeline requests. You can do this by creating a custom config file. For example, to give the workflow process `star` 32GB of memory, you could use the following config:
+Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
+
+For example, if the nf-core/rnaseq pipeline is failing after multiple re-submissions of the `STAR_ALIGN` process due to an exit code of `137` this would indicate that there is an out of memory issue:
+
+```console
+[62/149eb0] NOTE: Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137) -- Execution is retried (1)
+Error executing process > 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)'
+
+Caused by:
+    Process `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN (WT_REP1)` terminated with an error exit status (137)
+
+Command executed:
+    STAR \
+        --genomeDir star \
+        --readFilesIn WT_REP1_trimmed.fq.gz  \
+        --runThreadN 2 \
+        --outFileNamePrefix WT_REP1. \
+        <TRUNCATED>
+
+Command exit status:
+    137
+
+Command output:
+    (empty)
+
+Command error:
+    .command.sh: line 9:  30 Killed    STAR --genomeDir star --readFilesIn WT_REP1_trimmed.fq.gz --runThreadN 2 --outFileNamePrefix WT_REP1. <TRUNCATED>
+Work dir:
+    /home/pipelinetest/work/9d/172ca5881234073e8d76f2a19c88fb
+
+Tip: you can replicate the issue by changing to the process work dir and entering the command `bash .command.run`
+```
+
+#### For beginners
+
+A first step to bypass this error, you could try to increase the amount of CPUs, memory, and time for the whole pipeline. Therefor you can try to increase the resource for the parameters `--max_cpus`, `--max_memory`, and `--max_time`. Based on the error above, you have to increase the amount of memory. Therefore you can go to the [parameter documentation of rnaseq](https://nf-co.re/rnaseq/3.9/parameters) and scroll down to the `show hidden parameter` button to get the default value for `--max_memory`. In this case 128GB, you than can try to run your pipeline again with `--max_memory 200GB -resume` to skip all process, that were already calculated. If you can not increase the resource of the complete pipeline, you can try to adapt the resource for a single process as mentioned below.
+
+#### Advanced option on process level
+
+To bypass this error you would need to find exactly which resources are set by the `STAR_ALIGN` process. The quickest way is to search for `process STAR_ALIGN` in the [nf-core/rnaseq Github repo](https://github.com/nf-core/rnaseq/search?q=process+STAR_ALIGN).
+We have standardised the structure of Nextflow DSL2 pipelines such that all module files will be present in the `modules/` directory and so, based on the search results, the file we want is `modules/nf-core/star/align/main.nf`.
+If you click on the link to that file you will notice that there is a `label` directive at the top of the module that is set to [`label process_high`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/modules/nf-core/software/star/align/main.nf#L9).
+The [Nextflow `label`](https://www.nextflow.io/docs/latest/process.html#label) directive allows us to organise workflow processes in separate groups which can be referenced in a configuration file to select and configure subset of processes having similar computing requirements.
+The default values for the `process_high` label are set in the pipeline's [`base.config`](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L33-L37) which in this case is defined as 72GB.
+Providing you haven't set any other standard nf-core parameters to **cap** the [maximum resources](https://nf-co.re/usage/configuration#max-resources) used by the pipeline then we can try and bypass the `STAR_ALIGN` process failure by creating a custom config file that sets at least 72GB of memory, in this case increased to 100GB.
+The custom config below can then be provided to the pipeline via the [`-c`](#-c) parameter as highlighted in previous sections.
 
 ```nextflow
 process {
-  withName: star {
-    memory = 32.GB
-  }
+    withName: 'NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN' {
+        memory = 100.GB
+    }
 }
 ```
 
-To find the exact name of a process you wish to modify the compute resources, check the live-status of a nextflow run displayed on your terminal or check the nextflow error for a line like so: `Error executing process > 'bwa'`. In this case the name to specify in the custom config file is `bwa`.
+> **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+>
+> If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
 
-See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information.
+### Updating containers (advanced users)
 
-If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition above). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
+The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. If for some reason you need to use a different version of a particular tool with the pipeline then you just need to identify the `process` name and override the Nextflow `container` definition for that process using the `withName` declaration. For example, in the [nf-core/viralrecon](https://nf-co.re/viralrecon) pipeline a tool called [Pangolin](https://github.com/cov-lineages/pangolin) has been used during the COVID-19 pandemic to assign lineages to SARS-CoV-2 genome sequenced samples. Given that the lineage assignments change quite frequently it doesn't make sense to re-release the nf-core/viralrecon everytime a new version of Pangolin has been released. However, you can override the default container used by the pipeline by creating a custom config file and passing it as a command-line argument via `-c custom.config`.
+
+1. Check the default version used by the pipeline in the module file for [Pangolin](https://github.com/nf-core/viralrecon/blob/a85d5969f9025409e3618d6c280ef15ce417df65/modules/nf-core/software/pangolin/main.nf#L14-L19)
+2. Find the latest version of the Biocontainer available on [Quay.io](https://quay.io/repository/biocontainers/pangolin?tag=latest&tab=tags)
+3. Create the custom config accordingly:
+
+   - For Docker:
+
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             container = 'quay.io/biocontainers/pangolin:3.0.5--pyhdfd78af_0'
+         }
+     }
+     ```
+
+   - For Singularity:
+
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             container = 'https://depot.galaxyproject.org/singularity/pangolin:3.0.5--pyhdfd78af_0'
+         }
+     }
+     ```
+
+   - For Conda:
+
+     ```nextflow
+     process {
+         withName: PANGOLIN {
+             conda = 'bioconda::pangolin=3.0.5'
+         }
+     }
+     ```
+
+> **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
+
+### nf-core/configs
+
+In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter. You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
+
+See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
 
 If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
 
-### Running in the background
+## Azure Resource Requests
+
+To be used with the `azurebatch` profile by specifying the `-profile azurebatch`.
+We recommend providing a compute `params.vm_type` of `Standard_D16_v3` VMs by default but these options can be changed if required.
+
+Note that the choice of VM size depends on your quota and the overall workload during the analysis.
+For a thorough list, please refer the [Azure Sizes for virtual machines in Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/sizes).
+
+## Running in the background
 
 Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
 
@@ -187,7 +260,7 @@ The Nextflow `-bg` flag launches Nextflow in the background, detached from your 
 Alternatively, you can use `screen` / `tmux` or similar tool to create a detached session which you can log back into at a later time.
 Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).
 
-#### Nextflow memory requirements
+## Nextflow memory requirements
 
 In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
 We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
@@ -195,369 +268,3 @@ We recommend adding the following line to your environment to limit this (typica
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
-
-## 3. Input sequence reads
-
-`--input`
-
-Input files can be read as either uncompressed or compressed (gzip) fasta or fastq files. They should be named descriptively without spaces and special characters (such as : and @), with the corresponding replicate (if any) denoted with a capital `R` or lower case `r`, and read number `1` or `2` appended at the end. The best practise for this pipeline is to use underscores to separate different experimental conditions, for example:
-
-| Paired-end | Single-end |
-| --- | --- |
-| Host_pathogen_mock_10h_R1_1.fq | Host_pathogen_mock_10h_r1.fq |
-| Host_pathogen_mock_10h_R1_2.fq | Host_pathogen_mock_10h_r2.fq |
-| Host_pathogen_mock_10h_R2_1.fq | Host_pathogen_mock_10h_r3.fq |
-| Host_pathogen_mock_10h_R2_2.fq | Host_pathogen_MOI_1_10h_R1.fq |
-| Host_pathogen_mock_10h_R3_1.fq | Host_pathogen_MOI_1_10h_R2.fq |
-| Host_pathogen_mock_10h_R3_2.fq | Host_pathogen_MOI_1_10h_R3.fq |
-| Host_pathogen_MOI_1_10h_r1_1.fq |  |
-| Host_pathogen_MOI_1_10h_r1_2.fq |  |
-| Host_pathogen_MOI_1_10h_r2_1.fq |  |
-| Host_pathogen_MOI_1_10h_r2_2.fq |  |
-| Host_pathogen_MOI_1_10h_r3_1.fq |  |
-| Host_pathogen_MOI_1_10h_r3_2.fq |  |
-
-Once correctly named, instead of typing all files, the folder containing these files can be specified, such as `--input "folder_to_files/*.fq.gz"`. Or, for paired-end `--input "folder_to_files/*{1,2}.fastq.gz"`
-
-Please note the following requirements:
-
-1. The path must be enclosed in quotes
-2. The path must have at least one `*` wildcard character
-3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
-
-If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
-
-### Additional parameters
-
-The following two parameters are associated with the sequencing library type. Their defaults are shown below, but should be changed to the experiment-specific values.
-
-`--single_end = false`
-
-`--stranded = "yes"`
-
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when launched.
-
-> Note: it is not possible to run a mixture of single-end and paired-end files in one run.
-
-## 4. Reference genomes and annotation
-
-### 4.1 Genomes
-
-The main goal of Dual RNA-seq is simultaneous profiling of host and pathogen gene expression. Thus, the pipeline requires references for each of the organisms.
-
-These parameters can be used in two ways:
-
-#### A) Using a configuration file
-
-You can create your own configuration file with sets of reference files and save it to this file which is read each time the pipeline is run: `...conf/genomes.config`
-
-If using a custom genome configuration file, you will need to enable genomes_ignore by passing `genomes_ignore = true`
-
-> See the [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) and [Reference genomes](https://nf-co.re/usage/reference_genomes) for instructions.
-
-The syntax for this reference file follows this syntax:
-
-```nextflow
-params {
-  genomes {
-    'GRCh38' {
-      fasta_host  = '<path to the genome fasta file>'
-      gff_host = '<path to the genome annotation file>'
-      gff_host_tRNA = '<path to the tRNA annotation file>' // Optional
-      transcriptome_host = '<path to the transcriptome fasta file>' // Optional
-             }
-    'SL1344' {
-      fasta_pathogen  = '<path to the genome fasta file>'
-      gff_pathogen = '<path to the genome gff annotation file>'
-      transcriptome_pathogen = '<path to the transcriptome fasta file>' // Optional
-             }
-          }
-        // Default genomes (optional). Ignored if --genome_host 'OTHER-GENOME' and --genome_pathogen 'OTHER-GENOME' specified on command line
-      genome_host = 'GRCh38'
-      genome_pathogen = 'SL1344'
-        }
-```
-
-Defining default genomes in your configuration file is optional. You can specify the references using the following flags on command line:
-
-`--genome_pathogen SL1344`
-
-`--genome_host GRCh38`
-
-> Any number of additional genomes can be added to this file and specified through either `--genome_host` or `--genome_pathogen`.
-
-If using your own custom genome file, you will also need to include either the following line, or something similar in your `nextflow.config` file to make sure the information is being read when the pipeline runs.
-
-```bash
-includeConfig 'conf/custom_genomes.config'
-```
-
-Note:
-
-* The transcriptome fasta file is created by default in the pipeline using the provided genome and annotation files. If you already have one, you can specify it here as shown above, and through the parameter ```--read_transcriptome_fasta_host_from_file``` or
-```--read_transcriptome_fasta_pathogen_from_file```
-
-* If `gff_host_tRNA` file is provided, the pipeline combines the files from `gff_host` and `gff_host_tRNA` to create a single host gff file.
-
-* You don't have to specify the path to the host and pathogen transcriptomes in your conf/genomes.config file, as all transcriptome-based files are created automatically if needed.
-
-#### B) Using pipeline-specific parameters
-
-If preferred, you can specify each parameter manually and link to appropriate files. Reference and annotation files (`fasta` and `GFF3`) can be compressed (`.gz` or `.zip`) or uncompressed.
-
-Host:
-
-`--fasta_host` "path to file"
-
-`--gff_host` "path to file"
-
-`--gff_host_tRNA` "path to file"
-
-`--read_transcriptome_fasta_host_from_file`
-
-`--transcriptome_host` "path to file"
-
-Pathogen:
-
-`--fasta_pathogen` "path to file"
-
-`--gff_pathogen` "path to file"
-
-`--read_transcriptome_fasta_pathogen_from_file`
-
-`--transcriptome_pathogen` "path to file"
-
-> Note: Since many dual RNA-seq experiments are likely to use pathogen-based references that have to be manually downloaded. We recommend adding a new entry to the `genomes.conf` file as depicted [above](#4-reference-genomes-and-annotation), or through specific parameters of `--fasta_pathogen` and `--gff_pathogen`.
-
-##### Host tRNA
-
-We have specified this parameter for users familiar with the [Gencode gene annotations](https://www.gencodegenes.org/). Their annotative files include lncRNAs, snoRNAs, rRNAs and other non-coding genes except tRNAs. tRNAs are available in another gff file (predicted tRNA genes). The tRNA gff file looks a little different than the main annotation file, so we don't recommend adding different GFF files in its place.
-
-##### Warning! The nf-core/dualrnaseq pipeline does not support iGenomes
-
-Many nf-core pipelines provide an option to use iGenomes [Reference genomes](https://nf-co.re/usage/reference_genomes). However, the nf-core/dualrnaseq pipeline does not support this functionality. Thie pipeline requires GFF files and not GTF files.
-
-### 4.2 Annotation
-
-Host-based annotations are generally more uniform in design than pathogen annotations, where different terms for the same feature are often used. For example, in Human annotation files, main features are defined as genes, transcripts and exons, and associated with gene_id, transcript_id and other uniform identifiers. When extracting features, this uniform naming convention makes this straight forward. However, bacterial naming conventions are less uniform. Names for features include genes, CDS, ID, Name, locus_tag amongst others.
-
-We have defined four parameters for both the host and pathogen to account for these differences in conventions - and should be modified when needed.
-Default values are shown below:
-
-Host:
-
-`--gene_attribute_gff_to_create_transcriptome_host "transcript_id"`
-
-`--gene_feature_gff_to_create_transcriptome_host "[exon, tRNA]"`
-
-`--gene_feature_gff_to_quantify_host "[exon, tRNA]"`
-
-`--host_gff_attribute "gene_id"`
-
-Pathogen:
-
-`--gene_attribute_gff_to_create_transcriptome_pathogen "locus_tag"`
-
-`--gene_feature_gff_to_create_transcriptome_pathogen "[gene, sRNA, tRNA, rRNA]"`
-
-`--gene_feature_gff_to_quantify_pathogen "[gene, sRNA, tRNA, rRNA]"`
-
-`--pathogen_gff_attribute "locus_tag"`
-
-#### Features within pathogen annotation files
-
-As previously mentioned, bacterial annotative files can be challenging to work with due to non-uniformity. We find that summarising the contents of the GFF can help to identify which features you may want to examine. The following bash script can do this easily:
-
-```bash
-awk -F '\t' '{print $3}' file.gff3 | sort | uniq -c
-```
-
-## 5. Trimming reads and adapters
-
-By default, trimming and adapter removal is not run. To run either tool, you will need to specify either `run_cutadapt` or `run_bbduk` during run time.
-
-For convenience, two software options are provided to remove low quality reads and adapters:
-
-### 5.1 Cutadapt
-
-Cutadapt is best suited when the library preparation steps and adapter types are known. By default, parameters are set up to remove TruSeq adaptors and with a quality cutoff of 10 (from the 3' end).
-For the full list of parameters, click [here](https://nf-co.re/dualrnaseq/parameters#cutadapt).
-
-### 5.2 BBDuk
-
-The advantage of using BBDuk is that no prior knowledge of library preparation steps are needed. There is a file stored within the pipeline (`$baseDir/assets/adapters.fa`) containing common adapter types, from which BBDuk will search through and remove. This is extremely useful when analysing data from public repositories when minimal background has been given. For the full list of parameters, click [here](https://nf-co.re/dualrnaseq/parameters#bbduk).
-
-## 6. Read mapping and quantification
-
-The nf-core/dualrnaseq pipeline provides three strategies to map and quantify your dual RNA-seq data.
-
-1) The first approach **Salmon with Selective alignment**, performs mapping using the Selective alignment algorithm which quantifies the reads. `--run_salmon_selective_alignment`
-
-2) The second approach **Salmon with alignment-based mode**, utilizes aligned reads from STAR to quantify input reads. `--run_salmon_alignment_based_mode`
-
-3) The third strategy utilises alignment-based mapping executed with **STAR**, counting uniquely aligned reads with **HTSeq**. `--run_star` and `--run_htseq_uniquely_mapped`
-
-### 6.1 Salmon - selective alignment
-
-Salmon is a transcriptome-based mapping tool that performs both mapping and quantification. In the first phase it performs indexing of reference transcripts (pathogen transcripts are defined as gene or CDS features), where a chimeric transcriptome of host and pathogen files is created. During this step, coordinates of gene features are also extracted from the host and pathogen annotation files.
-To avoid spurious mapping of reads that originate from unannotated locus to sequences similar to annotated transcripts, a decoy-aware transcriptome is created and incorporated into the index. In the pipeline, decoy sequences are created from only the host genome (please see our paper for more information *paper coming soon*).
-
-> Note: **Selective alignment** is an improvement to the original alignment-free approach (also called quasi-mapping). In Selective-alignment, the best transcript for a read from a set of mappings is selected based on the alignment-based score instead of the longest exact match - which increases accuracy. See [`Salmon documentation`](https://salmon.readthedocs.io/en/latest/salmon.html) for more information.
-
-To summarize transcript-level estimates obtained with Salmon into gene-level abundance estimates, the nf-core/dualrnaseq pipeline uses [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
-
-### 6.2 Salmon - quantification in alignment-based mode
-
-In this [mode](https://salmon.readthedocs.io/en/latest/salmon.html#quantifying-in-alignment-based-mode), Salmon performs quantification utilising an aligned BAM file. In this pipeline, the alignment file is generated with STAR. The first step involves creating an index of a chimeric genome (created from the host and pathogen genome files). Next, STAR performs an alignment, but for the purpose of Salmon (it generates alignments translated into transcript coordinates). To learn more on this behavior, please see `Output in transcript coordinates` from the [`STAR documentation.`](https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf)
-
-> Note: there are numerous STAR-based flags that can be modified within the pipeline - which can be viewed [here](https://nf-co.re/dualrnaseq/parameters#star---general).
-> Salmon performs quantification based on a reference transcriptome. It is recommended to allow the pipeline to create a transcriptome using the provided genome (fasta) and annotative (gff) files.
-> When quantifying alignments, the parameters `--libtype` and `--incompatPrior` should be adjusted as required.
-
-Gene-level estimates are obtained using [`Tximport.`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
-
-### 6.3 STAR - alignment-based genome mapping + feature counting with HTSeq
-
-STAR is a splice-aware alignment tool which aligns reads to a reference genome. In this pipeline, STAR generates a chimeric genome index (combining host and pathogen genomes), then identifies and maps spliced alignments across splice junctions.
-If using this method, the following three parameters (or links in a genome configuration file) are required: `--genome_host`, `--genome_pathogen` and `--gff_host`.
-
-Users have the option to only run STAR if desired. If also running HTSeq-count, you will need to pass `--run_htseq_uniquely_mapped`.
-
-To quantify uniquely mapped host and pathogen reads, the pipeline uses HTSeq-count. In addition to the host gff, other parameters must be specified including `--gff_pathogen`, `--gene_feature_gff_to_quantify_host`, `--host_gff_atribute`, `--gene_feature_gff_to_quantify_pathogen` and `--pathogen_gff_atribute`.
-
-## 7. Mapping statistics
-
-To summarise the mapping statistics including total mapped reads, unmapped reads, host-specific and pathogen-specific mapped reads, add the following parameter to the command line: `--mapping_statistics`.
-
-This will create the following:
-
-* Count the total number of reads before and after trimming
-* Scatterplots comparing all replicates (separate for both host and pathogen genes)
-* Plots of the % of mapped/quantified reads
-* Plots of RNA-class statistics
-
-To see examples of this output, [click here](output.md#mapping-statistics).
-
-## 8. Example usage
-
-As discussed above in the [Read mapping and quantification section](#62-salmon---quantification-in-alignment-based-mode) above, there are different ways to run the pipeline:
-
-### Example 1
-
-* Using Docker
-
-* Single end reads
-
-* Host (Human) and pathogen (*E. coli*) genomes defined through `genomes.conf`
-
-* Salmon - Selective alignment
-
-```bash
-nextflow run dualrnaseq/main.nf -profile docker,cluster \
---genome_host "GRCh38" --genome_pathogen "Escherichia_coli_K_12_DH10B" \
---input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
---outdir "/outdir_folder/" \
---run_salmon_selective_alignment \
-```
-
-### Example 2
-
-* Using Docker
-
-* Paired-end reads (unstranded)
-
-* Host (Mouse) and pathogen (*C. trachomatis*) genomes defined through `genomes.conf`
-
-* Salmon - quantification in alignment-based mode
-
-* Custom kmer length
-
- ```bash
-qsub -q all.q nextflow run dualrnaseq/main.nf -profile docker \
---genome_host "GRCm38" --genome_pathogen "C_trachomatis_strain_d" \
---input "folder_to_reads/*{1,2}.fastq.gz" --genomes_ignore = true \
---outdir "/outdir_folder/" \
---run_salmon_alignment_based_mode --libtype "IU" --incompatPrior 0.0 --kmer_length 19 \
-```
-
-### Example 3
-
-* Using Singularity
-
-* Single end reads
-
-* Host (Human) and pathogen (*M. pneumoniae*) genomes defined through `genomes.conf`
-
-* STAR - alignment-based genome mapping
-
-* HTSeq - quantification of uniquely mapped reads
-
- ```bash
-nextflow run dualrnaseq/main.nf -profile singularity \
---genome_host "GRCH38" --genome_pathogen "Mycoplasma_pneumoniae" \
---input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
---outdir /outdir_folder/ \
---run_star --run_htseq_uniquely_mapped \
-```
-
-### Example 4
-
-* Run on a SGE cluster
-
-* Using Singularity
-
-* Single end reads
-
-* Host (Human) and pathogen (*S. typhimurium*) genomes defined through `genomes.conf`
-
-* All three modes with custom gene attributes
-
-```bash
-qsub -q all.q nextflow run dualrnaseq/main.nf -profile singularity,cluster \
---genome_host "GRCH38" --genome_pathogen "Salmonella_typhimurium" \
---input "folder_to_reads/*.fq.gz" --single_end --genomes_ignore = true \
---outdir "/outdir_folder/" \
---run_salmon_alignment_based_mode --libtype "SF" \
---run_salmon_selective_alignment \
---run_star --run_htseq_uniquely_mapped \
---gene_feature_gff_to_create_transcriptome_pathogen "[ID, sRNA, tRNA, rRNA]" \
---gene_feature_gff_to_quantify_pathogen "[ID, sRNA, tRNA, rRNA]"
-```
-
-## 9. Output files
-
-Click [here](output.md) for a description on output files.
-
-## 10. Job resources and submission
-
-Nextflow handles job submissions on SLURM or other environments, and supervises running the jobs. Thus, Nextflow processes must run until the pipeline is finished. To achieve this, we recommend running in the background through `screen` / `tmux` or a similar tool. Alternatively, you can run dualrnaseq submitted by your job scheduler on a cluster.
-
-It is also recommended to limit the Nextflow Java virtual machine memory. This can be achieved by adding the following line to your environment (typically in `~/.bashrc` or `~./bash_profile`):
-
-```bash
-NXF_OPTS='-Xms1g -Xmx4g'
-```
-
-### Automatic resubmission
-
-Each step in the pipeline has a default set of requirements for the number of CPUs, memory and time. For most steps within the pipeline, if the job exits with an error code of `143` (exceeded requested resources), it will automatically resubmit with higher requirements (2 x original, then 3 x original). If these requests continue to fail, then the pipeline will stop.
-
-### Custom resource requests
-
-Wherever process-specific requirements are set in the pipeline, the default value can be changed by creating a custom config file. See the files hosted at [`nf-core/configs`](https://github.com/nf-core/configs/tree/master/conf) for examples.
-
-If you are likely to be running `nf-core` pipelines regularly, it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition above). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
-
-If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack).
-
-### AWS Batch specific parameters
-
-Running the pipeline on AWS Batch requires a couple of specific parameters to be set according to your AWS Batch configuration. Please use [`-profile awsbatch`](https://github.com/nf-core/configs/blob/master/conf/awsbatch.config) and then specify all of the following parameters.
-
-`--awsqueue`  The JobQueue that you intend to use on AWS Batch.
-
-`--awsregion` The AWS region in which to run your job. Default is set to `eu-west-1` but can be adjusted to your needs.
-
-`--awscli`  The [AWS CLI](https://www.nextflow.io/docs/latest/awscloud.html#aws-cli-installation) path in your custom AMI. Default: `/home/ec2-user/miniconda/bin/aws`.
-
-Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a S3 storage bucket of your choice - you'll get an error message notifying you if you didn't
