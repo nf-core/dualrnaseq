@@ -76,6 +76,22 @@ workflow DUALRNASEQ {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
+            FASTQC(INPUT_CHECK.out.reads)
+            ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    }
+
+    if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
+            CUTADAPT(INPUT_CHECK.out.reads)
+            ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
+    }
+
+    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
+            FASTQC_AFTER_TRIMMING(CUTADAPT.out.reads)
+            ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
+    }
+
+
     //
     // SUBWORKFLOW: Create salmon index and run the quantification
     //
@@ -98,21 +114,6 @@ workflow DUALRNASEQ {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-            FASTQC(INPUT_CHECK.out.reads)
-            ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-    }
-
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
-            CUTADAPT(INPUT_CHECK.out.reads)
-            ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
-    }
-
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-            FASTQC_AFTER_TRIMMING(CUTADAPT.out.reads)
-            ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
-    }
 
     //
     // MODULE: MultiQC
