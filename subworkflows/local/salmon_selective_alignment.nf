@@ -21,13 +21,8 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         ch_salmon_quant = Channel.empty()
         def alignment_mode = false
-<<<<<<< HEAD
         SALMON_QUANT(ch_reads, ch_salmon_index.collect(), ch_gtf.collect(), ch_transcript_fasta.collect(), alignment_mode, params.libtype)
         
-=======
-        SALMON_QUANT(ch_reads, ch_salmon_index, ch_gtf, ch_transcript_fasta, alignment_mode, params.libtype)
-
->>>>>>> 1dbd58517c65d4bbcb3619bee8bfa70303935d81
         input_files = SALMON_QUANT.out.results.map{it -> it[1]}.collect()
   //      input_files.view()
         COMBINE_QUANTIFICATION_RESULTS_SALMON(input_files, Channel.value("both"))
