@@ -83,20 +83,24 @@ workflow DUALRNASEQ {
     // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
     params.transcript_fasta = params.transcript_fasta_host
 
-    ch_genome_fasta     = Channel.fromPath(params.fasta_host, checkIfExists: true)
-    ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    ch_genome_fasta                     = Channel.fromPath(params.fasta_host, checkIfExists: true)
+    ch_transcript_fasta                 = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    ch_transcript_fasta_pathogen        = Channel.fromPath(params.transcript_fasta_pathogen, checkIfExists: true)
+    ch_transcript_fasta_host            = Channel.fromPath(params.transcript_fasta_host, checkIfExists: true)
     // TODO change to gff in the future
-    ch_gtf              = Channel.fromPath(params.gff_host, checkIfExists: true)
+    ch_gtf                              = Channel.fromPath(params.gff_host, checkIfExists: true)
 
     if ( params.run_salmon_selective_alignment ) {
         SALMON_SELECTIVE_ALIGNMENT (
             INPUT_CHECK.out.reads,
             ch_genome_fasta,
             ch_transcript_fasta,
-            ch_gtf
+            ch_gtf,
+            ch_transcript_fasta_pathogen,
+            ch_transcript_fasta_host
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
-    } 
+    }
 
     if ( params.run_salmon_alignment_based_mode ) {
         SALMON_ALIGNMENT_BASE (
@@ -108,7 +112,7 @@ workflow DUALRNASEQ {
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASE.out.versions)
     }
 
-    
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
