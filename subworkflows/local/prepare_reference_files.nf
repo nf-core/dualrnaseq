@@ -35,21 +35,24 @@ workflow PREPARE_REFERENCE_FILES{
       UNCOMPRESS_HOST_GFF(ch_gff_host)
       UNCOMPRESS_PATHOGEN_GFF(ch_gff_pathogen)
 
-      PREPARE_HOST_TRANSCRIPTOME(
-        UNCOMPRESS_HOST_FASTA_GENOME.out,
-        UNCOMPRESS_HOST_GFF.out
-      )
 
-      PREPARE_PATHOGEN_TRANSCRIPTOME(
-        UNCOMPRESS_PATHOGEN_FASTA_GENOME.out.collect(),
-        UNCOMPRESS_PATHOGEN_GFF.out
-      )
+      if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+        PREPARE_HOST_TRANSCRIPTOME(
+          UNCOMPRESS_HOST_FASTA_GENOME.out,
+          UNCOMPRESS_HOST_GFF.out
+        )
 
-      // combine pathogen and host transcriptome
-      transciptiome_transcriptome_to_combine = PREPARE_HOST_TRANSCRIPTOME.out.mix(
-        PREPARE_PATHOGEN_TRANSCRIPTOME.out
-      ).collect()
-      COMBINE_FILES_TRANSCRIPTOME_FILES(
-        transciptiome_transcriptome_to_combine
-      )
+        PREPARE_PATHOGEN_TRANSCRIPTOME(
+          UNCOMPRESS_PATHOGEN_FASTA_GENOME.out.collect(),
+          UNCOMPRESS_PATHOGEN_GFF.out
+        )
+
+        // combine pathogen and host transcriptome
+        transciptiome_transcriptome_to_combine = PREPARE_HOST_TRANSCRIPTOME.out.mix(
+          PREPARE_PATHOGEN_TRANSCRIPTOME.out
+        ).collect()
+        COMBINE_FILES_TRANSCRIPTOME_FILES(
+          transciptiome_transcriptome_to_combine
+        )
+      }
 }
