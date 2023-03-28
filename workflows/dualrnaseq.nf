@@ -11,11 +11,30 @@ WorkflowDualrnaseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta_host ]
+def checkPathParamList = [ 
+    params.input, 
+    params.multiqc_config, 
+    // host
+    params.fasta_host,
+    params.gff_host,
+    params.gff_host_tRNA,
+    // pathogen
+    params.fasta_pathogen,
+    params.gff_pathogen,
+]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+
+ch_fasta_host        = params.fasta_host   ? Channel.fromPath( params.fasta_host, checkIfExists: true ) : Channel.empty()
+ch_fasta_pathogen    = params.fasta_pathogen   ? Channel.fromPath( params.fasta_pathogen, checkIfExists: true ) : Channel.empty()
+ch_gff_host          = params.gff_host   ? Channel.fromPath( params.gff_host, checkIfExists: true ) : Channel.empty()
+ch_gff_host_tRNA     = params.gff_host_tRNA   ? Channel.fromPath( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
+ch_gff_pathogen      = params.gff_pathogen   ? Channel.fromPath( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +58,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
+include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,6 +106,14 @@ workflow DUALRNASEQ {
     ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
     // TODO change to gff in the future
     ch_gtf              = Channel.fromPath(params.gff_host, checkIfExists: true)
+    
+    PREPARE_REFERENCE_FILES(
+        ch_fasta_host,
+        ch_gff_host,
+        ch_gff_host_tRNA,
+        ch_fasta_pathogen,
+        ch_gff_pathogen
+    )
 
     SALMON_SELECTIVE_ALIGNMENT (
         INPUT_CHECK.out.reads,
