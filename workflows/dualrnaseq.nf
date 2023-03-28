@@ -79,6 +79,9 @@ workflow DUALRNASEQ {
     //
     // SUBWORKFLOW: Create salmon index and run the quantification
     //
+    // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
+    params.transcript_fasta = params.transcript_fasta_host
+
     ch_genome_fasta     = Channel.fromPath(params.fasta_host, checkIfExists: true)
     ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
     // TODO change to gff in the future
