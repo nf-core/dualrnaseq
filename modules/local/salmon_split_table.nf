@@ -5,14 +5,33 @@ process SALMON_SPLIT_TABLE {
         'nfcore/dualrnaseq:dev' }"
 
     input:
-	    path input_quantification
-        val organism
+    tuple val(meta), path(quant)
+    path transcript_fasta_pathogen
+    path transcript_fasta_host
+
     output:
-	    path "combined_${organism}.tsv", emit: combined_quant_data
+	tuple val(meta), path("host_quant.sf"),        emit: host
+    tuple val(meta), path("pathogen_quant.sf"),    emit: pathogen
+
     script:
     """
-    $workflow.projectDir/bin/split_quant_tables_salmon.sh \
-    $transcriptome_pathogen $transcriptome_host \
-    salmon/*/quant.sf "quant.sf"
+    grep ">" ${transcript_fasta_pathogen} \
+    | awk -F ">" '{ print \$2 }' \
+    | awk 'NR==FNR{a[\$0]=\$0}NR>FNR{if(\$1==a[\$1])print \$0}' - ${quant} \
+    > pathogen_quant
+
+    awk 'NR==1 {print; exit}' ${quant} \
+    | cat - pathogen_quant \
+    > pathogen_quant.sf
+
+    grep ">" ${transcript_fasta_host} \
+    | awk -F ">" '{ print \$2 }' \
+    | awk -F ' ' '{print \$1}' \
+    | awk 'NR==FNR{a[\$0]=\$0}NR>FNR{if(\$1==a[\$1])print \$0}' - ${quant} \
+    > host_quant
+
+    awk 'NR==1 {print; exit}' ${quant} \
+    | cat - host_quant \
+    > host_quant.sf
     """
 }
