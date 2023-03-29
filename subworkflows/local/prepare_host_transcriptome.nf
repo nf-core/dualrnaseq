@@ -27,7 +27,7 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
         )        
         if(params.gff_host_tRNA){
 
-            UNCOMPRESS_HOST_GFF_TRNA(UNCOMPRESS_HOST_GFF.out)
+            UNCOMPRESS_HOST_GFF_TRNA(ch_gff_host)
             UNCOMPRESS_HOST_GFF_TRNA_FILE(ch_gff_host_tRNA)
             
             parameters = Channel.value(
