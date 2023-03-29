@@ -11,11 +11,30 @@ WorkflowDualrnaseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta_host ]
+def checkPathParamList = [
+    params.input,
+    params.multiqc_config,
+    // host
+    params.fasta_host,
+    params.gff_host,
+    params.gff_host_tRNA,
+    // pathogen
+    params.fasta_pathogen,
+    params.gff_pathogen,
+]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
+
+ch_fasta_host        = params.fasta_host   ? file( params.fasta_host, checkIfExists: true ) : Channel.empty()
+ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, checkIfExists: true ) : Channel.empty()
+ch_gff_host          = params.gff_host   ? file( params.gff_host, checkIfExists: true ) : Channel.empty()
+ch_gff_host_tRNA     = params.gff_host_tRNA   ? file( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
+ch_gff_pathogen      = params.gff_pathogen   ? file( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +57,12 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
+include { SALMON_ALIGNMENT_BASE } from '../subworkflows/local/salmon_alignment_base'
+include { EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
+    } from '../modules/local/extract_annotations'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,24 +100,25 @@ workflow DUALRNASEQ {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    //
-    // SUBWORKFLOW: Create salmon index and run the quantification
-    //
-    ch_genome_fasta     = Channel.fromPath(params.fasta_host, checkIfExists: true)
-    ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
-    // TODO change to gff in the future
-    ch_gtf              = Channel.fromPath(params.gff_host, checkIfExists: true)
-
-    SALMON_SELECTIVE_ALIGNMENT (
-        INPUT_CHECK.out.reads,
-        ch_genome_fasta,
-        ch_transcript_fasta,
-        ch_gtf
+    ch_gff_host = Channel.fromPath(params.gff_host, checkIfExists: true)
+    EXTRACT_ANNOTATIONS_HOST_SALMON (
+        ch_gff_host,
+        params.extract_annotations_host_salmon_feature,
+        params.extract_annotations_host_salmon_attribute,
+        params.extract_annotations_host_salmon_organism,
+        'salmon'
     )
-    ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
 
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+	ch_gene_feature_gff_to_create_transcriptome_pathogen = Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
+	    .collect()
+
+    EXTRACT_ANNOTATIONS_PATHOGEN_SALMON (
+        ch_gff_pathogen,
+        ch_gene_feature_gff_to_create_transcriptome_pathogen,
+        params.pathogen_gff_attribute,
+        params.extract_annotations_pathogen_salmon_organism,
+        'salmon'
     )
 
     if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
@@ -110,6 +135,57 @@ workflow DUALRNASEQ {
             FASTQC_AFTER_TRIMMING(CUTADAPT.out.reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
+
+
+    //
+    // SUBWORKFLOW: Create salmon index and run the quantification
+    //
+    // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
+    // params.transcript_fasta = params.transcript_fasta_host
+
+    // ch_genome_fasta                     = Channel.fromPath(params.fasta_host, checkIfExists: true)
+    // ch_transcript_fasta                 = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    // ch_transcript_fasta_pathogen        = Channel.fromPath(params.transcript_fasta_pathogen, checkIfExists: true)
+    // ch_transcript_fasta_host            = Channel.fromPath(params.transcript_fasta_host, checkIfExists: true)
+
+    // TODO change to gff in the future
+    ch_gtf                              = file(params.gff_host, checkIfExists: true)
+
+    PREPARE_REFERENCE_FILES(
+        ch_fasta_host,
+        ch_gff_host,
+        ch_gff_host_tRNA,
+        ch_fasta_pathogen,
+        ch_gff_pathogen
+    )
+
+    if ( params.run_salmon_selective_alignment ) {
+        SALMON_SELECTIVE_ALIGNMENT (
+            INPUT_CHECK.out.reads,
+            PREPARE_REFERENCE_FILES.out.genome_fasta,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta,
+            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_host
+        )
+        ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
+    }
+
+    if ( params.run_salmon_alignment_based_mode ) {
+        SALMON_ALIGNMENT_BASE (
+            INPUT_CHECK.out.reads,
+            PREPARE_REFERENCE_FILES.out.genome_fasta,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta,
+            ch_gtf
+        )
+        ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASE.out.versions)
+    }
+
+
+
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
 
     //
     // MODULE: MultiQC
