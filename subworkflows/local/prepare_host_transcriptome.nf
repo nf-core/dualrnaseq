@@ -8,6 +8,8 @@ include { UNCOMPRESS_GFF as UNCOMPRESS_HOST_GFF_TRNA_FILE  } from '../../modules
 include { COMBINE_FILES }  from '../../modules/local/combine_files'
 
 
+include { EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ } from '../../modules/local/extract_annotations'
+
 workflow PREPARE_HOST_TRANSCRIPTOME {
   take:
     uncompressed_host_fasta_genome
@@ -20,6 +22,14 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
         ch_transcriptome_host        = params.transcriptome_host   ? Channel.fromPath( params.transcriptome_host, checkIfExists: true ) : Channel.empty()
     } else {
         UNCOMPRESS_HOST_GFF(ch_gff_host)
+
+        EXTRACT_ANNOTATIONS_HOST_HTSEQ (
+            UNCOMPRESS_HOST_GFF.out,
+            params.gene_feature_gff_to_quantify_host,
+            params.host_gff_attribute,
+            params.extract_annotations_host_htseq_organism,
+            'htseq'
+        )
 
         CREATE_TRANSCRIPTOME_FASTA_HOST(
             uncompressed_host_fasta_genome,

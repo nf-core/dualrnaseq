@@ -61,9 +61,7 @@ include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_referenc
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASE } from '../subworkflows/local/salmon_alignment_base'
 include { EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
-    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
-    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ
     } from '../modules/local/extract_annotations'
 
 /*
@@ -111,32 +109,10 @@ workflow DUALRNASEQ {
         'salmon'
     )
 
-	ch_gene_feature_gff_to_quantify_host = Channel
-	    .value(params.gene_feature_gff_to_quantify_host)
-	    .collect()
-    EXTRACT_ANNOTATIONS_HOST_HTSEQ (
-        ch_gff_host,
-        ch_gene_feature_gff_to_quantify_host,
-        params.host_gff_attribute,
-        params.extract_annotations_host_htseq_organism,
-        'htseq'
-    )
-
-    ch_gff_pathogen = Channel.fromPath(params.gff_pathogen, checkIfExists: true)
-	ch_gene_feature_gff_to_quantify_pathogen = Channel
-	    .value(params.gene_feature_gff_to_quantify_pathogen)
-	    .collect()
-    EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
-        ch_gff_pathogen,
-        ch_gene_feature_gff_to_quantify_pathogen,
-        params.pathogen_gff_attribute,
-        params.extract_annotations_pathogen_htseq_organism,
-        'htseq'
-    )
-
 	ch_gene_feature_gff_to_create_transcriptome_pathogen = Channel
 	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
 	    .collect()
+
     EXTRACT_ANNOTATIONS_PATHOGEN_SALMON (
         ch_gff_pathogen,
         ch_gene_feature_gff_to_create_transcriptome_pathogen,
