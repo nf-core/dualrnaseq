@@ -1,12 +1,6 @@
 include { UNCOMPRESS_FASTA_GENOME as UNCOMPRESS_HOST_FASTA_GENOME      } from '../../modules/local/uncompress_fasta_genome'
 include { UNCOMPRESS_FASTA_GENOME as UNCOMPRESS_PATHOGEN_FASTA_GENOME  } from '../../modules/local/uncompress_fasta_genome'
 
-include { UNCOMPRESS_GFF as UNCOMPRESS_HOST_GFF      } from '../../modules/local/uncompress_gff'
-include { UNCOMPRESS_GFF as UNCOMPRESS_PATHOGEN_GFF  } from '../../modules/local/uncompress_gff'
-
-include { UNCOMPRESS_GFF as UNCOMPRESS_HOST_GFF_TRNA      } from '../../modules/local/uncompress_gff'
-include { UNCOMPRESS_GFF as UNCOMPRESS_HOST_GFF_TRNA_FILE  } from '../../modules/local/uncompress_gff'
-
 include { PREPARE_HOST_TRANSCRIPTOME      } from '../../subworkflows/local/prepare_host_transcriptome'
 include { PREPARE_PATHOGEN_TRANSCRIPTOME  } from '../../subworkflows/local/prepare_pathogen_transcriptome'
 include { COMBINE_FILES as COMBINE_FILES_GENOMES } from '../../modules/local/combine_files'
@@ -36,22 +30,20 @@ workflow PREPARE_REFERENCE_FILES{
     fasta_files_to_combine = UNCOMPRESS_HOST_FASTA_GENOME.out.mix(
         UNCOMPRESS_PATHOGEN_FASTA_GENOME.out
     ).collect()
-    COMBINE_FILES_GENOMES(fasta_files_to_combine)
-
-    UNCOMPRESS_HOST_GFF(ch_gff_host)
-    UNCOMPRESS_PATHOGEN_GFF(ch_gff_pathogen)
+    COMBINE_FILES_GENOMES(fasta_files_to_combine)    
 
     if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
 
       PREPARE_HOST_TRANSCRIPTOME(
         UNCOMPRESS_HOST_FASTA_GENOME.out,
-        UNCOMPRESS_HOST_GFF.out
+        ch_gff_host,
+        ch_gff_host_tRNA
       )
       ch_host_transcriptome = PREPARE_HOST_TRANSCRIPTOME.out
 
       PREPARE_PATHOGEN_TRANSCRIPTOME(
         UNCOMPRESS_PATHOGEN_FASTA_GENOME.out.collect(),
-        UNCOMPRESS_PATHOGEN_GFF.out
+        ch_gff_pathogen
       )
       ch_pathogen_transcriptome = PREPARE_PATHOGEN_TRANSCRIPTOME.out
 

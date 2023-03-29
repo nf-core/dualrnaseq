@@ -4,7 +4,7 @@ process EXTRACT_ANNOTATIONS {
 
     conda "bioconda::conda-forge::python=3.8.3=3.11.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.8.3':
+        'nfcore/dualrnaseq:dev':
         'nfcore/dualrnaseq:dev' }"
 
     input:
