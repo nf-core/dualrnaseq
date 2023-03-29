@@ -11,9 +11,9 @@ WorkflowDualrnaseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ 
-    params.input, 
-    params.multiqc_config, 
+def checkPathParamList = [
+    params.input,
+    params.multiqc_config,
     // host
     params.fasta_host,
     params.gff_host,
@@ -60,6 +60,11 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASE } from '../subworkflows/local/salmon_alignment_base'
+include { EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ
+    } from '../modules/local/extract_annotations'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +101,49 @@ workflow DUALRNASEQ {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    ch_gff_host = Channel.fromPath(params.gff_host, checkIfExists: true)
+    EXTRACT_ANNOTATIONS_HOST_SALMON (
+        ch_gff_host,
+        params.extract_annotations_host_salmon_feature,
+        params.extract_annotations_host_salmon_attribute,
+        params.extract_annotations_host_salmon_organism,
+        'salmon'
+    )
+
+	ch_gene_feature_gff_to_quantify_host = Channel
+	    .value(params.gene_feature_gff_to_quantify_host)
+	    .collect()
+    EXTRACT_ANNOTATIONS_HOST_HTSEQ (
+        ch_gff_host,
+        ch_gene_feature_gff_to_quantify_host,
+        params.host_gff_attribute,
+        params.extract_annotations_host_htseq_organism,
+        'htseq'
+    )
+
+    ch_gff_pathogen = Channel.fromPath(params.gff_pathogen, checkIfExists: true)
+	ch_gene_feature_gff_to_quantify_pathogen = Channel
+	    .value(params.gene_feature_gff_to_quantify_pathogen)
+	    .collect()
+    EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
+        ch_gff_pathogen,
+        ch_gene_feature_gff_to_quantify_pathogen,
+        params.pathogen_gff_attribute,
+        params.extract_annotations_pathogen_htseq_organism,
+        'htseq'
+    )
+
+	ch_gene_feature_gff_to_create_transcriptome_pathogen = Channel
+	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
+	    .collect()
+    EXTRACT_ANNOTATIONS_PATHOGEN_SALMON (
+        ch_gff_pathogen,
+        ch_gene_feature_gff_to_create_transcriptome_pathogen,
+        params.pathogen_gff_attribute,
+        params.extract_annotations_pathogen_salmon_organism,
+        'salmon'
+    )
 
     if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
             FASTQC(INPUT_CHECK.out.reads)
