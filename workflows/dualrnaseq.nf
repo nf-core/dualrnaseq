@@ -11,9 +11,9 @@ WorkflowDualrnaseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ 
-    params.input, 
-    params.multiqc_config, 
+def checkPathParamList = [
+    params.input,
+    params.multiqc_config,
     // host
     params.fasta_host,
     params.gff_host,
@@ -64,7 +64,7 @@ include { EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ
-    } from '../modules/local/extract_annotations/main'
+    } from '../modules/local/extract_annotations'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
