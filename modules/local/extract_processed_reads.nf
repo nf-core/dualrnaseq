@@ -4,11 +4,8 @@ process EXTRACT_PROCESSED_READS {
 
     conda "python=3.8.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.8.3' :
-        'bash:latest' }"
-
-    publishDir "${params.outdir}/mapping_statistics/salmon", mode: params.publish_dir_mode
-    storeDir "${params.outdir}/mapping_statistics/salmon"
+        'nfcore/dualrnaseq:dev' :
+        'nfcore/dualrnaseq:dev' }"
    
     input: 
     tuple val(meta), file (json_file)
@@ -22,7 +19,7 @@ process EXTRACT_PROCESSED_READS {
     """
     if [ ${process} == "salmon" ]; then # for Salmon extract 'num_processed' from meta_info.json file
 	    processed=\$(grep "num_processed" ${json_file} | sed 's/num_processed//g'| sed 's/[^a-zA-Z0-9]//g') 
-	    echo -e "${$prefix}\t\${processed}" > ${prefix}.txt
+	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt
     elif [ ${process} == "salmon_alignment" ]; then # for Salmon alignment-based mode extract 'num_mapped' from meta_info.json file
 	    processed=\$(grep "num_mapped" ${json_file} | sed 's/num_mapped//g'| sed 's/[^a-zA-Z0-9]//g') 
 	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt

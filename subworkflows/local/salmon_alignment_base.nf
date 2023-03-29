@@ -26,7 +26,7 @@ workflow SALMON_ALIGNMENT_BASE {
         SALMON_QUANT(STAR_ALIGN.out.bam_transcript, ch_dummy_file, ch_gtf, ch_transcript_fasta, alignment_mode, params.libtype)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
 
-        EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
+        EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon_alignment" )
 
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
