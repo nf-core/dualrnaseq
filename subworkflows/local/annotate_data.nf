@@ -58,12 +58,6 @@ workflow ANNOTATE_DATA {
             params.extract_annotations_pathogen_salmon_organism,
             'salmon'
         )
-
-
-    // gene_feature_gff_to_quantify_host = ["exon", "tRNA"]
-    // gene_feature_gff_to_quantify_pathogen = ["gene", "sRNA", "tRNA", "rRNA"]
-    // gene_feature_gff_to_create_transcriptome_pathogen = ["gene", "sRNA", "tRNA", "rRNA"]
-
         // host
 
         EXTRACT_ANNOTATIONS_HOST_HTSEQ (
@@ -100,12 +94,7 @@ workflow ANNOTATE_DATA {
                 params.extract_annotations_host_salmon_attribute,
                 params.extract_annotations_host_salmon_organism,
                 'salmon'
-            )
-            // COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
-            //     REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON.out.mix(
-            //         REPLACE_GENE_FEATURE_GFF_HOST_SALMON.out
-            //     ).collect()
-            // )      
+            )   
         }
 }
 
