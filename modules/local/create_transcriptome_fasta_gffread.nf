@@ -1,4 +1,4 @@
-process CREATE_TRANSCRIPTOME_FASTA_HOST {
+process CREATE_TRANSCRIPTOME_FASTA_GFFREAD {
     tag "create_transcripts_host"
     label 'process_high'
 
