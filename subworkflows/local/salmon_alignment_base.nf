@@ -2,6 +2,7 @@ include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/star/g
 include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main'  
 include { SALMON_QUANT                      } from '../../modules/nf-core/salmon/quant/main'
 include { EXTRACT_PROCESSED_READS           } from '../../modules/local/extract_processed_reads'
+include { TXIMPORT_HOST                     } from '../../modules/local/tximport_host'
 
 workflow SALMON_ALIGNMENT_BASE {
 

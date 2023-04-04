@@ -3,6 +3,7 @@ include { SALMON_QUANT                          } from '../../modules/nf-core/sa
 include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/combine_quantification_results_salmon'
 include { SALMON_SPLIT_TABLE                    } from '../../modules/local/salmon_split_table'
 include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
+include { TXIMPORT_HOST                         } from '../../modules/local/tximport_host'
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
 
