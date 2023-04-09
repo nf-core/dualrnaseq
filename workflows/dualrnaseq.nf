@@ -102,16 +102,17 @@ workflow DUALRNASEQ {
             ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
+    ch_reads = INPUT_CHECK.out.reads
     if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
             CUTADAPT(INPUT_CHECK.out.reads)
+            ch_reads = CUTADAPT.out.reads
             ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-            FASTQC_AFTER_TRIMMING(CUTADAPT.out.reads)
+    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
+            FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
-
 
     //
     // SUBWORKFLOW: Create salmon index and run the quantification
@@ -137,7 +138,7 @@ workflow DUALRNASEQ {
 
     if ( params.run_salmon_selective_alignment ) {
         SALMON_SELECTIVE_ALIGNMENT (
-            INPUT_CHECK.out.reads,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
             ch_gtf,
@@ -149,7 +150,7 @@ workflow DUALRNASEQ {
 
     if ( params.run_salmon_alignment_based_mode ) {
         SALMON_ALIGNMENT_BASE (
-            INPUT_CHECK.out.reads,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
             ch_gtf
