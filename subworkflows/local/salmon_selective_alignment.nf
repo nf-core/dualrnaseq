@@ -2,6 +2,7 @@ include { SALMON_INDEX                          } from '../../modules/nf-core/sa
 include { SALMON_QUANT                          } from '../../modules/nf-core/salmon/quant/main'
 include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/combine_quantification_results_salmon'
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
 include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
@@ -26,12 +27,19 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         SALMON_SPLIT_TABLE_EACH(SALMON_QUANT.out.quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
 
-
-
         input_files = SALMON_QUANT.out.results.map{it -> it[1]}.collect()
+
         COMBINE_QUANTIFICATION_RESULTS_SALMON(input_files, Channel.value("both"))
 
-       // SALMON_SPLIT_TABLE(SALMON_QUANT.out.quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
+
+        COMBINE_QUANTIFICATION_RESULTS_SALMON.out.combined_quant_data
+        .map {it ->
+            path_res = it
+            return  tuple('combined', it)
+        }.set{ combined_salmon_quant }
+
+
+        SALMON_SPLIT_TABLE_COMBINED( combined_salmon_quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
 
 
 
