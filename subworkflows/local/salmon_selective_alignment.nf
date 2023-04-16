@@ -20,7 +20,6 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         ch_salmon_index = SALMON_INDEX ( ch_genome_fasta, ch_transcript_fasta ).index
         ch_versions = ch_versions.mix(SALMON_INDEX.out.versions)
 
-        ch_salmon_quant = Channel.empty()
         def alignment_mode = false
         SALMON_QUANT(ch_reads, ch_salmon_index, ch_gtf, ch_transcript_fasta, alignment_mode, params.libtype)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
@@ -34,13 +33,13 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         COMBINE_QUANTIFICATION_RESULTS_SALMON.out.combined_quant_data
         .map {it ->
+            def meta = [:]
+            meta.id  = "combined"
             path_res = it
-            return  tuple('combined', it)
+            return [ meta, [ it ] ]
         }.set{ combined_salmon_quant }
 
-
         SALMON_SPLIT_TABLE_COMBINED( combined_salmon_quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
-
 
 
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )

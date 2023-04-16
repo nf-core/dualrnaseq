@@ -1,5 +1,5 @@
 process SALMON_SPLIT_TABLE {
-    tag "l"
+    tag "$meta.id"
     label 'process_high'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.8.3' :
