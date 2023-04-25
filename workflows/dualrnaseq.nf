@@ -114,19 +114,6 @@ workflow DUALRNASEQ {
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
 
-    //
-    // SUBWORKFLOW: Create salmon index and run the quantification
-    //
-    // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
-    // params.transcript_fasta = params.transcript_fasta_host
-
-    // ch_genome_fasta                     = Channel.fromPath(params.fasta_host, checkIfExists: true)
-    // ch_transcript_fasta                 = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
-    // ch_transcript_fasta_pathogen        = Channel.fromPath(params.transcript_fasta_pathogen, checkIfExists: true)
-    // ch_transcript_fasta_host            = Channel.fromPath(params.transcript_fasta_host, checkIfExists: true)
-
-    // TODO change to gff in the future
-    ch_gtf                              = file(params.gff_host, checkIfExists: true)
 
     PREPARE_REFERENCE_FILES(
         ch_fasta_host,
@@ -136,12 +123,13 @@ workflow DUALRNASEQ {
         ch_gff_pathogen
     )
 
+
     if ( params.run_salmon_selective_alignment ) {
         SALMON_SELECTIVE_ALIGNMENT (
             ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
@@ -153,7 +141,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
@@ -166,9 +154,9 @@ workflow DUALRNASEQ {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
-    
+
     // MODULE: MultiQC
-    
+
     workflow_summary    = WorkflowDualrnaseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
@@ -188,7 +176,10 @@ workflow DUALRNASEQ {
         ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
+
+
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

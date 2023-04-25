@@ -7,14 +7,15 @@ process REPLACE_ATTRIBUTE_GFF_STAR_SALMON {
 
 	input:
 		path(gff) 
-		val(host_attribute)
+		val(attribute_in)
+		val(attribute_out)
 
 	output:
 		path "${outfile_name}"
 
 	script:
-		outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_parent_attribute.gff3")
+		outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/,"_${attribute_out}_attribute.gff3")
 		"""
-		$workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} parent $host_attribute
+		$workflow.projectDir/bin/replace_attribute_gff.sh $gff ${outfile_name} $attribute_out $attribute_in
 		"""
 }
