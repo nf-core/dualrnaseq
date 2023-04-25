@@ -123,7 +123,6 @@ workflow DUALRNASEQ {
         ch_gff_pathogen
     )
 
-
     if ( params.run_salmon_selective_alignment ) {
         SALMON_SELECTIVE_ALIGNMENT (
             ch_reads,
