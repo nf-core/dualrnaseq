@@ -179,6 +179,7 @@ workflow PREPARE_REFERENCE_FILES{
       transcript_fasta_host = ch_host_transcriptome
       transcript_fasta_pathogen = ch_pathogen_transcriptome
       host_pathoge_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out
-
+      annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations
+      annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations
     }
 
