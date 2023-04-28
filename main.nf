@@ -4,7 +4,6 @@
     nf-core/dualrnaseq
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/dualrnaseq
-
     Website: https://nf-co.re/dualrnaseq
     Slack  : https://nfcore.slack.com/channels/dualrnaseq
 ----------------------------------------------------------------------------------------
