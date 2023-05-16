@@ -3,13 +3,15 @@ process COMBINE_FILES {
     label 'process_high'
 
     input:
-        path("*.fasta") 
-
+        path(file1)
+        path(file2)
+        val(output_file)
     output:
-        path "output.fasta"
+        path output_file
 
     script:
+    def args = task.ext.args ?: ''
     """
-        cat *.fasta > output.fasta
+    cat ${file1} ${file2} > ${output_file}
     """
 }

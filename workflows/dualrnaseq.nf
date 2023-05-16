@@ -59,7 +59,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
-include { SALMON_ALIGNMENT_BASE } from '../subworkflows/local/salmon_alignment_base'
+include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_based'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,30 +102,18 @@ workflow DUALRNASEQ {
             ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
+    ch_reads = INPUT_CHECK.out.reads
     if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
             CUTADAPT(INPUT_CHECK.out.reads)
+            ch_reads = CUTADAPT.out.reads
             ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-            FASTQC_AFTER_TRIMMING(CUTADAPT.out.reads)
+    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
+            FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
 
-
-    //
-    // SUBWORKFLOW: Create salmon index and run the quantification
-    //
-    // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
-    // params.transcript_fasta = params.transcript_fasta_host
-
-    // ch_genome_fasta                     = Channel.fromPath(params.fasta_host, checkIfExists: true)
-    // ch_transcript_fasta                 = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
-    // ch_transcript_fasta_pathogen        = Channel.fromPath(params.transcript_fasta_pathogen, checkIfExists: true)
-    // ch_transcript_fasta_host            = Channel.fromPath(params.transcript_fasta_host, checkIfExists: true)
-
-    // TODO change to gff in the future
-    ch_gtf                              = file(params.gff_host, checkIfExists: true)
 
     PREPARE_REFERENCE_FILES(
         ch_fasta_host,
@@ -137,10 +125,10 @@ workflow DUALRNASEQ {
 
     if ( params.run_salmon_selective_alignment ) {
         SALMON_SELECTIVE_ALIGNMENT (
-            INPUT_CHECK.out.reads,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
@@ -148,13 +136,15 @@ workflow DUALRNASEQ {
     }
 
     if ( params.run_salmon_alignment_based_mode ) {
-        SALMON_ALIGNMENT_BASE (
-            INPUT_CHECK.out.reads,
+        SALMON_ALIGNMENT_BASED (
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
-        ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASE.out.versions)
+        ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
     }
 
 
@@ -163,9 +153,9 @@ workflow DUALRNASEQ {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
-    
+
     // MODULE: MultiQC
-    
+
     workflow_summary    = WorkflowDualrnaseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
@@ -185,7 +175,10 @@ workflow DUALRNASEQ {
         ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
+
+
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -15,7 +15,7 @@ process EXTRACT_ANNOTATIONS {
         val(quantifier)  // htseq or salmon
 
     output:
-        path("*.tsv")      , emit: tsv
+        path("*.tsv")      , emit: annotations
         path "versions.yml", emit: versions
 
     when:

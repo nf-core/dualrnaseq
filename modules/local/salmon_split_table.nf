@@ -1,4 +1,5 @@
 process SALMON_SPLIT_TABLE {
+    tag "$meta.id"
     label 'process_high'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.8.3' :
@@ -14,6 +15,7 @@ process SALMON_SPLIT_TABLE {
     tuple val(meta), path("pathogen_quant.sf"),    emit: pathogen
 
     script:
+    def args = task.ext.args   ?: ''
     """
     grep ">" ${transcript_fasta_pathogen} \
     | awk -F ">" '{ print \$2 }' \

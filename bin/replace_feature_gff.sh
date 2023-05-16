@@ -2,7 +2,7 @@
 
 #-------------------------
 #
-# Description: 
+# Description:
 # Script to replace feature in 3rd column of gff file with "quant"
 #
 # Created by B. Mika-Gospodorz
@@ -21,9 +21,9 @@ shift
 shift
 
 # read features
-feature2=`echo "$@" | tr --delete [`
-feature2=`echo "$feature2" | tr --delete ]`
-feature2=`echo "$feature2" | tr --delete ,`
+feature2=`echo "$@" | tr -d [`
+feature2=`echo "$feature2" | tr -d ]`
+feature2=`echo "$feature2" | tr -d ,`
 
 # create regular expression for list of features, e.g. exon|tRNA
 pat=`echo "$feature2" | tr " " "|"`
