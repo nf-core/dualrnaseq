@@ -26,8 +26,6 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         SALMON_QUANT(ch_reads, ch_salmon_index, ch_gtf, ch_transcript_fasta, alignment_mode, params.libtype)
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
 
-      
-
         input_files = SALMON_QUANT.out.results.map{it -> it[1]}.collect()
         COMBINE_QUANTIFICATION_RESULTS_SALMON(input_files, Channel.value("both"))
 
@@ -35,7 +33,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
 
-
+        TXIMPORT_HOST(SALMON_SPLIT_TABLE.host, )
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }
