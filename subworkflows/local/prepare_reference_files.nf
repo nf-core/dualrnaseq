@@ -58,7 +58,8 @@ workflow PREPARE_REFERENCE_FILES{
     // uncompress fasta files and gff files
     //
 
-    if (ch_fasta_pathogen.endsWith(".gz") || ch_fasta_pathogen.endsWith(".zip")){
+  
+    if (ch_fasta_pathogen.first().endsWith(".gz") || ch_fasta_pathogen.first().endsWith(".zip")){
         ch_fasta_pathogen_unzipped = UNCOMPRESS_PATHOGEN_FASTA_GENOME(ch_fasta_pathogen)
     } else {
         ch_fasta_pathogen_unzipped = ch_fasta_pathogen
@@ -119,12 +120,18 @@ workflow PREPARE_REFERENCE_FILES{
       ch_host_transcriptome = PREPARE_HOST_TRANSCRIPTOME.out.transcriptome
 
 
-      PREPARE_PATHOGEN_TRANSCRIPTOME(
-        ch_fasta_pathogen_unzipped,
-        ch_gff_pathogen_unzipped
-      )
+      if(params.transcript_fasta_pathogen){
+          ch_pathogen_transcriptome  = params.transcript_fasta_pathogen ? Channel.fromPath( params.transcript_fasta_pathogen, checkIfExists: true ) : Channel.empty()
+        } else {
+          PREPARE_PATHOGEN_TRANSCRIPTOME(
+            ch_fasta_pathogen_unzipped,
+            ch_gff_pathogen_unzipped
+          )
+          ch_pathogen_transcriptome = PREPARE_PATHOGEN_TRANSCRIPTOME.out.transcriptome
+     }
 
-      ch_pathogen_transcriptome = PREPARE_PATHOGEN_TRANSCRIPTOME.out.transcriptome
+
+
 
       // combine pathogen and host transcriptome
    //   transciptiome_transcriptome_to_combine = ch_host_transcriptome.mix(
