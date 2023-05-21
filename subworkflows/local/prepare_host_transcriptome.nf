@@ -14,9 +14,6 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
 
   main:
     
-    if (params.transcript_fasta_host) {
-        ch_transcriptome        = params.transcript_fasta_host   ? Channel.fromPath( params.transcript_fasta_host, checkIfExists: true ) : Channel.empty()
-    } else {
         CREATE_TRANSCRIPTOME_FASTA_GFFREAD(
             uncompressed_fasta_genome,
             uncompressed_gff_host
@@ -51,7 +48,6 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
             ch_transcriptome = CREATE_TRANSCRIPTOME_FASTA_GFFREAD.out
         }
         
-    }
  emit:
       transcriptome = ch_transcriptome
  //   uncompress_gff_trna_file = ch_uncompress_gff_trna_file

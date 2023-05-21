@@ -30,10 +30,12 @@ if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input sample
 
 
 ch_fasta_host        = params.fasta_host   ? file( params.fasta_host, checkIfExists: true ) : Channel.empty()
-ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, checkIfExists: true ) : Channel.empty()
+ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, checkIfExists: true) : Channel.empty()
 ch_gff_host          = params.gff_host   ? file( params.gff_host, checkIfExists: true ) : Channel.empty()
 ch_gff_host_tRNA     = params.gff_host_tRNA   ? file( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
 ch_gff_pathogen      = params.gff_pathogen   ? file( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
+
+
 
 
 /*
@@ -113,6 +115,7 @@ workflow DUALRNASEQ {
             FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
+
 
 
     PREPARE_REFERENCE_FILES(
