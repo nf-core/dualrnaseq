@@ -15,7 +15,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         ch_gtf              // channel: /path/to/genome.gtf
         ch_transcript_fasta_pathogen
         ch_transcript_fasta_host
-
+        ch_annotations_host_salmon
     main:
         ch_versions = Channel.empty()
         ch_salmon_index = SALMON_INDEX ( ch_genome_fasta, ch_transcript_fasta ).index
@@ -45,7 +45,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
 
-        TXIMPORT_HOST(SALMON_SPLIT_TABLE.host, )
+        TXIMPORT_HOST(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }

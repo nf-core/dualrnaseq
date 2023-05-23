@@ -130,7 +130,8 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
             PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
-            PREPARE_REFERENCE_FILES.out.transcript_fasta_host
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_host,
+            PREPARE_REFERENCE_FILES.out.annotations_host_salmon
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
     }
@@ -142,7 +143,8 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
             PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
-            PREPARE_REFERENCE_FILES.out.transcript_fasta_host
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_host,
+            PREPARE_REFERENCE_FILES.out.annotations_host_salmon
         )
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
     }
