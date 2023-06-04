@@ -28,16 +28,6 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
-
-ch_fasta_host        = params.fasta_host   ? file( params.fasta_host, checkIfExists: true ) : Channel.empty()
-ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, checkIfExists: true) : Channel.empty()
-ch_gff_host          = params.gff_host   ? file( params.gff_host, checkIfExists: true ) : Channel.empty()
-ch_gff_host_tRNA     = params.gff_host_tRNA   ? file( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
-ch_gff_pathogen      = params.gff_pathogen   ? file( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
-
-
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -119,11 +109,11 @@ workflow DUALRNASEQ {
 
 
     PREPARE_REFERENCE_FILES(
-        ch_fasta_host,
-        ch_gff_host,
-        ch_gff_host_tRNA,
-        ch_fasta_pathogen,
-        ch_gff_pathogen
+        params.fasta_host,
+        params.gff_host,
+        params.gff_host_tRNA,
+        params.fasta_pathogen,
+        params.gff_pathogen
     )
 
     if ( params.run_salmon_selective_alignment ) {

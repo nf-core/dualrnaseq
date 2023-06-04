@@ -1,10 +1,10 @@
 include {
-    UNZIP as UNCOMPRESS_HOST_FASTA_GENOME;
-    UNZIP as UNCOMPRESS_PATHOGEN_FASTA_GENOME;
-    UNZIP as UNCOMPRESS_HOST_GFF;
-    UNZIP as UNCOMPRESS_HOST_TRNA_GFF;
-    UNZIP as UNCOMPRESS_PATHOGEN_GFF
-} from '../../modules/nf-core/unzip/main'
+    UNZIPFILES as UNCOMPRESS_HOST_FASTA_GENOME;
+    UNZIPFILES as UNCOMPRESS_PATHOGEN_FASTA_GENOME;
+    UNZIPFILES as UNCOMPRESS_HOST_GFF;
+    UNZIPFILES as UNCOMPRESS_HOST_TRNA_GFF;
+    UNZIPFILES as UNCOMPRESS_PATHOGEN_GFF
+} from '../../modules/nf-core/unzipfiles/main'
 
 include {
     REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
@@ -40,11 +40,11 @@ include {
 
 workflow PREPARE_REFERENCE_FILES{
   take:
-    ch_fasta_host
-    ch_gff_host
-    ch_gff_host_tRNA
-    ch_fasta_pathogen
-    ch_gff_pathogen
+    fasta_host
+    gff_host
+    gff_host_tRNA
+    fasta_pathogen
+    gff_pathogen
 
   main:
     ch_transcriptome = Channel.empty()
@@ -58,33 +58,38 @@ workflow PREPARE_REFERENCE_FILES{
     // uncompress fasta files and gff files
     //
 
-  
-    if (ch_fasta_pathogen.first().endsWith(".gz") || ch_fasta_pathogen.first().endsWith(".zip")){
+    ch_fasta_host = Channel.value(file(params.fasta_host))
+    ch_gff_host = Channel.value(file(params.gff_host))
+    ch_gff_host_tRNA = Channel.value(file(params.gff_host_tRNA)) // OK
+    ch_gff_pathogen = Channel.value(file(params.gff_pathogen))
+    ch_fasta_pathogen = Channel.value(file(params.fasta_pathogen)) // OK
+
+    if (params.fasta_pathogen.endsWith('.gz') || params.fasta_pathogen.endsWith('.zip')){
         ch_fasta_pathogen_unzipped = UNCOMPRESS_PATHOGEN_FASTA_GENOME(ch_fasta_pathogen)
     } else {
         ch_fasta_pathogen_unzipped = ch_fasta_pathogen
     }
 
-    if (ch_gff_pathogen.endsWith(".gz") || ch_gff_pathogen.endsWith(".zip")){
+    if (params.gff_pathogen.endsWith('.gz') || params.gff_pathogen.endsWith('.zip')){
         ch_gff_pathogen_unzipped = UNCOMPRESS_PATHOGEN_GFF (ch_gff_pathogen)
     } else {
         ch_gff_pathogen_unzipped = ch_gff_pathogen
     }
 
-    if (ch_fasta_host.endsWith(".gz") || ch_fasta_host.endsWith(".zip")){
+    if (params.fasta_host.endsWith('.gz') || params.fasta_host.endsWith('.zip')){
         ch_fasta_host_unzipped = UNCOMPRESS_HOST_FASTA_GENOME(ch_fasta_host)
     } else {
         ch_fasta_host_unzipped = ch_fasta_host
     }
 
-    if (ch_gff_host.endsWith(".gz") || ch_gff_host.endsWith(".zip")){
+    if (params.gff_host.endsWith('.gz') || params.gff_host.endsWith('.zip')){
         ch_gff_host_unzipped = UNCOMPRESS_HOST_GFF(ch_gff_host)
     } else {
         ch_gff_host_unzipped = ch_gff_host
     }
 
     // TODO add if(params.gff_host_tRNA)
-    if (ch_gff_host_tRNA.endsWith(".gz") || ch_gff_host_tRNA.endsWith(".zip")){
+    if (params.gff_host_tRNA.endsWith('.gz') || params.gff_host_tRNA.endsWith('.zip')){
         ch_gff_host_tRNA_unzipped = UNCOMPRESS_HOST_TRNA_GFF(ch_gff_host_tRNA)
     } else {
         ch_gff_host_tRNA_unzipped = ch_gff_host_tRNA
