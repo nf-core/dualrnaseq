@@ -58,11 +58,11 @@ workflow PREPARE_REFERENCE_FILES{
     // uncompress fasta files and gff files
     //
 
-    ch_fasta_host = Channel.value(file(params.fasta_host))
-    ch_gff_host = Channel.value(file(params.gff_host))
-    ch_gff_host_tRNA = Channel.value(file(params.gff_host_tRNA)) // OK
-    ch_gff_pathogen = Channel.value(file(params.gff_pathogen))
-    ch_fasta_pathogen = Channel.value(file(params.fasta_pathogen)) // OK
+    ch_fasta_host = Channel.value(file(params.fasta_host, checkIfExists: true))
+    ch_gff_host = Channel.value(file(params.gff_host, checkIfExists: true))
+    ch_gff_host_tRNA = Channel.value(file(params.gff_host_tRNA, checkIfExists: true)) 
+    ch_gff_pathogen = Channel.value(file(params.gff_pathogen, checkIfExists: true))
+    ch_fasta_pathogen = Channel.value(file(params.fasta_pathogen, checkIfExists: true)) 
 
     if (params.fasta_pathogen.endsWith('.gz') || params.fasta_pathogen.endsWith('.zip')){
         ch_fasta_pathogen_unzipped = UNCOMPRESS_PATHOGEN_FASTA_GENOME(ch_fasta_pathogen)
