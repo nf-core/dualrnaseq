@@ -3,7 +3,7 @@ process SALMON_SPLIT_TABLE {
     label 'process_high'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.8.3' :
-        'nfcore/dualrnaseq:dev' }"
+        'docker.io/nfcore/dualrnaseq:dev' }"
 
     input:
     tuple val(meta), path(quant)

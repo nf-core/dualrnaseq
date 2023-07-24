@@ -34,7 +34,7 @@ ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, ch
 ch_gff_host          = params.gff_host   ? file( params.gff_host, checkIfExists: true ) : Channel.empty()
 ch_gff_host_tRNA     = params.gff_host_tRNA   ? file( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
 ch_gff_pathogen      = params.gff_pathogen   ? file( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
-
+ch_adapters          = params.adapters   ? file( params.adapters, checkIfExists: true ) : Channel.empty()
 
 
 
@@ -73,8 +73,10 @@ include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_
 // MODULE: Installed directly from nf-core/modules
 //
 include { FASTQC                            } from '../modules/nf-core/fastqc/main'
-include { FASTQC as FASTQC_AFTER_TRIMMING   } from '../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_AFTER_BBDUK      } from '../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_AFTER_CUTADAPT   } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
+include { BBMAP_BBDUK                       } from '../modules/nf-core/bbmap/bbduk/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
@@ -98,25 +100,38 @@ workflow DUALRNASEQ {
         ch_input
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-            FASTQC(INPUT_CHECK.out.reads)
-            ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-    }
-
     ch_reads = INPUT_CHECK.out.reads
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
-            CUTADAPT(INPUT_CHECK.out.reads)
-            ch_reads = CUTADAPT.out.reads
-            ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
+
+    //
+    // Running FASTQC before trimming (can be skipped)
+    //
+
+    FASTQC(INPUT_CHECK.out.reads)
+    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // Running CUTADAPT and/or BBDUK (can be skipped)
+    //
+
+    CUTADAPT(INPUT_CHECK.out.reads)
+    ch_reads_cutadapt = CUTADAPT.out.reads
+    ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
+
+    BBMAP_BBDUK(INPUT_CHECK.out.reads, ch_adapters)
+    ch_reads_bbduk = BBMAP_BBDUK.out.reads
+    ch_versions = ch_versions.mix(BBMAP_BBDUK.out.versions.first())
+
+    //
+    // Running FASTQC after trimming (can be skipped)
+    //
+
+    if (ch_reads_cutadapt) {
+        FASTQC_AFTER_BBDUK(ch_reads_bbduk)
     }
 
-    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
-            FASTQC_AFTER_TRIMMING(ch_reads)
-            ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
+    if (ch_reads_bbduk) {
+        FASTQC_AFTER_CUTADAPT(ch_reads_cutadapt)
     }
-
-
 
     PREPARE_REFERENCE_FILES(
         ch_fasta_host,
