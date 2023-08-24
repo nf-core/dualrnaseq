@@ -72,11 +72,13 @@ include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                            } from '../modules/nf-core/fastqc/main'
-include { FASTQC as FASTQC_AFTER_TRIMMING   } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
-include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { COUNT_READS                                        } from '../modules/local/count_reads'
+include { COUNT_READS as COUNT_READS_AFTER_TRIMMING          } from '../modules/local/count_reads'
+include { FASTQC                                             } from '../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_AFTER_TRIMMING                    } from '../modules/nf-core/fastqc/main'
+include { CUTADAPT                                           } from '../modules/nf-core/cutadapt/main'
+include { MULTIQC                                            } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                        } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,12 +101,17 @@ workflow DUALRNASEQ {
     )
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    COUNT_READS (
+        INPUT_CHECK.out.reads
+    )
+
+    ch_count_reads_merged = Channel.fromPath( "${params.outdir}/count_reads/*" ).collectFile(name: 'count_reads_merged.txt').view()
+
     if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
             FASTQC(INPUT_CHECK.out.reads)
             ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
-    ch_reads = INPUT_CHECK.out.reads
     if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
             CUTADAPT(INPUT_CHECK.out.reads)
             ch_reads = CUTADAPT.out.reads
@@ -114,6 +121,8 @@ workflow DUALRNASEQ {
     if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
             FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
+            COUNT_READS_AFTER_TRIMMING (INPUT_CHECK.out.reads)
+            ch_count_reads_merged = Channel.fromPath( "${params.outdir}/count_reads/*" ).collectFile(name: 'count_reads_after_trimming_merged.txt').view()
     }
 
 
