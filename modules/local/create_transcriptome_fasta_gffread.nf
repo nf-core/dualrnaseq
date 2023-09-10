@@ -3,8 +3,8 @@ process CREATE_TRANSCRIPTOME_FASTA_GFFREAD {
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'nfcore/dualrnaseq:dev' :
-        'nfcore/dualrnaseq:dev' }"
+        'docker.io/nfcore/dualrnaseq:dev' :
+        'docker.io/nfcore/dualrnaseq:dev' }"
 
     input:
         path(fasta)
