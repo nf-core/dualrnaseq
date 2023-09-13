@@ -28,14 +28,6 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
-
-ch_fasta_host        = params.fasta_host   ? file( params.fasta_host, checkIfExists: true ) : Channel.empty()
-ch_fasta_pathogen    = params.fasta_pathogen   ? file( params.fasta_pathogen, checkIfExists: true ) : Channel.empty()
-ch_gff_host          = params.gff_host   ? file( params.gff_host, checkIfExists: true ) : Channel.empty()
-ch_gff_host_tRNA     = params.gff_host_tRNA   ? file( params.gff_host_tRNA, checkIfExists: true ) : Channel.empty()
-ch_gff_pathogen      = params.gff_pathogen   ? file( params.gff_pathogen, checkIfExists: true ) : Channel.empty()
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -115,26 +107,14 @@ workflow DUALRNASEQ {
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
 
-    //
-    // SUBWORKFLOW: Create salmon index and run the quantification
-    //
-    // for testing purposes use only host transcript_fasta; chimeric transcript fasta should be an input
-    // params.transcript_fasta = params.transcript_fasta_host
 
-    // ch_genome_fasta                     = Channel.fromPath(params.fasta_host, checkIfExists: true)
-    // ch_transcript_fasta                 = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
-    // ch_transcript_fasta_pathogen        = Channel.fromPath(params.transcript_fasta_pathogen, checkIfExists: true)
-    // ch_transcript_fasta_host            = Channel.fromPath(params.transcript_fasta_host, checkIfExists: true)
-
-    // TODO change to gff in the future
-    ch_gtf                              = file(params.gff_host, checkIfExists: true)
 
     PREPARE_REFERENCE_FILES(
-        ch_fasta_host,
-        ch_gff_host,
-        ch_gff_host_tRNA,
-        ch_fasta_pathogen,
-        ch_gff_pathogen
+        params.fasta_host,
+        params.gff_host,
+        params.gff_host_tRNA,
+        params.fasta_pathogen,
+        params.gff_pathogen
     )
 
     if ( params.run_salmon_selective_alignment ) {
@@ -142,7 +122,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
@@ -154,7 +134,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host
         )
@@ -180,9 +160,9 @@ workflow DUALRNASEQ {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
-    
+
     // MODULE: MultiQC
-    
+
     workflow_summary    = WorkflowDualrnaseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
@@ -202,7 +182,10 @@ workflow DUALRNASEQ {
         ch_multiqc_logo.toList()
     )
     multiqc_report = MULTIQC.out.report.toList()
+
+
 }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
