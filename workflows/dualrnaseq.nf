@@ -146,11 +146,11 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.genome_fasta,
             PREPARE_REFERENCE_FILES.out.transcript_fasta,
-            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
             PREPARE_REFERENCE_FILES.out.transcript_fasta_host,
-            ch_gff_host,
-            ch_gff_pathogen
+            params.gff_host,
+            params.gff_pathogen
         )
         ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
     }

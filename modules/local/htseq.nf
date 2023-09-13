@@ -11,7 +11,6 @@ process HTSEQ {
 	tuple val(meta), path(st)
     path(gff)
 	val(host_attribute)
-	val(quantifier)
     val(stranded)
     
     output:
@@ -27,7 +26,7 @@ process HTSEQ {
     """
 	htseq-count  \\
         -n ${task.cpus}  \\
-        -t $quantifier  \\
+        -t quant  \\
         -f bam  \\
         -r pos $st $gff  \\
         -i $host_attribute  \\
