@@ -7,14 +7,16 @@ include {
 } from '../../modules/nf-core/unzipfiles/main'
 
 include {
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_TRNA_FILE;
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_TRNA_FILE;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN;
 } from '../../modules/local/replace_attribute'
 
 include {
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_SALMON;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
  } from '../../modules/local/replace_gene_feature'
 
 include {
@@ -207,6 +209,20 @@ workflow PREPARE_REFERENCE_FILES{
             'salmon'
         )
 
+    REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
+                COMBINE_HOST_GFF_FILES.out,
+                params.gene_feature_gff_to_quantify_host
+            )
+
+    REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN(
+          ch_gff_pathogen_unzipped,
+          params.host_gff_attribute,
+          params.pathogen_gff_attribute)
+
+    COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
+                REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+                REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN.out,
+                "host_pathogen_htseq.gff")
 
 
   }
@@ -218,8 +234,9 @@ workflow PREPARE_REFERENCE_FILES{
       transcript_fasta = ch_transcriptome
       transcript_fasta_host = ch_host_transcriptome
       transcript_fasta_pathogen = ch_pathogen_transcriptome
-      host_pathoge_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out
+      host_pathoge_gff_salmon = COMBINE_FILES_PATHOGEN_HOST_GFF.out
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations
+      host_pathoge_gff_htseq = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
     }
 
