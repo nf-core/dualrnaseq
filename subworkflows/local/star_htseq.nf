@@ -46,7 +46,7 @@ workflow STAR_HTSEQ {
 
 
         HTSEQ_UNIQUELY_MAPPED_TPM(combined_htseq_quant,
-            params.gene_attribute_gff_to_create_transcriptome_host,
+            params.host_gff_attribute,
             ch_gff_host,
             ch_gff_pathogen
             )
