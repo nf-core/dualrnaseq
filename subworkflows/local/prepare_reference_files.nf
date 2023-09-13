@@ -17,6 +17,7 @@ include {
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_SALMON;
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ;
  } from '../../modules/local/replace_gene_feature'
 
 include {
@@ -210,19 +211,26 @@ workflow PREPARE_REFERENCE_FILES{
         )
 
     REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
-                COMBINE_HOST_GFF_FILES.out,
-                params.gene_feature_gff_to_quantify_host
-            )
+            COMBINE_HOST_GFF_FILES.out,
+            params.gene_feature_gff_to_quantify_host
+        )
 
     REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN(
           ch_gff_pathogen_unzipped,
-          params.host_gff_attribute,
-          params.pathogen_gff_attribute)
+          params.pathogen_gff_attribute,
+          params.host_gff_attribute
+        )
+
+    REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ(
+          REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN.out,
+          params.gene_feature_gff_to_quantify_pathogen
+      )
 
     COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
-                REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
-                REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN.out,
-                "host_pathogen_htseq.gff")
+          REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+          REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
+          "host_pathogen_htseq.gff"
+        )
 
 
   }
