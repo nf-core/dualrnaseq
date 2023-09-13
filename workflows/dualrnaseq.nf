@@ -60,6 +60,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_based'
+include { STAR_HTSEQ } from '../subworkflows/local/star_htseq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,6 +161,19 @@ workflow DUALRNASEQ {
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
     }
 
+    if ( params.run_star_htseq_mode ) {
+        STAR_HTSEQ (
+            ch_reads,
+            PREPARE_REFERENCE_FILES.out.genome_fasta,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta,
+            ch_gtf,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_pathogen,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta_host,
+            ch_gff_host,
+            ch_gff_pathogen
+        )
+        ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
+    }
 
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

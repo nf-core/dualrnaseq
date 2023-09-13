@@ -8,14 +8,14 @@ process HTSEQ {
         'quay.io/biocontainers/htseq:2.0.2--py38h7a2e8c7_0' }"
 
     input:
-    tuple val(meta), path(gff)
-	val(sample_name), path(st)
+	tuple val(meta), path(st)
+    path(gff)
 	val(host_attribute)
-	val(stranded)
-    val(quantifier)
-
+	val(quantifier)
+    val(stranded)
+    
     output:
-	tuple val(meta), path("*_count.txt"), emit: counts
+	tuple val(meta), path("*_count.txt"), emit: results
     path("versions.yml"), emit: versions
 
     when:
@@ -23,7 +23,7 @@ process HTSEQ {
 
     script:
     def args = task.ext.args ?: ''
-	def output_file = sample_name + "_count.txt"
+	def output_file = meta.id + "_count.txt"
     """
 	htseq-count  \\
         -n ${task.cpus}  \\
@@ -34,15 +34,14 @@ process HTSEQ {
         -s $stranded  \\
         --max-reads-in-buffer=${params.max_reads_in_buffer}  \\
         -a ${params.minaqual}  \\
-        ${params.htseq_params}  \\
         $args  \\
         > $output_file
 
-	sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$output_file"
+	sed -i '1{h;s/.*/'"$meta.id"'/;G}' "$output_file"
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        htseq-count: \$( htseq-count --help | grep -i version | awk '{ print \$10 }' )
-    END_VERSIONS
+cat <<-END_VERSIONS > versions.yml
+"${task.process}":
+    htseq-count: \$( htseq-count --help | grep -i version | tail -n 1 | cut -d' ' -f2 )
+END_VERSIONS
     """
 }

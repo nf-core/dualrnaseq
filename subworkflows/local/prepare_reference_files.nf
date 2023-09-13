@@ -37,7 +37,7 @@ workflow PREPARE_REFERENCE_FILES{
     // 
     // execute steps specifi for 
     //
-    if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode) {
+    if(params.run_salmon_selective_alignment | params.run_salmon_alignment_based_mode | params.run_star_htseq_mode) {
 
       PREPARE_HOST_TRANSCRIPTOME(
         UNCOMPRESS_HOST_FASTA_GENOME.out,
