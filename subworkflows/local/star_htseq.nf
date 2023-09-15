@@ -28,7 +28,7 @@ workflow STAR_HTSEQ {
 
         HTSEQ ( STAR_ALIGN.out.bam_transcript, 
                 ch_gtf, 
-                params.gene_attribute_gff_to_create_transcriptome_host,
+                params.host_gff_attribute,
                 params.htseq_stranded
                 )
         ch_versions = ch_versions.mix(HTSEQ.out.versions.first())
