@@ -17,6 +17,8 @@ workflow STAR_HTSEQ {
         ch_gff_host
         ch_gff_pathogen
         ch_gff_host_unzipped
+        annotations_host_htseq
+        annotations_pathogen_htseq
 
     main:
         ch_versions = Channel.empty()
@@ -51,6 +53,8 @@ workflow STAR_HTSEQ {
             ch_gff_host,
             ch_gff_pathogen
             )
+
+        
 
     emit:
         versions = ch_versions  // channel: [ versions.yml ]

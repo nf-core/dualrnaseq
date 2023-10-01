@@ -11,8 +11,7 @@ process HTSEQ_UNIQUELY_MAPPED_TPM {
 		path(gff_pathogen)
 
 	output:
-		path "quantification_results_uniquely_mapped_NumReads_TPM.tsv", emit: split_table_htseq_host
-		path "quantification_results_uniquely_mapped_NumReads_TPM.tsv", emit: split_table_htseq_pathogen
+		path "quantification_results_uniquely_mapped_NumReads_TPM.tsv"
 
 	script:
 	"""

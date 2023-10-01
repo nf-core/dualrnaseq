@@ -232,6 +232,21 @@ workflow PREPARE_REFERENCE_FILES{
           "host_pathogen_htseq.gff"
         )
 
+    EXTRACT_ANNOTATIONS_HOST_HTSEQ (
+            COMBINE_HOST_GFF_FILES.out,
+            params.gene_feature_gff_to_quantify_host,
+            params.host_gff_attribute,
+            params.host_organism,
+            'htseq'
+        )
+    
+    EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
+            ch_gff_pathogen_unzipped,
+            params.gene_feature_gff_to_quantify_pathogen,
+            params.pathogen_gff_attribute,
+            params.pathogen_organism,
+            'htseq'
+        )
 
   }
 
@@ -249,5 +264,8 @@ workflow PREPARE_REFERENCE_FILES{
       host_gff_htseq = REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out
       pathogen_gff_htseq = REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out
       host_gff_uzipped_htseq = COMBINE_HOST_GFF_FILES.out
+      annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations
+      annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations
+      
     }
     
