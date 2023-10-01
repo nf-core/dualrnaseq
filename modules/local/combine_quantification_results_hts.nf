@@ -5,14 +5,15 @@ process COMBINE_QUANTIFICATION_RESULTS_HTS {
         'nfcore/dualrnaseq:dev' }"
 
     input: 
-	    path input_quantification
+	    path(input_quantification)
+        val(host_attribute)
     output:
 	    path "quantification_results_htseq.tsv", emit: combined_quant_data
     script:
     """
     python $workflow.projectDir/bin/collect_quantification_data_hts.py \
         -i $input_quantification \
-        -a $params.gene_attribute_gff_to_create_transcriptome_host        
+        -a $host_attribute        
     """
 }
 

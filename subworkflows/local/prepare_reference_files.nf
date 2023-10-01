@@ -248,6 +248,6 @@ workflow PREPARE_REFERENCE_FILES{
       host_pathogen_gff_htseq = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
       host_gff_htseq = REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out
       pathogen_gff_htseq = REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out
-      host_gff_uzipped_htseq = ch_gff_host_unzipped
+      host_gff_uzipped_htseq = COMBINE_HOST_GFF_FILES.out
     }
     

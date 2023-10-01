@@ -35,7 +35,7 @@ workflow STAR_HTSEQ {
         ch_versions = ch_versions.mix(HTSEQ.out.versions.first())
 
         input_files = HTSEQ.out.results.map{it -> it[1]}.collect()
-        COMBINE_QUANTIFICATION_RESULTS_HTS(input_files)
+        COMBINE_QUANTIFICATION_RESULTS_HTS(input_files, params.host_gff_attribute)
 
         COMBINE_QUANTIFICATION_RESULTS_HTS.out.combined_quant_data
         .map {it ->
