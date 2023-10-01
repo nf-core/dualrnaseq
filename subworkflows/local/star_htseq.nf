@@ -11,23 +11,24 @@ workflow STAR_HTSEQ {
         ch_reads            // channel: [ val(meta), [ reads ] ]
         ch_genome_fasta     // channel: /path/to/genome.fasta 
         ch_transcript_fasta // channel: /path/to/transcript.fasta
-        ch_gtf              // channel: /path/to/genome.gtf 
+        ch_gff_host_pathogen              // channel: /path/to/genome.gtf 
         ch_transcript_fasta_pathogen
         ch_transcript_fasta_host
         ch_gff_host
         ch_gff_pathogen
+        ch_gff_host_unzipped
 
     main:
         ch_versions = Channel.empty()
 
-        STAR_GENOMEGENERATE ( ch_genome_fasta, ch_gtf )
+        STAR_GENOMEGENERATE ( ch_genome_fasta, ch_gff_host_unzipped )
         ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions.first())
 
-        STAR_ALIGN ( ch_reads, STAR_GENOMEGENERATE.out.index, ch_gtf, true, '', '' )
+        STAR_ALIGN ( ch_reads, STAR_GENOMEGENERATE.out.index, ch_gff_host_unzipped, true, '', '' )
         ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
-        HTSEQ ( STAR_ALIGN.out.bam_transcript, 
-                ch_gtf, 
+        HTSEQ ( STAR_ALIGN.out.bam, 
+                ch_gff_host_pathogen, 
                 params.host_gff_attribute,
                 params.htseq_stranded
                 )

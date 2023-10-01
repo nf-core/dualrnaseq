@@ -245,8 +245,9 @@ workflow PREPARE_REFERENCE_FILES{
       host_pathoge_gff_salmon = COMBINE_FILES_PATHOGEN_HOST_GFF.out
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations
-      host_pathoge_gff_htseq = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
+      host_pathogen_gff_htseq = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
       host_gff_htseq = REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out
       pathogen_gff_htseq = REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out
+      host_gff_uzipped_htseq = ch_gff_host_unzipped
     }
-
+    
