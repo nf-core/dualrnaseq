@@ -4,6 +4,9 @@ include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/comb
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
 include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
+include { TXIMPORT                        } from '../../modules/local/tximport/main'
+
+
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
 
@@ -14,7 +17,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         ch_gtf              // channel: /path/to/genome.gtf
         ch_transcript_fasta_pathogen
         ch_transcript_fasta_host
-
+        ch_annotations_host_salmon
     main:
         ch_versions = Channel.empty()
         ch_salmon_index = SALMON_INDEX ( ch_genome_fasta, ch_transcript_fasta ).index
@@ -44,7 +47,8 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
 
-
+        TXIMPORT(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
+        
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }

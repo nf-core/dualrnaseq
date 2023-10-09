@@ -1,10 +1,13 @@
-include { STAR_GENOMEGENERATE               } from '../../modules/nf-core/star/genomegenerate/main'
-include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main'  
-include { SALMON_QUANT                      } from '../../modules/nf-core/salmon/quant/main'
-include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/combine_quantification_results_salmon'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
-include { EXTRACT_PROCESSED_READS           } from '../../modules/local/extract_processed_reads'
+include { STAR_GENOMEGENERATE                               } from '../../modules/nf-core/star/genomegenerate/main'
+include { STAR_ALIGN                                        } from '../../modules/nf-core/star/align/main'  
+include { SALMON_QUANT                                      } from '../../modules/nf-core/salmon/quant/main'
+include { COMBINE_QUANTIFICATION_RESULTS_SALMON             } from '../../modules/local/combine_quantification_results_salmon'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH     } from '../../modules/local/salmon_split_table'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED } from '../../modules/local/salmon_split_table'
+include { EXTRACT_PROCESSED_READS                           } from '../../modules/local/extract_processed_reads'
+include { TXIMPORT                         } from '../../modules/local/tximport/main'
+include { COMBINE_QUANTIFICATION_RESULTS_SALMON as COMBINE_QUANTIFICATION_RESULTS_TXIMPORT             } from '../../modules/local/combine_quantification_results_salmon'
+
 
 workflow SALMON_ALIGNMENT_BASED {
 
@@ -15,6 +18,7 @@ workflow SALMON_ALIGNMENT_BASED {
         ch_gtf              // channel: /path/to/genome.gtf 
         ch_transcript_fasta_pathogen
         ch_transcript_fasta_host
+        ch_annotations_host_salmon
     main:
 
         ch_versions = Channel.empty()
@@ -50,8 +54,11 @@ workflow SALMON_ALIGNMENT_BASED {
         
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon_alignment" )
 
+        TXIMPORT(SALMON_SPLIT_TABLE_EACH.out.host, ch_annotations_host_salmon)
+
 
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }
+
 
