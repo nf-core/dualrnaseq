@@ -4,7 +4,9 @@ include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/comb
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
 include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
-include { TXIMPORT_HOST                         } from '../../modules/local/tximport_host'
+include { TXIMPORT                        } from '../../modules/local/tximport/main'
+
+
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
 
@@ -45,7 +47,8 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
 
         EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
 
-        TXIMPORT_HOST(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
+        TXIMPORT(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
+        
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }
