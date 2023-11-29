@@ -3,6 +3,7 @@ include { STAR_ALIGN                        } from '../../modules/nf-core/star/a
 include { HTSEQ                             } from '../../modules/local/htseq'
 include { COMBINE_QUANTIFICATION_RESULTS_HTS} from '../../modules/local/combine_quantification_results_hts'
 include { HTSEQ_UNIQUELY_MAPPED_TPM         } from '../../modules/local/htseq_uniquely_mapped_tpm'
+include { SPLIT_QUATIFICATION_TABLES_HTSEQ  } from '../../modules/local/split_quantification_tables_htseq_uniquely_mapped'
 
 
 workflow STAR_HTSEQ {
@@ -48,13 +49,18 @@ workflow STAR_HTSEQ {
         }.set{ combined_htseq_quant }
 
 
-        HTSEQ_UNIQUELY_MAPPED_TPM(combined_htseq_quant,
+        HTSEQ_UNIQUELY_MAPPED_TPM(
+            combined_htseq_quant,
             params.host_gff_attribute,
             ch_gff_host,
             ch_gff_pathogen
-            )
+        )
 
-        
+        SPLIT_QUATIFICATION_TABLES_HTSEQ(
+            HTSEQ_UNIQUELY_MAPPED_TPM.out,
+            annotations_host_htseq,
+            annotations_pathogen_htseq
+        )
 
     emit:
         versions = ch_versions  // channel: [ versions.yml ]
