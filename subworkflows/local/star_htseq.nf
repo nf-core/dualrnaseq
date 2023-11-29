@@ -4,6 +4,10 @@ include { HTSEQ                             } from '../../modules/local/htseq'
 include { COMBINE_QUANTIFICATION_RESULTS_HTS} from '../../modules/local/combine_quantification_results_hts'
 include { HTSEQ_UNIQUELY_MAPPED_TPM         } from '../../modules/local/htseq_uniquely_mapped_tpm'
 include { SPLIT_QUATIFICATION_TABLES_HTSEQ  } from '../../modules/local/split_quantification_tables_htseq_uniquely_mapped'
+include { 
+            COMBINE_ANNOTATIONS_QUANT as COMBINE_ANNOTATIONS_QUANT_PATHOGEN;
+            COMBINE_ANNOTATIONS_QUANT as COMBINE_ANNOTATIONS_QUANT_HOST
+        } from '../../modules/local/combine_annotations_quant'
 
 
 workflow STAR_HTSEQ {
@@ -60,6 +64,18 @@ workflow STAR_HTSEQ {
             HTSEQ_UNIQUELY_MAPPED_TPM.out,
             annotations_host_htseq,
             annotations_pathogen_htseq
+        )
+
+        COMBINE_ANNOTATIONS_QUANT_PATHOGEN(
+            SPLIT_QUATIFICATION_TABLES_HTSEQ.out.pathogen_quantification_stats_htseq,
+            annotations_pathogen_htseq,
+            params.host_gff_attribute
+        )
+
+        COMBINE_ANNOTATIONS_QUANT_HOST(
+            SPLIT_QUATIFICATION_TABLES_HTSEQ.out.host_quantification_stats_htseq,
+            annotations_host_htseq,
+            params.host_gff_attribute
         )
 
     emit:
