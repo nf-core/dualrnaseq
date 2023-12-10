@@ -129,6 +129,18 @@ workflow DUALRNASEQ {
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
     }
 
+    if(params.run_cutadapt | params.run_bbduk & params.mapping_statistics) {
+        raw_read_count
+	    .map { tag, file -> file }
+	    .set {raw_read_count_file}
+        // blazej
+        COUNT_TOTAL_READS()
+        if (!params.single_end){
+            COUNT_TOTAL_READS_PAIRS()
+        }
+
+    }
+    
     if ( params.run_salmon_alignment_based_mode ) {
         SALMON_ALIGNMENT_BASED (
             ch_reads,
@@ -141,9 +153,27 @@ workflow DUALRNASEQ {
         )
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
     }
-
-
-
+        
+    if(params.run_star) {
+        STAR(
+            ch_reads,
+            PREPARE_REFERENCE_FILES.out.genome_fasta,
+            PREPARE_REFERENCE_FILES.out.transcript_fasta,
+            PREPARE_REFERENCE_FILES.out.host_pathoge_gff,
+            PREPARE_REFERENCE_FILES.reference_host_name.collect()
+            PREPARE_REFERENCE_FILES.reference_pathogen_name.collect()
+        )
+        ch_versions = ch_versions.mix(STAR.out.versions)
+    }
+    if(params.run_htseq_uniquely_mapped){
+        STAR_HTSEQ(
+            Channel.empty(), 
+            PREPARE_REFERENCE_FILES.out.annotations_host_salmon, 
+            PREPARE_REFERENCE_FILES.out.annotations_pathogen_salmon
+        )
+        ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
+    }
+// end blazej
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

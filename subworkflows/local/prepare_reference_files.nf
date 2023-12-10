@@ -16,8 +16,13 @@ include {
 
 include {
     REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
+    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON;
  } from '../../modules/local/replace_gene_feature'
+
+inclue {
+  REPLACE_GENE_FEATURE_GFF_HTSEQ as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
+  REPLACE_GENE_FEATURE_GFF_HTSEQ as REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ;
+} from '../../modules/local/replace_gene_feature_htseq'
 
 include {
     COMBINE_FILES as COMBINE_HOST_GENOME_TRNA_GFF_STAR_SALMON;
@@ -171,10 +176,15 @@ workflow PREPARE_REFERENCE_FILES{
            'parent')
 
     REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST(
-                ch_gff_host_unzipped,
-                'Parent',
-                'parent'
-            )
+          ch_gff_host_unzipped,
+          'Parent',
+          'parent'
+      )
+
+    if(params.run_htseq_uniquely_mapped) {
+      REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
+      REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ;
+    }
 
     if(params.gff_host_tRNA){
         REPLACE_ATTRIBUTE_GFF_STAR_SALMON_TRNA_FILE(
@@ -224,11 +234,13 @@ workflow PREPARE_REFERENCE_FILES{
             'salmon'
         )
 
+    if(params.run_star | params.run_salmon_alignment_based_mode) {
+    }
+	  if(params.mapping_statistics) {
+        EXTRACT_REFERENCE_NAME_STAR_HOST()
+        EXTRACT_REFERENCE_NAME_STAR_PATHOGEN()
 
-
-  }
-
-
+    }
 
     emit:
       genome_fasta = COMBINE_FILES_FASTA.out
@@ -238,5 +250,10 @@ workflow PREPARE_REFERENCE_FILES{
       host_pathoge_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations
+      annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations
+      annotations_pathogen_htsqe = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations
+      reference_pathogen_name = EXTRACT_REFERENCE_NAME_STAR_HOST.out
+      reference_host_name = EXTRACT_REFERENCE_NAME_STAR_PATHOGEN.out
+
     }
 

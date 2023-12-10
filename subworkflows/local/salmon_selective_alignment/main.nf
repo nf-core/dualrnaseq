@@ -5,7 +5,7 @@ include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/loc
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
 include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
 include { TXIMPORT                        } from '../../modules/local/tximport/main'
-
+include { RNA_STATISTICS } from '../subworkflows/rna_statistics'
 
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
@@ -45,10 +45,28 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         SALMON_SPLIT_TABLE_COMBINED( combined_salmon_quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
 
 
-        EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
+        if(params.mapping_statistics) {
+            EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
+
+            // COLLECT_PROCESSED_READS_STAR_FOR_SALMON ??
+        
+            // EXTRACT_PROCESSED_READS_SALMON_ALIGNMENT_BASED
+
+            // COLLECT_PROCESSED_READS_SALMON_ALIGNMENT_BASED
+
+            // SALMON_QUANTIFICATION_STATS_SALMON_ALIGNMENT_BASED
+
+            // plot_salmon_mapping_stats_host_pathogen_salmon_alignment_based
+
+            RNA_STATISTICS(
+                SALMON_SPLIT_TABLE_COMBINED.host,
+                SALMON_SPLIT_TABLE_COMBINED.pathogen,
+                params.gene_attribute_gff_to_create_transcriptome_host)
+        }
 
         TXIMPORT(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
-        
+
+
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }
