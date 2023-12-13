@@ -13,7 +13,7 @@ process HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED {
     
 
     output:
-    file ('htseq_uniquely_mapped_reads_stats.tsv'), emit: htseq_mapped_stats_to_plot
+    path ('htseq_uniquely_mapped_reads_stats.tsv'), emit: tsv
     path "versions.yml"           , emit: versions
 
     script:

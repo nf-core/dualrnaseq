@@ -6,12 +6,9 @@ process COUNT_TOTAL_READS_PAIRS {
     label 'process_high'
 
     input:
-    file(tsv) from to_collect_total_reads.collect()
+    path(tsv)
     output:
-    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon
-    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_salmon_alignment
-    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star
-    file "total_raw_read_pairs_fastq.tsv" into collect_total_reads_raw_star_for_salmon
+    path "total_raw_read_pairs_fastq.tsv"
 
     script:
     """

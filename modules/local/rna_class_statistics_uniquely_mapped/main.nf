@@ -13,12 +13,9 @@ process RNA_CLASS_STATISTICS_UNIQUELY_MAPPED {
     val(tool)
 
     output:
-    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_htseq_u_m
-    file "host_RNA_classes_percentage_*.tsv" into plot_RNA_stats_host_combined_htseq_u_m
-    file "host_RNA_classes_sum_counts_*.tsv"
-    file "host_gene_types_groups_*"
-    stdout plot_RNA_stats_host_htseq_u_m_boolean
-    stdout plot_RNA_stats_host_combined_htseq_u_m_boolean
+    path "host_RNA_classes_percentage_*.tsv", emit: tsv
+    path "host_gene_types_groups_*", emit: random
+    path "versions.yml" , emit: versions
 
     shell:
     '''
@@ -29,5 +26,10 @@ process RNA_CLASS_STATISTICS_UNIQUELY_MAPPED {
     -rna !{rna_classes_to_replace} \\
     -q_tool !{tool} \\
     -org !{organism} 2>&1
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version
+    END_VERSIONS
     '''
 }

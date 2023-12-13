@@ -6,17 +6,22 @@ process PLOT_RNA_CLASS_UNIQUELY_MAPPED_COMBINED {
     label 'process_high'
 
     input:
-    file stats_table from plot_RNA_stats_host_combined_htseq_u_m
-    val plot_rna from plot_RNA_stats_host_combined_htseq_u_m_boolean
+    path stats_table
+    val (organism)
 
     output:
-    file "RNA_class_stats_combined_host.pdf"
-
-    when:
-    plot_rna.toBoolean()
+    path "RNA_class_stats_combined_host.pdf"
+    path "versions.yml" , emit: versions
 
     script:
     """
-    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py -i $stats_table -org host
+    python $workflow.projectDir/bin/plot_RNA_class_stats_combined.py \\
+    -i $stats_table \\
+    -org $organism
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version
+    END_VERSIONS
     """
 }

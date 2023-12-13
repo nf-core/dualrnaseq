@@ -79,15 +79,20 @@ workflow STAR_HTSEQ {
             ch_versions = ch_versions.mix(HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.versions.first())
 
             PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED(
-                HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out
+                HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.tsv
             )
             ch_versions = ch_versions.mix(PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED.out.versions.first())
             RNA_STATISTICS(
-                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host_quantification,
-                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen_quantification,
-                Channel.value(params.host_gff_attribute)
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_host_htseq,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_pathogen_htseq,
+                annotations_host_htseq,
+                annotations_pathogen_htseq,
+                Channel.value(params.host_gff_attribute),
+                "htseq"
             )
-            ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
+            ch_versions = ch_versions.mix(RNA_STATISTICS.out.versions.first())
 
         // }
     emit:

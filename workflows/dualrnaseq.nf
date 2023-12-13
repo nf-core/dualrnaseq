@@ -168,8 +168,8 @@ workflow DUALRNASEQ {
     if(params.run_htseq_uniquely_mapped){
         STAR_HTSEQ(
             Channel.empty(), 
-            PREPARE_REFERENCE_FILES.out.annotations_host_salmon, 
-            PREPARE_REFERENCE_FILES.out.annotations_pathogen_salmon
+            PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
+            PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq
         )
         ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
     }

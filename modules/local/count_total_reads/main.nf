@@ -6,9 +6,9 @@ process COUNT_TOTAL_READS {
 	label 'process_high'
 
 	input:
-	file(fastq) from raw_read_count_file.collect()
+	path(fastq)
 	output:
-	file "total_raw_reads_fastq.tsv" into to_collect_total_reads
+	path "total_raw_reads_fastq.tsv"
 
 	script:
 	"""

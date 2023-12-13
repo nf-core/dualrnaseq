@@ -9,7 +9,7 @@ process EXTRA_REFERENCE_NAME_STAR {
     path(fasta) from genome_fasta
 
     output:
-    file "reference_names.txt" into reference_name
+    path "reference_names.txt"
 
     script:
     """

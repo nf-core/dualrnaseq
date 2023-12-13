@@ -11,8 +11,8 @@ process SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED {
     output:
     path 'host_quantification_uniquely_mapped_htseq.tsv', emit: host
     path 'pathogen_quantification_uniquely_mapped_htseq.tsv', emit: pathogen
-    env pathonen_tab, emit: scatterplots_pathogen_htseq
     env host_tab, emit: scatterplots_host_htseq
+    env pathonen_tab, emit: scatterplots_pathogen_htseq
     path "versions.yml"           , emit: versions
 
     script:
