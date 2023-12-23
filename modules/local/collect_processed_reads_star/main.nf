@@ -17,7 +17,7 @@ process COLLECT_PROCESSED_READS_STAR {
     cat $process_reads > processed_reads_star.tsv
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        version
+        version: 1.0.0
     END_VERSIONS
     """
 }

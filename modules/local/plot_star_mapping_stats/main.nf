@@ -17,4 +17,3 @@ process plot_star_mapping_stats {
     python $workflow.projectDir/bin/plot_mapping_stats_star.py -i $stats
     """
 }
-}

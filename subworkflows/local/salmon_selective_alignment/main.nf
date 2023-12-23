@@ -1,11 +1,11 @@
-include { SALMON_INDEX                          } from '../../modules/nf-core/salmon/index/main'
-include { SALMON_QUANT                          } from '../../modules/nf-core/salmon/quant/main'
-include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/combine_quantification_results_salmon'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
-include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
-include { TXIMPORT                        } from '../../modules/local/tximport/main'
-include { RNA_STATISTICS } from '../subworkflows/rna_statistics'
+include { SALMON_INDEX                          } from '../../../modules/nf-core/salmon/index/main'
+include { SALMON_QUANT                          } from '../../../modules/nf-core/salmon/quant/main'
+include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../../modules/local/combine_quantification_results_salmon'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../../modules/local/salmon_split_table'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../../modules/local/salmon_split_table'
+include { EXTRACT_PROCESSED_READS               } from '../../../modules/local/extract_processed_reads'
+include { TXIMPORT                        } from '../../../modules/local/tximport/main'
+include { RNA_STATISTICS } from '../rna_statistics/main'
 
 
 workflow SALMON_SELECTIVE_ALIGNMENT {

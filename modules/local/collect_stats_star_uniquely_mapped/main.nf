@@ -21,7 +21,7 @@ process COLLECT_STATS_STAR_UNIQUELY_MAPPED {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        version
+        version: 1.0.0
     END_VERSIONS
     """
 }

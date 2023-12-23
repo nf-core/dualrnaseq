@@ -11,26 +11,26 @@ process MULTI_MAPPING_STATS {
     path(pathogen_reference_names)
 
     output:
-    path("${name}"), emit: txt
+    path("*_multi_mapped.txt"), emit: txt
     path "versions.yml"           , emit: versions
 
-    shell: 
-    name = sample_name + '_multi_mapped.txt'
+    script: 
+    def name = "${sample_name.id}_multi_mapped.txt"
     if (params.single_end){
-    '''
-    !{workflow.projectDir}/bin/count_multi_mapped_reads.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+    """
+    $workflow.projectDir/bin/count_multi_mapped_reads.sh ${alignment} ${host_reference_names} ${pathogen_reference_names} ${sample_name.id} ${name}
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        version
+        version: 1.0.0
     END_VERSIONS
-    '''
+    """
     } else {
-    '''
-    !{workflow.projectDir}/bin/count_multi_mapped_read_pairs.sh !{alignment} !{host_reference_names} !{pathogen_reference_names} !{sample_name} !{name}
+    """
+    $workflow.projectDir/bin/count_multi_mapped_read_pairs.sh ${alignment} ${host_reference_names} ${pathogen_reference_names} ${sample_name.id} ${name}
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        version
+        version: 1.0.0
     END_VERSIONS
-    '''
+    """
     }
 }

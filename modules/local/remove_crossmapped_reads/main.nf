@@ -1,5 +1,5 @@
 process REMOVE_CROSSMAPPED_READS {
-    tag "$sample_name"
+    tag "$sample_name.id"
     label 'process_high'
     publishDir "${params.outdir}/STAR/multimapped_reads", mode: params.publish_dir_mode
     storeDir "${params.outdir}/STAR/multimapped_reads"
@@ -12,13 +12,13 @@ process REMOVE_CROSSMAPPED_READS {
 
 
     output:
-    tuple val(sample_name), path("${bam_file_without_crossmapped}"), emit: alignment_multi_mapping_stats
-    path("${cross_mapped_reads}"), emit: count_crossmapped_reads
-    path "versions.yml"           , emit: versions
+    tuple val(sample_name), path("*_no_crossmapped.bam"), emit: alignment_multi_mapping_stats
+    path("*_cross_mapped_reads.txt"), emit: count_crossmapped_reads
+    path "versions.yml"          , emit: versions
 
     script:
-    bam_file_without_crossmapped = sample_name + "_no_crossmapped.bam"
-    cross_mapped_reads = sample_name + "_cross_mapped_reads.txt"
+    def bam_file_without_crossmapped = "${sample_name.id}_no_crossmapped.bam"
+    def cross_mapped_reads = "${sample_name.id}_cross_mapped_reads.txt"
     
     if (params.single_end){
         """
@@ -26,7 +26,7 @@ process REMOVE_CROSSMAPPED_READS {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            version
+            version: 1.0.0
         END_VERSIONS
         """
     } else {
@@ -35,7 +35,7 @@ process REMOVE_CROSSMAPPED_READS {
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
-            version
+            version: 1.0.0
         END_VERSIONS
         """
     }

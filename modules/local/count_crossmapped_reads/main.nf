@@ -17,7 +17,7 @@ process COUNT_CROSSMAPPED_READS {
     $workflow.projectDir/bin/count_cross_mapped_reads.sh $cross_mapped_reads
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        version
+        version: 1.0.0
     END_VERSIONS
     """
 }

@@ -19,18 +19,19 @@ include { RNA_STATISTICS } from '../rna_statistics/main'
 workflow STAR_HTSEQ {
 
     take:
-        ch_gtf  // channel: /path/to/genome.gtf
+        alignment // STAR_ALIGN.out.bam_unsorted, 
+        quantification // PREPARE_REFERENCE_FILES.quantification_gff_u_m,
         annotations_host_htseq
         annotations_pathogen_htseq
-        gff_host
-        gff_pathogen
+        gff_host // PREPARE_REFERENCE_FILES.gff_host,
+        gff_pathogen // PREPARE_REFERENCE_FILES.gff_pathogen,
         star_mapping_stats_tsv
 
     main:
         ch_versions = Channel.empty()
         ch_htseq = Channel.empty()
 
-        HTSEQ_COUNT ( ch_htseq, ch_gtf )
+        HTSEQ_COUNT ( alignment, ch_gtf )
         ch_versions = ch_versions.mix(HTSEQ_COUNT.out.versions.first())
 
 	    COMBINE_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED(
