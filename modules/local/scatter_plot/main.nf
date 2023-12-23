@@ -13,7 +13,7 @@ process SCATTER_PLOT {
     val host
 
     output:
-    path ('*.pdf')
+    path ('*.pdf'), optional: true
     path "versions.yml"           , emit: versions
 
     when:

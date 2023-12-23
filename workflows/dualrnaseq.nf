@@ -181,18 +181,20 @@ workflow DUALRNASEQ {
                 COUNT_TOTAL_READS_PAIRS.out.tsv
             )
             ch_versions = ch_versions.mix(STAR_STATISTIC.out.versions)
-        }
-        if (params.run_htseq_uniquely_mapped) {
+            if (params.run_htseq_uniquely_mapped) {
             STAR_HTSEQ(
                 STAR.out.bam, 
                 PREPARE_REFERENCE_FILES.out.quantification_gff_u_m,
-                // PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
-                // PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq,
+                PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
+                PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq,
                 PREPARE_REFERENCE_FILES.out.gff_host,
-                PREPARE_REFERENCE_FILES.out.patoghen_host
+                PREPARE_REFERENCE_FILES.out.patoghen_host,
+                STAR_STATISTIC.out.star_mapping_stats
             )
             ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
         }
+        }
+        
     }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

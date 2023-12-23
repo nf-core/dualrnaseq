@@ -22,5 +22,11 @@ process COMBINE_ANNOTATIONS_QUANT_UNIQUELY_MAPPED_HOST {
     -q $quantification_table \\
     -annotations $annotation_table \\
     -a $attribute -org $organism
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version: 1.0.0
+    END_VERSIONS
+    
     """
 }

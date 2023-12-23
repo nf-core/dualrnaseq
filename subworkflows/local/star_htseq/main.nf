@@ -21,11 +21,11 @@ workflow STAR_HTSEQ {
     take:
         star_bam // STAR_ALIGN.out.bam_unsorted, 
         quantification // PREPARE_REFERENCE_FILES.quantification_gff_u_m,
-        // annotations_host_htseq
-        // annotations_pathogen_htseq
+        annotations_host_htseq
+        annotations_pathogen_htseq
         gff_host // PREPARE_REFERENCE_FILES.gff_host,
         gff_pathogen // PREPARE_REFERENCE_FILES.gff_pathogen,
-        // star_mapping_stats_tsv
+        star_mapping_stats_tsv
 
     main:
         ch_versions = Channel.empty()
@@ -47,55 +47,52 @@ workflow STAR_HTSEQ {
         )
         ch_versions = ch_versions.mix(HTSEQ_UNIQUELY_MAPPED_TPM.out.versions.first())
 
-        // SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED(
-        //     HTSEQ_UNIQUELY_MAPPED_TPM.out.tsv,
-        //     annotations_host_htseq,
-        //     annotations_pathogen_htseq
-        // )
-        // ch_versions = ch_versions.mix(SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.versions.first())
+        SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED(
+            HTSEQ_UNIQUELY_MAPPED_TPM.out.tsv,
+            annotations_host_htseq,
+            annotations_pathogen_htseq
+        )
+        ch_versions = ch_versions.mix(SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.versions.first())
 
-        // COMBINE_ANNOTATIONS_QUANT_PATHOGEN_UNIQUELY_MAPPED_HOST(
-        //     SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
-        //     annotations_pathogen_htseq,
-        //     params.host_gff_attribute,
-        //     "pathogen"
-        // )
+        COMBINE_ANNOTATIONS_QUANT_PATHOGEN_UNIQUELY_MAPPED_HOST(
+            SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
+            annotations_pathogen_htseq,
+            params.host_gff_attribute,
+            "pathogen"
+        )
         
-        // COMBINE_ANNOTATIONS_QUANT_HOST_UNIQUELY_MAPPED_HOST(
-        //    SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
-        //     annotations_host_htseq,
-        //     params.host_gff_attribute,
-        //     "host"
-        // )
-        // if(params.mapping_statistics) {
-            
-            
+        COMBINE_ANNOTATIONS_QUANT_HOST_UNIQUELY_MAPPED_HOST(
+           SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
+            annotations_host_htseq,
+            params.host_gff_attribute,
+            "host"
+        )
+        if(params.mapping_statistics) {
+            HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED(
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
+                Channel.value(params.host_gff_attribute),
+                star_mapping_stats_tsv
+            )
+            ch_versions = ch_versions.mix(HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.versions.first())
 
-        //     HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED(
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
-        //         Channel.value(params.host_gff_attribute),
-        //         star_mapping_stats_tsv
-        //     )
-        //     ch_versions = ch_versions.mix(HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.versions.first())
+            PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED(
+                HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.tsv
+            )
+            ch_versions = ch_versions.mix(PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED.out.versions.first())
+            RNA_STATISTICS(
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_host_htseq,
+                SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_pathogen_htseq,
+                annotations_host_htseq,
+                annotations_pathogen_htseq,
+                Channel.value(params.host_gff_attribute),
+                "htseq"
+            )
+            ch_versions = ch_versions.mix(RNA_STATISTICS.out.versions.first())
 
-        //     PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED(
-        //         HTSEQ_QUANTIFICATION_STATS_UNIQUELY_MAPPED.out.tsv
-        //     )
-        //     ch_versions = ch_versions.mix(PLOT_MAPPING_STATS_HOST_PATHOGEN_HTSEQ_UNIQUELY_MAPPED.out.versions.first())
-        //     RNA_STATISTICS(
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.host,
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.pathogen,
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_host_htseq,
-        //         SPLIT_QUANTIFICATION_TABLES_HTSEQ_UNIQUELY_MAPPED.out.scatterplots_pathogen_htseq,
-        //         annotations_host_htseq,
-        //         annotations_pathogen_htseq,
-        //         Channel.value(params.host_gff_attribute),
-        //         "htseq"
-        //     )
-        //     ch_versions = ch_versions.mix(RNA_STATISTICS.out.versions.first())
-
-        // }
+        }
     emit:
         versions = ch_versions  // channel: [ versions.yml ]
 }

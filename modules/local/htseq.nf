@@ -36,7 +36,7 @@ process HTSEQ_COUNT {
         $args  \\
         > $output_file
 
-	sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$output_file"
+	sed -i '1{h;s/.*/'"${sample_name.id}"'/;G}' "$output_file"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

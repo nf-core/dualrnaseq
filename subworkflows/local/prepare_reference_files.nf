@@ -267,8 +267,22 @@ workflow PREPARE_REFERENCE_FILES{
 
     ch_host_pathoge_gff = Channel.empty() //COMBINE_FILES_PATHOGEN_HOST_GFF.out 
 
-    ch_annotations_host_htseq = Channel.empty() //EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations
-    ch_annotations_pathogen_htsqe = Channel.empty() //EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations
+
+    EXTRACT_ANNOTATIONS_HOST_HTSEQ(COMBINE_HOST_GFF_FILES.out, 	
+	    params.gene_feature_gff_to_quantify_host,
+      params.host_gff_attribute,
+      "host",
+      "htseq"
+    )
+
+    EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ(ch_gff_pathogen_unzipped,
+    params.gene_feature_gff_to_quantify_pathogen,
+    params.pathogen_gff_attribute,
+    "pathogen",
+    "htseq")
+
+    ch_annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations
+    ch_annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations
 
     emit:
       genome_fasta = COMBINE_FILES_FASTA.out
@@ -280,10 +294,10 @@ workflow PREPARE_REFERENCE_FILES{
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations
       annotations_host_htseq = ch_annotations_host_htseq
-      annotations_pathogen_htsqe = ch_annotations_pathogen_htsqe
+      annotations_pathogen_htseq = ch_annotations_pathogen_htseq
       reference_pathogen_name = ch_reference_pathogen_name
       reference_host_name = ch_reference_host_name
       quantification_gff_u_m = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
       gff_host = REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out
-      patoghen_host = REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out
+      patoghen_host = REPLACE_ATTRIBUTE_PATHOGEN_GFF_HTSEQ.out.gff3
 }

@@ -71,4 +71,5 @@ workflow STAR_STATISTIC {
         }
     emit:
         versions = ch_versions  // channel: [ versions.yml ]
+        star_mapping_stats = STAR_MAPPING_STATS.out.tsv
 }
