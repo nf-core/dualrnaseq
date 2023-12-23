@@ -1,5 +1,5 @@
-process HTSEQ {
-    tag "$meta.id"
+process HTSEQ_COUNT {
+    tag "$sample_name.id"
     label 'process_high'
 
     conda "bioconda::htseq=2.0.2-0"
@@ -8,14 +8,12 @@ process HTSEQ {
         'quay.io/biocontainers/htseq:2.0.2--py38h7a2e8c7_0' }"
 
     input:
-    tuple val(meta), path(gff)
-	val(sample_name), path(st)
-	val(host_attribute)
-	val(stranded)
+    tuple val(sample_name), path(st)
+    tuple path(gff)
     val(quantifier)
 
     output:
-	tuple val(meta), path("*_count.txt"), emit: counts
+	tuple val(sample_name), path("*_count.txt"), emit: txt
     path("versions.yml"), emit: versions
 
     when:
@@ -23,15 +21,15 @@ process HTSEQ {
 
     script:
     def args = task.ext.args ?: ''
-	def output_file = sample_name + "_count.txt"
+	def output_file = "${sample_name.id}_count.txt"
     """
 	htseq-count  \\
         -n ${task.cpus}  \\
         -t $quantifier  \\
         -f bam  \\
         -r pos $st $gff  \\
-        -i $host_attribute  \\
-        -s $stranded  \\
+        -i $params.host_gff_attribute  \\
+        -s $params.stranded  \\
         --max-reads-in-buffer=${params.max_reads_in_buffer}  \\
         -a ${params.minaqual}  \\
         ${params.htseq_params}  \\

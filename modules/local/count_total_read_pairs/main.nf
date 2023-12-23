@@ -8,10 +8,15 @@ process COUNT_TOTAL_READS_PAIRS {
     input:
     path(tsv)
     output:
-    path "total_raw_read_pairs_fastq.tsv"
+    path "total_raw_read_pairs_fastq.tsv", emit:tsv
 
     script:
     """
     $workflow.projectDir/bin/collect_total_raw_read_pairs.py -i $tsv
+    
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version: 1.0.0
+    END_VERSIONS
     """
 }

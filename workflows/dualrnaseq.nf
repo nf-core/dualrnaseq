@@ -71,6 +71,9 @@ include { BBMAP_BBDUK                       } from '../modules/nf-core/bbmap/bbd
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
+include { COUNT_TOTAL_READS                 } from '../modules/local/count_total_reads/main'
+include { COUNT_TOTAL_READS_PAIRS           } from '../modules/local/count_total_read_pairs/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -117,16 +120,15 @@ workflow DUALRNASEQ {
             FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
-    if (params.skip_tools) {
-        if((params.skip_tools.split(',').contains('cutadapt') || params.skip_tools.split(',').contains('bbduk')) && params.mapping_statistics) {
-            raw_read_count
+    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt') || params.skip_tools.split(',').contains('bbduk')))) {
+        if (params.mapping_statistics) {
+            ch_reads
             .map { tag, file -> file }
             .set {raw_read_count_file}
-            // blazej
-            // COUNT_TOTAL_READS()
-            // if (!params.single_end){
-            //     COUNT_TOTAL_READS_PAIRS()
-            // }
+            COUNT_TOTAL_READS(raw_read_count_file)
+            if (!params.single_end){
+                COUNT_TOTAL_READS_PAIRS(COUNT_TOTAL_READS.out.tsv)
+            }
         }
     }
 
@@ -175,21 +177,22 @@ workflow DUALRNASEQ {
                 STAR.out.bam,
                 STAR.out.log_final,
                 PREPARE_REFERENCE_FILES.out.reference_host_name.collect(),
-                PREPARE_REFERENCE_FILES.out.reference_pathogen_name.collect()
+                PREPARE_REFERENCE_FILES.out.reference_pathogen_name.collect(),
+                COUNT_TOTAL_READS_PAIRS.out.tsv
             )
             ch_versions = ch_versions.mix(STAR_STATISTIC.out.versions)
         }
-        // if (params.run_htseq_uniquely_mapped) {
-        //     STAR_HTSEQ(
-        //         STAR.out.bam_unsorted, 
-        //         PREPARE_REFERENCE_FILES.out.quantification_gff_u_m,
-        //         PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
-        //         PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq,
-        //         PREPARE_REFERENCE_FILES.out.gff_host,
-        //         PREPARE_REFERENCE_FILES.out.patoghen_host
-        //     )
-        //     ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
-        // }
+        if (params.run_htseq_uniquely_mapped) {
+            STAR_HTSEQ(
+                STAR.out.bam, 
+                PREPARE_REFERENCE_FILES.out.quantification_gff_u_m,
+                // PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
+                // PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq,
+                PREPARE_REFERENCE_FILES.out.gff_host,
+                PREPARE_REFERENCE_FILES.out.patoghen_host
+            )
+            ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
+        }
     }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

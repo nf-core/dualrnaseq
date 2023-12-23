@@ -6,18 +6,20 @@ include { COLLECT_STATS_STAR_UNIQUELY_MAPPED   } from '../../../modules/local/co
 include { COUNT_CROSSMAPPED_READS              } from '../../../modules/local/count_crossmapped_reads/main'
 
 include { MULTI_MAPPING_STATS                  } from '../../../modules/local/multi_mapping_stats/main'
+include { STAR_MAPPING_STATS                  } from '../../../modules/local/star_mapping_stats/main'
 include { COLLECT_STATS_STAR_MULTI_MAPPED      } from '../../../modules/local/collect_stats_star_multi_mapped/main'
-
+include { PLOT_STAR_MAPPING_STATS }  from '../../../modules/local/plot_star_mapping_stats/main' 
 workflow STAR_STATISTIC {
     take:
         star_bam
         star_log_final
         reference_host_name
         reference_pathogen_name
+        total_read_pairs
     main:
         ch_versions = Channel.empty()
         
-        // if(params.mapping_statistics) {
+        if(params.mapping_statistics) {
 
             REMOVE_CROSSMAPPED_READS(
                 star_bam, 
@@ -52,21 +54,21 @@ workflow STAR_STATISTIC {
             )
             ch_versions = ch_versions.mix(MULTI_MAPPING_STATS.out.versions.first())
 
-            // COLLECT_STATS_STAR_MULTI_MAPPED(MULTI_MAPPING_STATS.out.txt)
-            // ch_versions = ch_versions.mix(COLLECT_STATS_STAR_MULTI_MAPPED.out.versions.first())
+            COLLECT_STATS_STAR_MULTI_MAPPED(MULTI_MAPPING_STATS.out.txt)
+            ch_versions = ch_versions.mix(COLLECT_STATS_STAR_MULTI_MAPPED.out.versions.first())
 
-        //     STAR_MAPPING_STATS(
-        //         total_read_pairs.ifEmpty('.'),
-        //         COLLECT_PROCESSED_READS_STAR.out.tsv,
-        //         COLLECT_STATS_STAR_UNIQUELY_MAPPED.out.tsv,
-        //         COLLECT_STATS_STAR_MULTI_MAPPED.out.tsv
-        //         COUNT_CROSSMAPPED_READS.out.tsv
-        //     )
-        //     ch_versions = ch_versions.mix(STAR_MAPPING_STATS.out.versions.first())
+            STAR_MAPPING_STATS(
+                total_read_pairs,
+                COLLECT_PROCESSED_READS_STAR.out.tsv,
+                COLLECT_STATS_STAR_UNIQUELY_MAPPED.out.tsv,
+                COLLECT_STATS_STAR_MULTI_MAPPED.out.tsv,
+                COUNT_CROSSMAPPED_READS.out.txt
+            )
+            ch_versions = ch_versions.mix(STAR_MAPPING_STATS.out.versions.first())
 
-        //     PLOT_MAPPING_STATS_STAR(STAR_MAPPING_STATS.out)
-        //     ch_versions = ch_versions.mix(PLOT_MAPPING_STATS_STAR.out.versions.first())
-        // }
+            PLOT_STAR_MAPPING_STATS(STAR_MAPPING_STATS.out.tsv)
+            ch_versions = ch_versions.mix(PLOT_STAR_MAPPING_STATS.out.versions.first())
+        }
     emit:
         versions = ch_versions  // channel: [ versions.yml ]
 }

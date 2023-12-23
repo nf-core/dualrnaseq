@@ -9,7 +9,7 @@ process COLLECT_PROCESSED_READS_STAR {
     path(process_reads)
 
     output:
-    path("processed_reads_star.tsv")
+    path("processed_reads_star.tsv"), emit: tsv
     path "versions.yml"           , emit: versions
 
     script:

@@ -30,6 +30,7 @@ include {
     COMBINE_FILES as COMBINE_HOST_GFF_FILES
 }  from '../../modules/local/combine_files'
 
+include { REPLACE_ATTRIBUTE_PATHOGEN_GFF_HTSEQ } from '../../modules/local/replace_attribute_pathogen_gff_htseq/main'
 
 include { PREPARE_HOST_TRANSCRIPTOME      } from './prepare_host_transcriptome'
 include { PREPARE_PATHOGEN_TRANSCRIPTOME  } from './prepare_pathogen_transcriptome'
@@ -193,10 +194,15 @@ workflow PREPARE_REFERENCE_FILES{
         ch_gff_pathogen_unzipped, 
         Channel.value(params.gene_feature_gff_to_quantify_pathogen)
       );
+      REPLACE_ATTRIBUTE_PATHOGEN_GFF_HTSEQ(
+        REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
+        params.host_gff_attribute,
+        params.pathogen_gff_attribute
+      )
       COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
         REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
-        REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
-        "fake_name"
+        REPLACE_ATTRIBUTE_PATHOGEN_GFF_HTSEQ.out.gff3,
+        "fake_name.gff"
       )
     }
 
@@ -215,9 +221,9 @@ workflow PREPARE_REFERENCE_FILES{
     ch_gff_host_genome_salmon_alignment = params.gff_host_tRNA ? COMBINE_HOST_GENOME_TRNA_GFF_STAR_SALMON.out : REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST.out
 
     REPLACE_GENE_FEATURE_GFF_HOST_SALMON(
-                ch_gff_host_genome_salmon_alignment,
-                params.gene_feature_gff_to_create_transcriptome_host
-            )
+          ch_gff_host_genome_salmon_alignment,
+          params.gene_feature_gff_to_create_transcriptome_host
+      )
 
 
     REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON(

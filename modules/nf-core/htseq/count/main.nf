@@ -29,7 +29,6 @@ process HTSEQ_COUNT {
         ${args} \\
         > ${prefix}.txt
 
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         htseq: \$(echo \$(htseq-count --version ) | sed 's/^.*htseq-count //; s/Using.*\$//' ))

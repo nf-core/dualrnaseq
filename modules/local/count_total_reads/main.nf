@@ -8,10 +8,14 @@ process COUNT_TOTAL_READS {
 	input:
 	path(fastq)
 	output:
-	path "total_raw_reads_fastq.tsv"
+	path "total_raw_reads_fastq.tsv", emit:tsv
 
 	script:
 	"""
 	$workflow.projectDir/bin/count_total_reads.sh $fastq >> total_raw_reads_fastq.tsv
+	cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version: 1.0.0
+    END_VERSIONS
 	"""
 }
