@@ -1,0 +1,35 @@
+nextflow_workflow {
+
+    name "Test Workflow STAR"
+    script "subworkflows/local/star/main.nf"
+    workflow "STAR"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                // define parameters here. Example:
+                // outdir = "tests/results"
+            }
+            workflow {
+                """
+                // define inputs of the workflow here. Example:
+                input[0] = Channel.from('hello','nf-test')
+                input[1] = Channel.from('hello','nf-test')
+                input[2] = Channel.from('hello','nf-test')
+                input[3] = Channel.from('hello','nf-test')
+                input[4] = Channel.from('hello','nf-test')
+                input[5] = Channel.from('hello','nf-test')
+                input[6] = Channel.from('hello','nf-test')
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert snapshot(workflow.out).match()
+        }
+
+    }
+
+}

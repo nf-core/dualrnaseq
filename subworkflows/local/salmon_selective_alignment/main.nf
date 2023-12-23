@@ -1,11 +1,11 @@
-include { SALMON_INDEX                          } from '../../modules/nf-core/salmon/index/main'
-include { SALMON_QUANT                          } from '../../modules/nf-core/salmon/quant/main'
-include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../modules/local/combine_quantification_results_salmon'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../modules/local/salmon_split_table'
-include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../modules/local/salmon_split_table'
-include { EXTRACT_PROCESSED_READS               } from '../../modules/local/extract_processed_reads'
-include { TXIMPORT                        } from '../../modules/local/tximport/main'
-
+include { SALMON_INDEX                          } from '../../../modules/nf-core/salmon/index/main'
+include { SALMON_QUANT                          } from '../../../modules/nf-core/salmon/quant/main'
+include { COMBINE_QUANTIFICATION_RESULTS_SALMON } from '../../../modules/local/combine_quantification_results_salmon'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH} from '../../../modules/local/salmon_split_table'
+include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_COMBINED} from '../../../modules/local/salmon_split_table'
+include { EXTRACT_PROCESSED_READS               } from '../../../modules/local/extract_processed_reads'
+include { TXIMPORT                        } from '../../../modules/local/tximport/main'
+include { RNA_STATISTICS } from '../rna_statistics/main'
 
 
 workflow SALMON_SELECTIVE_ALIGNMENT {
@@ -45,10 +45,28 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
         SALMON_SPLIT_TABLE_COMBINED( combined_salmon_quant, ch_transcript_fasta_pathogen, ch_transcript_fasta_host)
 
 
-        EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
+        if(params.mapping_statistics) {
+            EXTRACT_PROCESSED_READS( SALMON_QUANT.out.json_results, "salmon" )
+
+            // COLLECT_PROCESSED_READS_STAR_FOR_SALMON ??
+        
+            // EXTRACT_PROCESSED_READS_SALMON_ALIGNMENT_BASED
+
+            // COLLECT_PROCESSED_READS_SALMON_ALIGNMENT_BASED
+
+            // SALMON_QUANTIFICATION_STATS_SALMON_ALIGNMENT_BASED
+
+            // plot_salmon_mapping_stats_host_pathogen_salmon_alignment_based
+
+            RNA_STATISTICS(
+                SALMON_SPLIT_TABLE_COMBINED.host,
+                SALMON_SPLIT_TABLE_COMBINED.pathogen,
+                params.gene_attribute_gff_to_create_transcriptome_host)
+        }
 
         TXIMPORT(SALMON_SPLIT_TABLE_EACH.out.host,ch_annotations_host_salmon )
-        
+
+
     emit:
         versions = ch_versions                     // channel: [ versions.yml ]
 }

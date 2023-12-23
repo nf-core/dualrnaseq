@@ -13,6 +13,7 @@ process EXTRACT_PROCESSED_READS {
 
     output:
     path("${meta.id}.txt"), emit: collect_results
+    path "versions.yml"          , emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -27,6 +28,10 @@ process EXTRACT_PROCESSED_READS {
 	    processed=\$(grep "Number of input reads" ${json_file} | sed 's/Number of input reads//g'| sed 's/[^a-zA-Z0-9]//g')
 	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt
     fi
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        version: 1.0.0
+    END_VERSIONS
     """
 }
 

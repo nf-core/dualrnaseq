@@ -52,7 +52,9 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_based'
-
+include { STAR } from '../subworkflows/local/star'
+include { STAR_STATISTIC } from '../subworkflows/local/star_statistic'
+include { STAR_HTSEQ } from '../subworkflows/local/star_htseq'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -65,8 +67,12 @@ include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_
 include { FASTQC                            } from '../modules/nf-core/fastqc/main'
 include { FASTQC as FASTQC_AFTER_TRIMMING   } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
+include { BBMAP_BBDUK                       } from '../modules/nf-core/bbmap/bbduk/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+
+include { COUNT_TOTAL_READS                 } from '../modules/local/count_total_reads/main'
+include { COUNT_TOTAL_READS_PAIRS           } from '../modules/local/count_total_read_pairs/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,12 +107,30 @@ workflow DUALRNASEQ {
             ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
-    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
+    if (!(params.skip_tools && params.skip_tools.split(',').contains('bbduk'))) {
+        if (params.adapters) { 
+            adapter_database = file(params.adapters, checkIfExists: true) 
+            BBMAP_BBDUK(INPUT_CHECK.out.reads, Channel.value(adapter_database))
+            ch_reads = BBMAP_BBDUK.out.reads
+            ch_versions = ch_versions.mix(BBMAP_BBDUK.out.versions.first())
+        }
+    }
+
+    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt') || params.skip_tools.split(',').contains('bbduk')))) {
             FASTQC_AFTER_TRIMMING(ch_reads)
             ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
-
-
+    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt') || params.skip_tools.split(',').contains('bbduk')))) {
+        if (params.mapping_statistics) {
+            ch_reads
+            .map { tag, file -> file }
+            .set {raw_read_count_file}
+            COUNT_TOTAL_READS(raw_read_count_file)
+            if (!params.single_end){
+                COUNT_TOTAL_READS_PAIRS(COUNT_TOTAL_READS.out.tsv)
+            }
+        }
+    }
 
     PREPARE_REFERENCE_FILES(
         params.fasta_host,
@@ -142,7 +166,36 @@ workflow DUALRNASEQ {
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
     }
 
+    if (params.run_star || params.run_htseq_uniquely_mapped) {
+        ch_genome_fasta = PREPARE_REFERENCE_FILES.out.genome_fasta
+        ch_host_gff = PREPARE_REFERENCE_FILES.out.host_gff
 
+        STAR(ch_reads, ch_genome_fasta, ch_host_gff)
+        ch_versions = ch_versions.mix(STAR.out.versions)
+        if ( params.run_star ) {
+            STAR_STATISTIC(
+                STAR.out.bam,
+                STAR.out.log_final,
+                PREPARE_REFERENCE_FILES.out.reference_host_name.collect(),
+                PREPARE_REFERENCE_FILES.out.reference_pathogen_name.collect(),
+                COUNT_TOTAL_READS_PAIRS.out.tsv
+            )
+            ch_versions = ch_versions.mix(STAR_STATISTIC.out.versions)
+            if (params.run_htseq_uniquely_mapped) {
+            STAR_HTSEQ(
+                STAR.out.bam, 
+                PREPARE_REFERENCE_FILES.out.quantification_gff_u_m,
+                PREPARE_REFERENCE_FILES.out.annotations_host_htseq, 
+                PREPARE_REFERENCE_FILES.out.annotations_pathogen_htseq,
+                PREPARE_REFERENCE_FILES.out.gff_host,
+                PREPARE_REFERENCE_FILES.out.patoghen_host,
+                STAR_STATISTIC.out.star_mapping_stats
+            )
+            ch_versions = ch_versions.mix(STAR_HTSEQ.out.versions)
+        }
+        }
+        
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -151,25 +204,25 @@ workflow DUALRNASEQ {
 
     // MODULE: MultiQC
 
-    workflow_summary    = WorkflowDualrnaseq.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    // workflow_summary    = WorkflowDualrnaseq.paramsSummaryMultiqc(workflow, summary_params)
+    // ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowDualrnaseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
-    ch_methods_description = Channel.value(methods_description)
+    // methods_description    = WorkflowDualrnaseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    // ch_methods_description = Channel.value(methods_description)
 
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    // ch_multiqc_files = Channel.empty()
+    // ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    // ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
+    // ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+    // ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
 
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
-    )
-    multiqc_report = MULTIQC.out.report.toList()
+    // MULTIQC (
+    //     ch_multiqc_files.collect(),
+    //     ch_multiqc_config.toList(),
+    //     ch_multiqc_custom_config.toList(),
+    //     ch_multiqc_logo.toList()
+    // )
+    // multiqc_report = MULTIQC.out.report.toList()
 
 
 }
