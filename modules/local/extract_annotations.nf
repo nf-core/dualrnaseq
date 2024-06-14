@@ -4,8 +4,8 @@ process EXTRACT_ANNOTATIONS {
 
     conda "bioconda::conda-forge::python=3.8.3=3.11.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'nfcore/dualrnaseq:dev':
-        'nfcore/dualrnaseq:dev' }"
+        'docker.io/nfcore/dualrnaseq:dev':
+        'docker.io/nfcore/dualrnaseq:dev' }"
 
     input:
         path(gff)
