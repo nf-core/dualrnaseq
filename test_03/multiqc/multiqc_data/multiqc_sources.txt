@@ -1,0 +1,4 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	SAMPLE1_PE_T1_2	/home/regan.hayward/Desktop/dualrnaseq/work/2e/55e57110e304114909b6fe5b32df1a/5/SAMPLE1_PE_T1_2_fastqc.zip
+FastQC	all_sections	SAMPLE1_PE_T1_1	/home/regan.hayward/Desktop/dualrnaseq/work/2e/55e57110e304114909b6fe5b32df1a/4/SAMPLE1_PE_T1_1_fastqc.zip
+FastQC	all_sections	SAMPLE2_SE_T1	/home/regan.hayward/Desktop/dualrnaseq/work/2e/55e57110e304114909b6fe5b32df1a/3/SAMPLE2_SE_T1_fastqc.zip

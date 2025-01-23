@@ -1,0 +1,49 @@
+{
+    "salmon_version": "1.10.1",
+    "samp_type": "none",
+    "opt_type": "vb",
+    "quant_errors": [],
+    "num_libraries": 1,
+    "library_types": [
+        "U"
+    ],
+    "frag_dist_length": 1001,
+    "frag_length_mean": 250.0000097391447,
+    "frag_length_sd": 25.001769513739427,
+    "seq_bias_correct": false,
+    "gc_bias_correct": false,
+    "num_bias_bins": 4096,
+    "mapping_type": "alignment",
+    "num_valid_targets": 16,
+    "num_decoy_targets": 0,
+    "num_eq_classes": 17,
+    "serialized_eq_classes": false,
+    "eq_class_properties": [
+        "range_factorized",
+        "gzipped"
+    ],
+    "length_classes": [
+        591,
+        774,
+        954,
+        1431,
+        2463
+    ],
+    "index_seq_hash": "",
+    "index_name_hash": "",
+    "index_seq_hash512": "",
+    "index_name_hash512": "",
+    "index_decoy_seq_hash": "",
+    "index_decoy_name_hash": "",
+    "num_bootstraps": 0,
+    "num_processed": 4607,
+    "num_mapped": 4607,
+    "num_decoy_fragments": 0,
+    "num_dovetail_fragments": 0,
+    "num_fragments_filtered_vm": 0,
+    "num_alignments_below_threshold_for_mapped_fragments_vm": 0,
+    "percent_mapped": 100.0,
+    "call": "quant",
+    "start_time": "Thu Jan 23 01:27:36 2025",
+    "end_time": "Thu Jan 23 01:27:36 2025"
+}

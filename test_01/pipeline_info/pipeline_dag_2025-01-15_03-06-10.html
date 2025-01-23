@@ -1,0 +1,226 @@
+<!--
+  ~ Copyright 2013-2024, Seqera Labs
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<head>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+<pre class="mermaid" style="text-align: center;">
+flowchart TB
+    subgraph " "
+    v0["Channel.fromPath"]
+    v4["samplesheet"]
+    v31[" "]
+    v33["ch_pathogen_fasta_genome_unzipped"]
+    v34["ch_host_fasta_genome_unzipped"]
+    v35["output_file"]
+    v37["ch_pathogen_fasta_transcripts"]
+    v38["ch_host_fasta_transcripts"]
+    v39["output_file"]
+    v41["ch_host_gff_unzipped"]
+    v42["attribute_in"]
+    v43["attribute_out"]
+    v45["features"]
+    v47["ch_pathogen_gff_unzipped"]
+    v48["attribute_in"]
+    v49["attribute_out"]
+    v52["output_file"]
+    v54["gene_feature"]
+    v55["gene_attribute"]
+    v56["organism"]
+    v57["quantifier"]
+    v60["gene_attribute"]
+    v61["organism"]
+    v62["quantifier"]
+    v69["alignment_mode"]
+    v70["lib_type"]
+    v78["organism"]
+    v84["process"]
+    v87["process"]
+    v100["ch_workflow_summary"]
+    v103["ch_methods_description"]
+    end
+    subgraph NFCORE_DUALRNASEQ
+    subgraph DUALRNASEQ
+    subgraph INPUT_CHECK
+    v5([SAMPLESHEET_CHECK])
+    v6(( ))
+    end
+    v9([FASTQC])
+    v14([CUTADAPT])
+    v18([FASTQC_AFTER_TRIMMING])
+    subgraph PREPARE_REFERENCE_FILES
+    v36([COMBINE_FILES_FASTA])
+    v40([COMBINE_FILES_TRANSCRIPTOME_FILES])
+    v44([REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST])
+    v46([REPLACE_GENE_FEATURE_GFF_HOST_SALMON])
+    v50([REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN])
+    v51([REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON])
+    v53([COMBINE_FILES_PATHOGEN_HOST_GFF])
+    v58([EXTRACT_ANNOTATIONS_HOST_SALMON])
+    v63([EXTRACT_ANNOTATIONS_PATHOGEN_SALMON])
+    v32(( ))
+    end
+    subgraph SALMON_SELECTIVE_ALIGNMENT
+    v67([SALMON_INDEX])
+    v71([SALMON_QUANT])
+    v74([SALMON_SPLIT_TABLE_EACH])
+    v79([COMBINE_QUANTIFICATION_RESULTS_SALMON])
+    v81([SALMON_SPLIT_TABLE_COMBINED])
+    v85([EXTRACT_PROCESSED_READS])
+    v88([COLLATE_PROCESSED_READS])
+    v90([TXIMPORT])
+    v76(( ))
+    v80(( ))
+    v86(( ))
+    end
+    v96([CUSTOM_DUMPSOFTWAREVERSIONS])
+    v115([MULTIQC])
+    v8(( ))
+    v101(( ))
+    v112(( ))
+    v113(( ))
+    v114(( ))
+    v119(( ))
+    end
+    end
+    subgraph " "
+    v10[" "]
+    v15[" "]
+    v19[" "]
+    v20[" "]
+    v59[" "]
+    v64[" "]
+    v65["annotations_pathogen_salmon"]
+    v72[" "]
+    v75[" "]
+    v82[" "]
+    v83[" "]
+    v89[" "]
+    v91[" "]
+    v92[" "]
+    v97[" "]
+    v98[" "]
+    v116[" "]
+    v117[" "]
+    v118[" "]
+    v120[" "]
+    end
+    v0 --> v112
+    v4 --> v5
+    v5 --> v6
+    v5 --> v8
+    v6 --> v9
+    v9 --> v10
+    v9 --> v8
+    v9 --> v101
+    v6 --> v14
+    v14 --> v18
+    v14 --> v15
+    v14 --> v71
+    v14 --> v8
+    v18 --> v20
+    v18 --> v19
+    v18 --> v8
+    v31 --> v32
+    v33 --> v36
+    v34 --> v36
+    v35 --> v36
+    v36 --> v67
+    v37 --> v40
+    v37 --> v74
+    v37 --> v81
+    v38 --> v40
+    v38 --> v74
+    v38 --> v81
+    v39 --> v40
+    v40 --> v67
+    v40 --> v71
+    v41 --> v44
+    v42 --> v44
+    v43 --> v44
+    v44 --> v46
+    v45 --> v46
+    v46 --> v53
+    v46 --> v58
+    v47 --> v50
+    v48 --> v50
+    v49 --> v50
+    v50 --> v51
+    v50 --> v63
+    v32 --> v51
+    v51 --> v53
+    v52 --> v53
+    v53 --> v71
+    v54 --> v58
+    v55 --> v58
+    v56 --> v58
+    v57 --> v58
+    v58 --> v90
+    v58 --> v59
+    v60 --> v63
+    v61 --> v63
+    v62 --> v63
+    v32 --> v63
+    v63 --> v65
+    v63 --> v64
+    v67 --> v71
+    v67 --> v8
+    v69 --> v71
+    v70 --> v71
+    v71 --> v72
+    v71 --> v74
+    v71 --> v85
+    v71 --> v8
+    v71 --> v76
+    v74 --> v90
+    v74 --> v75
+    v78 --> v79
+    v76 --> v79
+    v79 --> v80
+    v80 --> v81
+    v81 --> v83
+    v81 --> v82
+    v84 --> v85
+    v85 --> v86
+    v87 --> v88
+    v86 --> v88
+    v88 --> v89
+    v90 --> v92
+    v90 --> v91
+    v8 --> v96
+    v96 --> v98
+    v96 --> v97
+    v96 --> v101
+    v100 --> v101
+    v103 --> v101
+    v101 --> v115
+    v112 --> v115
+    v113 --> v115
+    v114 --> v115
+    v115 --> v118
+    v115 --> v117
+    v115 --> v116
+    v115 --> v119
+    v119 --> v120
+
+</pre>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, maxTextSize: Number.MAX_SAFE_INTEGER, maxEdges: Number.MAX_SAFE_INTEGER });
+</script>
+</body>
+</html>

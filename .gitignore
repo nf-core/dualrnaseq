@@ -1,9 +1,9 @@
 .nextflow*
 work/
+data/
 results/
 .DS_Store
 testing/
 testing*
 *.pyc
-test*
-file.markdown
+null/

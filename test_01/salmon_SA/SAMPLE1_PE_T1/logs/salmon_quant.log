@@ -1,0 +1,59 @@
+[2025-01-15 03:07:16.261] [jointLog] [info] setting maxHashResizeThreads to 2
+[2025-01-15 03:07:16.261] [jointLog] [info] Fragment incompatibility prior below threshold.  Incompatible fragments will be ignored.
+[2025-01-15 03:07:16.261] [jointLog] [info] Usage of --validateMappings implies use of minScoreFraction. Since not explicitly specified, it is being set to 0.65
+[2025-01-15 03:07:16.261] [jointLog] [info] Setting consensusSlack to selective-alignment default of 0.35.
+[2025-01-15 03:07:16.261] [jointLog] [info] parsing read library format
+[2025-01-15 03:07:16.261] [jointLog] [info] There is 1 library.
+[2025-01-15 03:07:16.262] [jointLog] [info] Loading pufferfish index
+[2025-01-15 03:07:16.262] [jointLog] [info] Loading dense pufferfish index.
+[2025-01-15 03:07:16.262] [jointLog] [info] done
+[2025-01-15 03:07:16.332] [jointLog] [info] Index contained 18 targets
+[2025-01-15 03:07:16.332] [jointLog] [info] Number of decoys : 2
+[2025-01-15 03:07:16.332] [jointLog] [info] First decoy index : 16 
+[2025-01-15 03:07:16.442] [jointLog] [info] Computed 16 rich equivalence classes for further processing
+[2025-01-15 03:07:16.442] [jointLog] [info] Counted 4503 total reads in the equivalence classes 
+[2025-01-15 03:07:16.443] [jointLog] [info] Number of mappings discarded because of alignment score : 21
+[2025-01-15 03:07:16.443] [jointLog] [info] Number of fragments entirely discarded because of alignment score : 262
+[2025-01-15 03:07:16.443] [jointLog] [info] Number of fragments discarded because they are best-mapped to decoys : 262
+[2025-01-15 03:07:16.443] [jointLog] [info] Number of fragments discarded because they have only dovetail (discordant) mappings to valid targets : 0
+[2025-01-15 03:07:16.443] [jointLog] [warning] Only 4503 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[2025-01-15 03:07:16.443] [jointLog] [info] Mapping rate = 92.7306%
+
+[2025-01-15 03:07:16.443] [jointLog] [info] finished quantifyLibrary()
+[2025-01-15 03:07:16.442] [fileLog] [info] 
+At end of round 0
+==================
+Observed 4856 total fragments (4856 in most recent round)
+
+[2025-01-15 03:07:16.443] [jointLog] [info] Starting optimizer
+[2025-01-15 03:07:16.444] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[2025-01-15 03:07:16.444] [jointLog] [info] iteration = 0 | max rel diff. = 15.969
+[2025-01-15 03:07:16.445] [jointLog] [info] iteration = 100 | max rel diff. = 0
+[2025-01-15 03:07:16.445] [jointLog] [info] Finished optimizer
+[2025-01-15 03:07:16.445] [jointLog] [info] writing output 
+
+[2025-01-15 03:07:16.445] [jointLog] [info] Computing gene-level abundance estimates
+[2025-01-15 03:07:16.446] [jointLog] [info] There were 2 transcripts mapping to 1 genes
+[2025-01-15 03:07:16.446] [jointLog] [info] NOTE: We recommend using tximport (https://bioconductor.org/packages/release/bioc/html/tximport.html) for aggregating transcript-level salmon abundance estimates to the gene level.  It is more versatile, exposes more features, and allows considering multi-sample information during aggregation.
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0001] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0002] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0003] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0004] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0005] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0006] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0007] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0008] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0009] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0010] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0011] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0012] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0013] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [warning] couldn't find transcript named [SL1344_0014] in transcript <-> gene map; returning transcript as it's own gene
+[2025-01-15 03:07:16.446] [jointLog] [info] Aggregating expressions to gene level
+[2025-01-15 03:07:16.446] [jointLog] [info] done
+[2025-01-15 03:07:16.446] [jointLog] [warning] NOTE: Read Lib [[ SAMPLE1_PE_T1_1.trim.fastq.gz, SAMPLE1_PE_T1_2.trim.fastq.gz]] :
+
+Detected a *potential* strand bias > 1% in an unstranded protocol check the file: SAMPLE1_PE_T1/lib_format_counts.json for details
+

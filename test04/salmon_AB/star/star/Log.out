@@ -1,0 +1,113 @@
+STAR version=2.7.9a
+STAR compilation time,server,dir=2021-05-04T09:43:56-0400 vega:/home/dobin/data/STAR/STARcode/STAR.master/source
+##### Command Line:
+STAR --runMode genomeGenerate --genomeDir star/ --genomeFastaFiles host_pathogen_genome.fasta --sjdbGTFfile host_pathogen.gff --runThreadN 2 --genomeSAindexNbases 7 --limitGenomeGenerateRAM 6342450944 --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent
+##### Initial USER parameters from Command Line:
+###### All USER parameters from Command Line:
+runMode                       genomeGenerate        ~RE-DEFINED
+genomeDir                     star/     ~RE-DEFINED
+genomeFastaFiles              host_pathogen_genome.fasta        ~RE-DEFINED
+sjdbGTFfile                   host_pathogen.gff     ~RE-DEFINED
+runThreadN                    2     ~RE-DEFINED
+genomeSAindexNbases           7     ~RE-DEFINED
+limitGenomeGenerateRAM        6342450944     ~RE-DEFINED
+sjdbGTFfeatureExon            quant     ~RE-DEFINED
+sjdbGTFtagExonParentTranscriptparent     ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runMode                           genomeGenerate   
+runThreadN                        2
+genomeDir                         star/
+genomeFastaFiles                  host_pathogen_genome.fasta   
+genomeSAindexNbases               7
+limitGenomeGenerateRAM            6342450944
+sjdbGTFfile                       host_pathogen.gff
+sjdbGTFfeatureExon                quant
+sjdbGTFtagExonParentTranscript    parent
+
+-------------------------------
+##### Final effective command line:
+STAR   --runMode genomeGenerate      --runThreadN 2   --genomeDir star/   --genomeFastaFiles host_pathogen_genome.fasta      --genomeSAindexNbases 7   --limitGenomeGenerateRAM 6342450944   --sjdbGTFfile host_pathogen.gff   --sjdbGTFfeatureExon quant   --sjdbGTFtagExonParentTranscript parent
+----------------------------------------
+
+Number of fastq files for each mate = 1
+ParametersSolo: --soloCellFilterType CellRanger2.2 filtering parameters:  3000 0.99 10
+Finished loading and checking parameters
+--genomeDir directory exists and will be overwritten: star/
+Jan 23 01:27:33 ... starting to generate Genome files
+host_pathogen_genome.fasta : chr # 0  "FQ312003.1" chrStart: 0
+host_pathogen_genome.fasta : chr # 1  "chr1" chrStart: 262144
+Chromosome sequence lengths: 
+FQ312003.1	15961
+chr1	29570
+Genome sequence total length = 45531
+Genome size with padding = 524288
+Jan 23 01:27:33 ..... processing annotations GTF
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	169	255	.	+	.	ID=gene-SL1344_0001;Name=thrL;gbkey=Gene;gene=thrL;gene_biotype=protein_coding;parent=SL1344_0001
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	337	2799	.	+	.	ID=gene-SL1344_0002;Name=thrA;gbkey=Gene;gene=thrA;gene_biotype=protein_coding;parent=SL1344_0002
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	2801	3730	.	+	.	ID=gene-SL1344_0003;Name=thrB;gbkey=Gene;gene=thrB;gene_biotype=protein_coding;parent=SL1344_0003
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	3734	5020	.	+	.	ID=gene-SL1344_0004;Name=thrC;gbkey=Gene;gene=thrC;gene_biotype=protein_coding;parent=SL1344_0004
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	5114	5887	.	-	.	ID=gene-SL1344_0005;Name=yaaA;gbkey=Gene;gene=yaaA;gene_biotype=protein_coding;parent=SL1344_0005
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	5966	7396	.	-	.	ID=gene-SL1344_0006;Name=yaaJ;gbkey=Gene;gene=yaaJ;gene_biotype=protein_coding;parent=SL1344_0006
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	7665	8618	.	+	.	ID=gene-SL1344_0007;Name=talB;gbkey=Gene;gene=talB;gene_biotype=protein_coding;parent=SL1344_0007
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	8729	9319	.	+	.	ID=gene-SL1344_0008;Name=mog;gbkey=Gene;gene=mog;gene_biotype=protein_coding;gene_synonym=mogA;parent=SL1344_0008
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	9376	9942	.	-	.	ID=gene-SL1344_0009;Name=yaaH;gbkey=Gene;gene=yaaH;gene_biotype=protein_coding;parent=SL1344_0009
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	10092	10805	.	-	.	ID=gene-SL1344_0010;Name=htgA;gbkey=Gene;gene=htgA;gene_biotype=protein_coding;parent=SL1344_0010
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	10841	11245	.	-	.	ID=gene-SL1344_0011;Name=yaaI;gbkey=Gene;gene=yaaI;gene_biotype=protein_coding;parent=SL1344_0011
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	11593	13509	.	+	.	ID=gene-SL1344_0012;Name=dnaK;gbkey=Gene;gene=dnaK;gene_biotype=protein_coding;parent=SL1344_0012
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	13595	14734	.	+	.	ID=gene-SL1344_0013;Name=dnaJ;gbkey=Gene;gene=dnaJ;gene_biotype=protein_coding;parent=SL1344_0013
+WARNING: while processing pGe.sjdbGTFfile=host_pathogen.gff: no gene_id for line:
+FQ312003.1	EMBL	quant	15014	15961	.	+	.	ID=gene-SL1344_0014;Name=SL1344_0014;gbkey=Gene;gene_biotype=protein_coding;parent=SL1344_0014
+Processing pGe.sjdbGTFfile=host_pathogen.gff, found:
+		16 transcripts
+		23 exons (non-collapsed)
+		6 collapsed junctions
+Total junctions: 6
+Jan 23 01:27:33 ..... finished GTF processing
+
+!!!!! WARNING: --genomeSAindexNbases 7 is too large for the genome size=45531, which may cause seg-fault at the mapping step. Re-run genome generation with recommended --genomeSAindexNbases 6
+Estimated genome size with padding and SJs: total=genome+SJ=201524288 = 524288 + 201000000
+GstrandBit=32
+Number of SA indices: 71062
+Jan 23 01:27:33 ... starting to sort Suffix Array. This may take a long time...
+Number of chunks: 1;   chunks size limit: 568496 bytes
+Jan 23 01:27:33 ... sorting Suffix Array chunks and saving them to disk...
+Writing 568496 bytes into star//SA_0 ; empty space on disk = 868381712384 bytes ... done
+Jan 23 01:27:33 ... loading chunks from disk, packing SA...
+Jan 23 01:27:33 ... finished generating suffix array
+Jan 23 01:27:33 ... generating Suffix Array index
+Jan 23 01:27:33 ... completed Suffix Array index
+Jan 23 01:27:33   Finished preparing junctions
+Jan 23 01:27:33 ..... inserting junctions into the genome indices
+Jan 23 01:27:33   Finished SA search: number of new junctions=6, old junctions=0
+Jan 23 01:27:33   Finished sorting SA indicesL nInd=2400
+Genome size with junctions=525494  524288   1206
+GstrandBit1=32   GstrandBit=32
+Jan 23 01:27:33   Finished inserting junction indices
+Jan 23 01:27:33   Finished SAi
+Jan 23 01:27:33 ..... finished inserting junctions into genome
+Jan 23 01:27:33 ... writing Genome to disk ...
+Writing 525494 bytes into star//Genome ; empty space on disk = 868381700096 bytes ... done
+SA size in bytes: 303034
+Jan 23 01:27:33 ... writing Suffix Array to disk ...
+Writing 303034 bytes into star//SA ; empty space on disk = 868381171712 bytes ... done
+Jan 23 01:27:33 ... writing SAindex to disk
+Writing 8 bytes into star//SAindex ; empty space on disk = 868380868608 bytes ... done
+Writing 64 bytes into star//SAindex ; empty space on disk = 868380868608 bytes ... done
+Writing 95571 bytes into star//SAindex ; empty space on disk = 868380868608 bytes ... done
+Jan 23 01:27:33 ..... finished successfully
+DONE: Genome generation, EXITING

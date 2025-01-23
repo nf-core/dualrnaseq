@@ -1,0 +1,12 @@
+{
+    "salmon_version": "1.10.1",
+    "geneMap": "host_pathogen.gff",
+    "threads": "2",
+    "libType": "IU",
+    "index": "salmon_index",
+    "mates1": "SAMPLE1_PE_T1_1.trim.fastq.gz",
+    "mates2": "SAMPLE1_PE_T1_2.trim.fastq.gz",
+    "softclipOverhangs": [],
+    "output": "SAMPLE1_PE_T1",
+    "auxDir": "aux_info"
+}

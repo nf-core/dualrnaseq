@@ -1,0 +1,118 @@
+STAR version=2.7.9a
+STAR compilation time,server,dir=2021-05-04T09:43:56-0400 vega:/home/dobin/data/STAR/STARcode/STAR.master/source
+##### Command Line:
+STAR --genomeDir star --readFilesCommand gunzip -c --readFilesIn SAMPLE1_PE_T1_1.trim.fastq.gz SAMPLE1_PE_T1_2.trim.fastq.gz --runThreadN 2 --outFileNamePrefix SAMPLE1_PE_T1. --outSAMtype BAM Unsorted --outSAMattrRGline ID:SAMPLE1_PE_T1 SM:SAMPLE1_PE_T1 --outSAMunmapped Within --sjdbGTFfeatureExon quant --sjdbGTFtagExonParentTranscript parent --quantMode TranscriptomeSAM --quantTranscriptomeBan Singleend --limitBAMsortRAM 0
+##### Initial USER parameters from Command Line:
+outFileNamePrefix                 SAMPLE1_PE_T1.
+###### All USER parameters from Command Line:
+genomeDir                     star     ~RE-DEFINED
+readFilesCommand              gunzip   -c        ~RE-DEFINED
+readFilesIn                   SAMPLE1_PE_T1_1.trim.fastq.gz   SAMPLE1_PE_T1_2.trim.fastq.gz        ~RE-DEFINED
+runThreadN                    2     ~RE-DEFINED
+outFileNamePrefix             SAMPLE1_PE_T1.     ~RE-DEFINED
+outSAMtype                    BAM   Unsorted        ~RE-DEFINED
+outSAMattrRGline              ID:SAMPLE1_PE_T1   SM:SAMPLE1_PE_T1        ~RE-DEFINED
+outSAMunmapped                Within        ~RE-DEFINED
+sjdbGTFfeatureExon            quant     ~RE-DEFINED
+sjdbGTFtagExonParentTranscriptparent     ~RE-DEFINED
+quantMode                     TranscriptomeSAM        ~RE-DEFINED
+quantTranscriptomeBan         Singleend     ~RE-DEFINED
+limitBAMsortRAM               0     ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runThreadN                        2
+genomeDir                         star
+readFilesIn                       SAMPLE1_PE_T1_1.trim.fastq.gz   SAMPLE1_PE_T1_2.trim.fastq.gz   
+readFilesCommand                  gunzip   -c   
+limitBAMsortRAM                   0
+outFileNamePrefix                 SAMPLE1_PE_T1.
+outSAMtype                        BAM   Unsorted   
+outSAMunmapped                    Within   
+outSAMattrRGline                  ID:SAMPLE1_PE_T1   SM:SAMPLE1_PE_T1   
+sjdbGTFfeatureExon                quant
+sjdbGTFtagExonParentTranscript    parent
+quantMode                         TranscriptomeSAM   
+quantTranscriptomeBan             Singleend
+
+-------------------------------
+##### Final effective command line:
+STAR   --runThreadN 2   --genomeDir star   --readFilesIn SAMPLE1_PE_T1_1.trim.fastq.gz   SAMPLE1_PE_T1_2.trim.fastq.gz      --readFilesCommand gunzip   -c      --limitBAMsortRAM 0   --outFileNamePrefix SAMPLE1_PE_T1.   --outSAMtype BAM   Unsorted      --outSAMunmapped Within      --outSAMattrRGline ID:SAMPLE1_PE_T1   SM:SAMPLE1_PE_T1      --sjdbGTFfeatureExon quant   --sjdbGTFtagExonParentTranscript parent   --quantMode TranscriptomeSAM      --quantTranscriptomeBan Singleend
+----------------------------------------
+
+Number of fastq files for each mate = 1
+
+   Input read files for mate 1 :
+-rw-r--r--    1 root     root        170145 Jan 15 03:31 SAMPLE1_PE_T1_1.trim.fastq.gz
+
+   readsCommandsFile:
+exec > "SAMPLE1_PE_T1._STARtmp/tmp.fifo.read1"
+echo FILE 0
+gunzip   -c      "SAMPLE1_PE_T1_1.trim.fastq.gz"
+
+
+   Input read files for mate 2 :
+-rw-r--r--    1 root     root        170086 Jan 15 03:31 SAMPLE1_PE_T1_2.trim.fastq.gz
+
+   readsCommandsFile:
+exec > "SAMPLE1_PE_T1._STARtmp/tmp.fifo.read2"
+echo FILE 0
+gunzip   -c      "SAMPLE1_PE_T1_2.trim.fastq.gz"
+
+WARNING --outSAMattrRG defines a read group, therefore STAR will output RG attribute
+ParametersSolo: --soloCellFilterType CellRanger2.2 filtering parameters:  3000 0.99 10
+Finished loading and checking parameters
+Reading genome generation parameters:
+### STAR   --runMode genomeGenerate      --runThreadN 2   --genomeDir star/   --genomeFastaFiles host_pathogen_genome.fasta      --genomeSAindexNbases 7   --limitGenomeGenerateRAM 6342450944   --sjdbGTFfile host_pathogen.gff   --sjdbGTFfeatureExon quant   --sjdbGTFtagExonParentTranscript parent
+### GstrandBit=32
+versionGenome                 2.7.4a     ~RE-DEFINED
+genomeType                    Full     ~RE-DEFINED
+genomeFastaFiles              host_pathogen_genome.fasta        ~RE-DEFINED
+genomeSAindexNbases           7     ~RE-DEFINED
+genomeChrBinNbits             18     ~RE-DEFINED
+genomeSAsparseD               1     ~RE-DEFINED
+genomeTransformType           None     ~RE-DEFINED
+genomeTransformVCF            -     ~RE-DEFINED
+sjdbOverhang                  100     ~RE-DEFINED
+sjdbFileChrStartEnd           -        ~RE-DEFINED
+sjdbGTFfile                   host_pathogen.gff     ~RE-DEFINED
+sjdbGTFchrPrefix              -     ~RE-DEFINED
+sjdbGTFfeatureExon            quant     ~RE-DEFINED
+sjdbGTFtagExonParentTranscriptparent     ~RE-DEFINED
+sjdbGTFtagExonParentGene      gene_id     ~RE-DEFINED
+sjdbInsertSave                Basic     ~RE-DEFINED
+genomeFileSizes               525494   303034        ~RE-DEFINED
+Genome version is compatible with current STAR
+Number of real (reference) chromosomes= 2
+1	FQ312003.1	15961	0
+2	chr1	29570	262144
+--sjdbOverhang = 100 taken from the generated genome
+Started loading the genome: Wed Jan 15 03:31:24 2025
+
+Genome: size given as a parameter = 525494
+SA: size given as a parameter = 303034
+SAindex: size given as a parameter = 1
+Read from SAindex: pGe.gSAindexNbases=7  nSAi=21844
+nGenome=525494;  nSAbyte=303034
+GstrandBit=32   SA number of indices=73462
+Shared memory is not used for genomes. Allocated a private copy of the genome.
+Genome file size: 525494 bytes; state: good=1 eof=0 fail=0 bad=0
+Loading Genome ... done! state: good=1 eof=0 fail=0 bad=0; loaded 525494 bytes
+SA file size: 303034 bytes; state: good=1 eof=0 fail=0 bad=0
+Loading SA ... done! state: good=1 eof=0 fail=0 bad=0; loaded 303034 bytes
+Loading SAindex ... done: 95643 bytes
+Finished loading the genome: Wed Jan 15 03:31:24 2025
+
+Processing splice junctions database sjdbN=6,   pGe.sjdbOverhang=100 
+alignIntronMax=alignMatesGapMax=0, the max intron size will be approximately determined by (2^winBinNbits)*winAnchorDistNbins=589824
+Loaded transcript database, nTr=16
+Loaded exon database, nEx=23
+Created thread # 1
+Starting to map file # 0
+mate 1:   SAMPLE1_PE_T1_1.trim.fastq.gz
+mate 2:   SAMPLE1_PE_T1_2.trim.fastq.gz
+Thread #1 end of input stream, nextChar=-1
+Completed: thread #0
+Completed: thread #1
+Joined thread # 1
+ALL DONE!

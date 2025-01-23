@@ -1,0 +1,24 @@
+CUSTOM_DUMPSOFTWAREVERSIONS:
+  python: 3.10.6
+  yaml: '6.0'
+CUTADAPT:
+  cutadapt: '3.4'
+FASTQC:
+  fastqc: 0.11.9
+FASTQC_AFTER_TRIMMING:
+  fastqc: 0.11.9
+SALMON_QUANT:
+  salmon: 1.10.1
+SAMPLESHEET_CHECK:
+  python: 3.8.3
+STAR_ALIGN:
+  gawk: 5.1.0
+  samtools: 1.16.1
+  star: 2.7.9a
+STAR_GENOMEGENERATE:
+  gawk: 5.1.0
+  samtools: 1.16.1
+  star: 2.7.9a
+Workflow:
+  Nextflow: 24.10.3
+  nf-core/dualrnaseq: 2.0dev
