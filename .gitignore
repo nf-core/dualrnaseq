@@ -6,3 +6,4 @@ testing/
 testing*
 *.pyc
 test*
+file.markdown

@@ -1,42 +1,29 @@
 ## `nf-core pipelines lint` overall result: Failed :x:
 
-Posted for pipeline commit 8ffabab
+Posted for pipeline commit ec7020c
 
 ```diff
-+| ✅ 174 tests passed       |+
-!| ❗  25 tests had warnings |!
--| ❌  44 tests failed       |-
++| ✅ 190 tests passed       |+
+!| ❗  19 tests had warnings |!
+-| ❌  29 tests failed       |-
 ```
 
 <details>
 
 ### :x: Test failures:
 
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File must be removed: `lib/NfcoreTemplate.groovy`
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File must be removed: `lib/Utils.groovy`
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File must be removed: `lib/WorkflowMain.groovy`
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File must be removed: `lib/WorkflowDualrnaseq.groovy`
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File must be removed: `lib/nfcore_external_java_deps.jar`
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config variable (incorrectly) found: `params.max_cpus`
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config variable (incorrectly) found: `params.max_memory`
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config variable (incorrectly) found: `params.max_time`
-* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.run_salmon_SA` is set as `true` in `nextflow_schema.json` but is `false` in `nextflow.config`.
-* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.run_salmon_AB` is set as `false` in `nextflow_schema.json` but is `true` in `nextflow.config`.
+* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.max_cpus` is set as `16` in `nextflow_schema.json` but is `2` in `nextflow.config`.
+* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.max_memory` is set as `128.GB` in `nextflow_schema.json` but is `6.GB` in `nextflow.config`.
+* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.max_time` is set as `240.h` in `nextflow_schema.json` but is `6.h` in `nextflow.config`.
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value incorrect: `params.tracedir` is set as `${params.outdir}/pipeline_info` in `nextflow_schema.json` but is `null/pipeline_info` in `nextflow.config`.
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `CODE_OF_CONDUCT.md` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/CONTRIBUTING.md` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/ISSUE_TEMPLATE/bug_report.yml` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/PULL_REQUEST_TEMPLATE.md` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/branch.yml` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/linting_comment.yml` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/linting.yml` does not match the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `assets/email_template.html` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `assets/email_template.txt` does not match the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `assets/nf-core-dualrnaseq_logo_light.png` does not match the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `docs/images/nf-core-dualrnaseq_logo_light.png` does not match the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `docs/images/nf-core-dualrnaseq_logo_dark.png` does not match the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.gitignore` does not match the template
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.prettierignore` does not match the template
 * [actions_awsfulltest](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/actions_awsfulltest) - `.github/workflows/awsfulltest.yml` is not triggered correctly
 * [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Param `host_gff_attribute` from `nextflow config` not found in nextflow_schema.json
 * [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Param `gene_feature_gff_to_quantify_host` from `nextflow config` not found in nextflow_schema.json
@@ -53,19 +40,15 @@ Posted for pipeline commit 8ffabab
 * [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Param `limitBAMsortRAM` from `nextflow config` not found in nextflow_schema.json
 * [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Param `schema_ignore_params` from `nextflow config` not found in nextflow_schema.json
 * [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Param `fasta` from `nextflow config` not found in nextflow_schema.json
-* [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Default value for param `run_salmon_SA` invalid: Schema default (`True`) does not match the config default (`false`)
-* [schema_params](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/schema_params) - Default value for param `run_salmon_AB` invalid: Schema default (`False`) does not match the config default (`true`)
 * [multiqc_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/multiqc_config) - `assets/multiqc_config.yml` does not contain a matching 'report_comment'.  
 The expected comment is:  
 ```This report has been generated by the <a href="https://github.com/nf-core/dualrnaseq/tree/dev" target="_blank">nf-core/dualrnaseq</a> analysis pipeline. For information about how to interpret these results, please see the <a href="https://nf-co.re/dualrnaseq/dev/docs/output" target="_blank">documentation</a>.```  
 The current comment is:  
-```This report has been generated by the <a href="https://github.com/nf-core/dualrnaseq" target="_blank">nf-core/dualrnaseq</a> analysis pipeline. For information about how to interpret these results, please see the <a href="https://nf-co.re/dualrnaseq" target="_blank">documentation</a>.```
+```This report has been generated by the <a href="https://github.com/nf-core/dualrnaseq/tree/dev" target="_blank">nf-core/dualrnaseq</a> analysis pipeline. For information about how to interpret these results, please see the <a href="https://nf-co.re/dualrnaseq/dev/docs/output" target="_blank">documentation</a>```
 
 ### :heavy_exclamation_mark: Test warnings:
 
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found: `conf/igenomes_ignored.config`
-* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found: `ro-crate-metadata.json`
-* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `LICENSE` does not match the template
 * [readme](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/readme) - README contains the placeholder `zenodo.XXXXXXX`. This should be replaced with the zenodo doi (after the first release).
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `README.md`: _Write a 1-2 sentence summary of what data the pipeline is for and what it does_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `README.md`: _Add full-sized test dataset and amend the paragraph below if applicable_
@@ -74,20 +57,16 @@ The current comment is:
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `README.md`: _If applicable, make list of people who have also contributed_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `README.md`: _Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file._
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `README.md`: _Add bibliography of tools and data used in your pipeline_
+* [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `ro-crate-metadata.json`: _"description": "<h1>\n  <picture>\n    <source media=\"(prefers-color-scheme: dark)\" srcset=\"docs/images/nf-core-dualrnaseq_logo_dark.png\">\n    <img alt=\"nf-core/dualrnaseq\" src=\"docs/images/nf-core-dualrnaseq_logo_light.png\">\n  </picture>\n</h1>\n\n[![GitHub Actions CI Status](https://github.com/nf-core/dualrnaseq/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/dualrnaseq/actions/workflows/ci.yml)\n[![GitHub Actions Linting Status](https://github.com/nf-core/dualrnaseq/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/dualrnaseq/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/dualrnaseq/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)\n[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)\n\n[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A524.04.2-23aa62.svg)](https://www.nextflow.io/)\n[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)\n[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)\n[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)\n[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://cloud.seqera.io/launch?pipeline=https://github.com/nf-core/dualrnaseq)\n\n[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23dualrnaseq-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/dualrnaseq)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)\n\n## Introduction\n\n**nf-core/dualrnaseq** is a bioinformatics pipeline that ...\n\n TODO nf-core:\n   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the\n   major pipeline sections and the types of output it produces. You're giving an overview to someone new\n   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction\n\n\n Include a figure that guides the user through the major workflow steps. Many nf-core\n     workflows use the \"tube map\" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   \n Fill in short bullet-pointed list of the default steps in the pipeline 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))\n\n## Usage\n\n> [!NOTE]\n> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.\n\n Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.\n     Explain what rows and columns represent. For instance (please edit as appropriate):\n\nFirst, prepare a samplesheet with your input data that looks as follows:\n\n`samplesheet.csv`:\n\n```csv\nsample,fastq_1,fastq_2\nCONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz\n```\n\nEach row represents a fastq file (single-end) or a pair of fastq files (paired end).\n\n\n\nNow, you can run the pipeline using:\n\n update the following command to include all required parameters for a minimal example \n\n```bash\nnextflow run nf-core/dualrnaseq \\\n   -profile <docker/singularity/.../institute> \\\n   --input samplesheet.csv \\\n   --outdir <OUTDIR>\n```\n\n> [!WARNING]\n> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).\n\nFor more details and further functionality, please refer to the [usage documentation](https://nf-co.re/dualrnaseq/usage) and the [parameter documentation](https://nf-co.re/dualrnaseq/parameters).\n\n## Pipeline output\n\nTo see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/dualrnaseq/results) tab on the nf-core website pipeline page.\nFor more details about the output files and reports, please refer to the\n[output documentation](https://nf-co.re/dualrnaseq/output).\n\n## Credits\n\nnf-core/dualrnaseq was originally written by author_field.\n\nWe thank the following people for their extensive assistance in the development of this pipeline:\n\n If applicable, make list of people who have also contributed \n\n## Contributions and Support\n\nIf you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).\n\nFor further information or help, don't hesitate to get in touch on the [Slack `#dualrnaseq` channel](https://nfcore.slack.com/channels/dualrnaseq) (you can join with [this invite](https://nf-co.re/join/slack)).\n\n## Citations\n\n Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. \n If you use nf-core/dualrnaseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) \n\n Add bibliography of tools and data used in your pipeline \n\nAn extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.\n\nYou can cite the `nf-core` publication as follows:\n\n> **The nf-core framework for community-curated bioinformatics pipelines.**\n>\n> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.\n>\n> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).\n",_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `methods_description_template.yml`: _#Update the HTML below to your prefered methods description, e.g. add publication citation for this pipeline_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `base.config`: _Check the defaults for all processes_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `base.config`: _Customise requirements for specific processes._
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `ci.yml`: _You can customise CI pipeline run tests as required_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `awsfulltest.yml`: _You can customise AWS full pipeline tests as required_
-* [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `WorkflowMain.groovy`: _Add Zenodo DOI for pipeline after first release_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `usage.md`: _Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website._
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `output.md`: _Write this documentation describing your workflow's output_
 * [pipeline_todos](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/pipeline_todos) - TODO string in `dualrnaseq.nf`: _Add all file path parameters for the pipeline to the list below_
-* [system_exit](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/system_exit) - `System.exit` in WorkflowDualrnaseq.groovy: _//     System.exit(1)_  [line 18]
-* [system_exit](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/system_exit) - `System.exit` in WorkflowDualrnaseq.groovy: _System.exit(1)_  [line 74]
-* [system_exit](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/system_exit) - `System.exit` in WorkflowMain.groovy: _System.exit(1)_  [line 85]
 * [system_exit](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/system_exit) - `System.exit` in NfcoreSchema.groovy: _System.exit(1)_  [line 180]
-* [nfcore_yml](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nfcore_yml) - nf-core version not set in `.nf-core.yml`
 
 ### :white_check_mark: Tests passed:
 
@@ -134,6 +113,7 @@ The current comment is:
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File found: `.github/workflows/awstest.yml`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File found: `.github/workflows/awsfulltest.yml`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File found: `modules.json`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File found: `ro-crate-metadata.json`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `.github/ISSUE_TEMPLATE/bug_report.md`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `.github/ISSUE_TEMPLATE/feature_request.md`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `.github/workflows/push_dockerhub.yml`
@@ -145,10 +125,15 @@ The current comment is:
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `docs/images/nf-core-dualrnaseq_logo.png`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/Checks.groovy`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/Completion.groovy`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/NfcoreTemplate.groovy`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/Utils.groovy`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/Workflow.groovy`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/WorkflowMain.groovy`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/WorkflowDualrnaseq.groovy`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `parameters.settings.json`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `pipeline_template.yml`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `Singularity`
+* [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `lib/nfcore_external_java_deps.jar`
 * [files_exist](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_exist) - File not found check: `.travis.yml`
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config variable found: `manifest.name`
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config variable found: `manifest.nextflowVersion`
@@ -193,25 +178,34 @@ The current comment is:
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.gene_feature_gff_to_create_transcriptome_pathogen= ['gene', 'sRNA', 'tRNA', 'rRNA']
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.gene_attribute_gff_to_create_transcriptome_host= transcript_id
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.gene_attribute_gff_to_create_transcriptome_pathogen= locus_tag
+* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.run_salmon_SA= true
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.salmon_sa_index_args= -k 21
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.salmon_sa_args= --softclipOverhangs
+* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.run_salmon_AB= false
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.run_star= false
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.run_htseq= false
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.custom_config_version= master
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.custom_config_base= https://raw.githubusercontent.com/nf-core/configs/master
-* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.max_cpus= 16
-* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.max_memory= 128.GB
-* [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.max_time= 240.h
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.publish_dir_mode= copy
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.max_multiqc_email_size= 25.MB
 * [nextflow_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nextflow_config) - Config default value correct: params.validate_params= true
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.gitattributes` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.prettierrc.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `CODE_OF_CONDUCT.md` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `LICENSE` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/.dockstore.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/CONTRIBUTING.md` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/ISSUE_TEMPLATE/bug_report.yml` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/ISSUE_TEMPLATE/config.yml` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/ISSUE_TEMPLATE/feature_request.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/PULL_REQUEST_TEMPLATE.md` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/branch.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/linting_comment.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.github/workflows/linting.yml` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `assets/email_template.txt` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `assets/sendmail_template.txt` matches the template
 * [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `docs/README.md` matches the template
+* [files_unchanged](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/files_unchanged) - `.prettierignore` matches the template
 * [actions_ci](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/actions_ci) - '.github/workflows/ci.yml' is triggered on expected events
 * [actions_ci](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/actions_ci) - '.github/workflows/ci.yml' checks minimum NF version
 * [actions_awstest](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/actions_awstest) - '.github/workflows/awstest.yml' is triggered correctly
@@ -265,10 +259,11 @@ The current comment is:
 * [modules_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/modules_config) - `CUTADAPT` found in `conf/modules.config` and Nextflow scripts.
 * [modules_config](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/modules_config) - `CUSTOM_DUMPSOFTWAREVERSIONS` found in `conf/modules.config` and Nextflow scripts.
 * [nfcore_yml](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nfcore_yml) - Repository type in `.nf-core.yml` is valid: `pipeline`
+* [nfcore_yml](https://nf-co.re/tools/docs/3.1.2/pipeline_lint_tests/nfcore_yml) - nf-core version in `.nf-core.yml` is set to the latest version: `3.1.2`
 
 ### Run details
 
 * nf-core/tools version 3.1.2
-* Run at `2025-01-23 14:43:24`
+* Run at `2025-01-23 15:30:58`
 
 </details>
