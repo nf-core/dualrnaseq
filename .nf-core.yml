@@ -1,1 +1,15 @@
 repository_type: pipeline
+
+nf_core_version: 3.1.2
+
+lint: {}
+
+template:
+  org: nf-core
+  name: dualrnaseq
+  description: DualRNA-seq pipeline for the analysis of bacterial and host transcriptomes
+  author: author_field
+  version: 1.0.0
+  force: true
+  outdir: .
+  is_nfcore: true
