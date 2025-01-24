@@ -52,8 +52,7 @@ workflow PREPARE_REFERENCE_FILES{
     ch_gene_feature_pathogen = Channel
 	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
 	    .collect()
-    
-    
+
 
 
 
