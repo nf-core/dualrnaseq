@@ -8,18 +8,18 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
 
 
   main:
-    
-        // Create host transcriptome using GFFREAD 
+
+        // Create host transcriptome using GFFREAD
         CREATE_TRANSCRIPTOME_FASTA_GFFREAD(
             uncompressed_fasta_genome,
             uncompressed_gff_host
-        )  
+        )
 
         // Store out file
         ch_transcriptome = CREATE_TRANSCRIPTOME_FASTA_GFFREAD.out
 
-        
- emit:
+
+  emit:
       transcriptome = ch_transcriptome
 
 

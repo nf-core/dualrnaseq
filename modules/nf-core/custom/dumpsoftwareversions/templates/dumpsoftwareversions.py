@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
-
 """Provide functions to merge multiple versions.yml files."""
-
 
 import platform
 from textwrap import dedent
-
 import yaml
 
 
@@ -59,18 +56,21 @@ def main():
     }
 
     with open("$versions") as f:
-        versions_by_process = yaml.load(f, Loader=yaml.BaseLoader) | versions_this_module
+        versions_by_process = yaml.load(f, Loader=yaml.BaseLoader)
+        versions_by_process = versions_by_process | versions_this_module
 
-    # aggregate versions by the module name (derived from fully-qualified process name)
+    # aggregate versions by the module name
+    # (derived from fully-qualified process name)
     versions_by_module = {}
     for process, process_versions in versions_by_process.items():
         module = process.split(":")[-1]
         try:
             if versions_by_module[module] != process_versions:
                 raise AssertionError(
-                    "We assume that software versions are the same between all modules. "
-                    "If you see this error-message it means you discovered an edge-case "
-                    "and should open an issue in nf-core/tools. "
+                    "We assume that software versions are the same between"
+                    "all modules. If you see this error-message it means you"
+                    "discovered an edge-case and should open an issue "
+                    "in nf-core/tools. "
                 )
         except KeyError:
             versions_by_module[module] = process_versions

@@ -76,35 +76,6 @@ workflow PIPELINE_INITIALISATION {
     .fromPath(params.input)
     .set { ch_input_csv }
 
-    // Channel
-    // .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-    // .map { meta, fastq_1, fastq_2 ->
-    //     // Debug statements
-    //     log.debug "Raw meta type: ${meta.getClass()}"
-    //     log.debug "Raw meta: ${meta}"
-        
-    //     // Convert meta to map if it's a string
-    //     def metaMap = meta instanceof String ? [sample: meta] : meta
-        
-    //     def sampleMeta = [:]
-    //     sampleMeta.id = metaMap.sample ?: error("No sample field in meta: ${metaMap}")
-    //     sampleMeta.single_end = !fastq_2
-
-    //     if (!fastq_2) {
-    //         return [ sampleMeta.id, sampleMeta, [ fastq_1 ] ]
-    //     } else {
-    //         return [ sampleMeta.id, sampleMeta, [ fastq_1, fastq_2 ] ]
-    //     }
-    // }
-    // .groupTuple()
-    // .map { samplesheet ->
-    //     validateInputSamplesheet(samplesheet)
-    // }
-    // .map { meta, fastqs ->
-    //     return [ meta, fastqs.flatten() ]
-    // }
-    // .set { ch_samplesheet }
-
     emit:
     samplesheet = ch_input_csv //ch_samplesheet
     versions    = ch_versions
@@ -274,4 +245,3 @@ def methodsDescriptionText(mqc_methods_yaml) {
 
     return description_html.toString()
 }
-
