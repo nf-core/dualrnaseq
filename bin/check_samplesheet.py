@@ -141,27 +141,20 @@ def read_head(handle, num_lines=10):
 
 
 def sniff_format(handle):
-    """
-    Detect the tabular format.
-
-    Args:
-        handle (text file): A handle to a `text file`_ object. The read position is
-        expected to be at the beginning (index 0).
-
-    Returns:
-        csv.Dialect: The detected tabular format.
-
-    .. _text file:
-        https://docs.python.org/3/glossary.html#term-text-file
-
-    """
+    """Detect the tabular format with enhanced error handling."""
     peek = read_head(handle)
     handle.seek(0)
     sniffer = csv.Sniffer()
+    
+    try:
+        dialect = sniffer.sniff(peek)
+    except csv.Error:
+        logger.warning("Could not auto-detect delimiter, defaulting to comma")
+        dialect = csv.excel  # Default to comma-separated
+    
     if not sniffer.has_header(peek):
         logger.critical("The given sample sheet does not appear to contain a header.")
         sys.exit(1)
-    dialect = sniffer.sniff(peek)
     return dialect
 
 
@@ -192,17 +185,27 @@ def check_samplesheet(file_in, file_out):
 
     """
     required_columns = {"sample", "fastq_1", "fastq_2"}
+    
+    # Debug input file
+    logger.debug(f"Reading samplesheet: {file_in}")
+    
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
-        reader = csv.DictReader(in_handle, dialect=sniff_format(in_handle))
+        reader = csv.DictReader(in_handle, delimiter=',')
+        
         # Validate the existence of the expected header columns.
         if not required_columns.issubset(reader.fieldnames):
             req_cols = ", ".join(required_columns)
             logger.critical(f"The sample sheet **must** contain these column headers: {req_cols}.")
             sys.exit(1)
+            
         # Validate each row.
         checker = RowChecker()
         for i, row in enumerate(reader):
+            # Ensure empty string for missing fastq_2
+            if not row['fastq_2']:
+                row['fastq_2'] = ''
+
             try:
                 checker.validate_and_transform(row)
             except AssertionError as error:

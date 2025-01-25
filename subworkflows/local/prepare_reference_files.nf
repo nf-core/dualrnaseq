@@ -15,7 +15,7 @@ include {
 include {
     REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
     REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
- } from '../../modules/local/replace_gene_feature'
+} from '../../modules/local/replace_gene_feature'
 
 include {
     // COMBINE_FILES as COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ;
@@ -52,8 +52,7 @@ workflow PREPARE_REFERENCE_FILES{
     ch_gene_feature_pathogen = Channel
 	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
 	    .collect()
-    
-    
+
 
 
 
@@ -65,7 +64,7 @@ workflow PREPARE_REFERENCE_FILES{
     ch_host_fasta_genome = Channel.value(file(params.host_fasta_genome, checkIfExists: true))
     ch_host_gff = Channel.value(file(params.host_gff, checkIfExists: true))
     ch_pathogen_gff = Channel.value(file(params.pathogen_gff, checkIfExists: true))
-    ch_pathogen_fasta_genome = Channel.value(file(params.pathogen_fasta_genome, checkIfExists: true)) 
+    ch_pathogen_fasta_genome = Channel.value(file(params.pathogen_fasta_genome, checkIfExists: true))
 
     // Uncompress pathogen (genome) fasta if needed
     if (params.pathogen_fasta_genome.endsWith('.gz') || params.pathogen_fasta_genome.endsWith('.zip')){
@@ -113,10 +112,10 @@ workflow PREPARE_REFERENCE_FILES{
 
     // Salmon SA or Salmon AB (transcriptome-based)
     if(params.run_salmon_SA | params.run_salmon_AB) {
-      
-      // HOST - Has a host transcriptome (fasta) been passed? 
+
+      // HOST - Has a host transcriptome (fasta) been passed?
       if(params.host_fasta_transcripts){
-          
+
           // Grab the host transcriptome file
           ch_host_fasta_transcripts  = params.host_fasta_transcripts ? Channel.value(file(params.host_fasta_transcripts, checkIfExists: true )) : Channel.empty()
 
@@ -129,7 +128,7 @@ workflow PREPARE_REFERENCE_FILES{
           }
 
       } else {
-      // No host transcriptome passed - prepare      
+      // No host transcriptome passed - prepare
       PREPARE_HOST_TRANSCRIPTOME(
         ch_host_fasta_genome_unzipped,
         ch_host_gff_unzipped,
@@ -137,12 +136,12 @@ workflow PREPARE_REFERENCE_FILES{
       ch_host_fasta_transcripts_unzipped = PREPARE_HOST_TRANSCRIPTOME.out.transcriptome
       }
 
-      // PATHOGEN - Has a pathogen transcriptome (fasta) been passed? 
+      // PATHOGEN - Has a pathogen transcriptome (fasta) been passed?
       if(params.pathogen_fasta_transcripts){
-          
+
           // Grab the transcriptome file
           ch_pathogen_fasta_transcripts  = params.pathogen_fasta_transcripts ? Channel.value(file( params.pathogen_fasta_transcripts, checkIfExists: true )) : Channel.empty()
-          
+
           // Uncompress if needed
           if (params.pathogen_fasta_transcripts.endsWith('.gz') || params.pathogen_fasta_transcripts.endsWith('.zip')){
                     UNCOMPRESS_PATHOGEN_TRANSCRIPTOME(ch_pathogen_fasta_transcripts)
@@ -150,9 +149,9 @@ workflow PREPARE_REFERENCE_FILES{
           } else {
                     ch_pathogen_fasta_transcripts_unzipped = ch_pathogen_fasta_transcripts
           }
-        
+
         } else {
-          // No host transcriptome passed - prepare   
+          // No host transcriptome passed - prepare
           PREPARE_PATHOGEN_TRANSCRIPTOME(
             ch_pathogen_fasta_transcripts_unzipped,
             ch_pathogen_gff_unzipped
@@ -171,9 +170,9 @@ workflow PREPARE_REFERENCE_FILES{
 
 
       // --------------
-      // Replace attributes in the reference files 
+      // Replace attributes in the reference files
       // --------------
-    
+
       // ---
       // HOST
       // ---
@@ -191,15 +190,13 @@ workflow PREPARE_REFERENCE_FILES{
       // since the input file is from replace attribute, this resulting file now has both
       // gene attribute and gene feature changed. This is useful as the host and pathogen
       // annotations may have different identifiers, such as locus_tag for bacteria and gene_id
-      // for human/mouse - and when combining these annotations we want to have common a 
+      // for human/mouse - and when combining these annotations we want to have common a
       // naming convention in the final file
       ch_host_genome_gff_salmon_sa = REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST.out
       REPLACE_GENE_FEATURE_GFF_HOST_SALMON(
                     ch_host_genome_gff_salmon_sa,
                     params.gene_feature_gff_to_create_transcriptome_host
       )
-
-          
 
       // ---
       // PATHOGEN
@@ -225,13 +222,12 @@ workflow PREPARE_REFERENCE_FILES{
             ch_gene_feature_pathogen
       )
 
-          
 
 
       // ---
       // COMBINED
       // ---
-      
+
       // Combine gff files with replaced features and save
       COMBINE_FILES_PATHOGEN_HOST_GFF(
             REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON.out,
@@ -240,7 +236,6 @@ workflow PREPARE_REFERENCE_FILES{
       )
 
 
-      
       // ---
       // Extracting the GFF annotations into a .tsv file for downstream analysis
       // ---

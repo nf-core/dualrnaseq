@@ -20,10 +20,10 @@ workflow PREPARE_PATHOGEN_TRANSCRIPTOME {
                 uncompressed_fasta_genome,
                 uncompressed_gff,
                 parameters
-       )
+        )
 
-       ch_transcriptome = CREATE_TRANSCRIPTOME_FASTA.out
-    
+    ch_transcriptome = CREATE_TRANSCRIPTOME_FASTA.out
+
 
     emit:
         transcriptome = ch_transcriptome
