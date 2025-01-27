@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/dualrnaseq/master/nextflow_schema.json",
     "title": "nf-core/dualrnaseq pipeline parameters",
-    "description": "Dual RNA-seq pipeline",
+    "description": "DualRNA-seq pipeline for the analysis of bacterial and host transcriptomes",
     "type": "object",
     "$defs": {
         "input_output_options": {

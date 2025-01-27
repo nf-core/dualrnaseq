@@ -76,7 +76,7 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/dualrnaseq was originally written by Bozena Mika-Gospodorz and Regan Hayward.
+nf-core/dualrnaseq was originally written by author_field.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
