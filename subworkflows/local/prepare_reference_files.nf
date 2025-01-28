@@ -42,8 +42,8 @@ include { PREPARE_PATHOGEN_TRANSCRIPTOME  } from './prepare_pathogen_transcripto
 include {
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
-    //EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
-    //EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
 } from '../../modules/local/extract_annotations'
 
 
@@ -266,7 +266,7 @@ workflow PREPARE_REFERENCE_FILES{
                 REPLACE_GENE_FEATURE_GFF_HOST_SALMON.out,
                 'quant',
                 'parent',
-                params.host_organism,
+                'host',
                 'salmon'
       )
 
@@ -275,7 +275,7 @@ workflow PREPARE_REFERENCE_FILES{
               REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN.out,
               ch_gene_feature_pathogen,
               "parent",
-              params.pathogen_organism,
+              'pathogen',
               'salmon'
         )
 
@@ -326,6 +326,33 @@ workflow PREPARE_REFERENCE_FILES{
         REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
         "host_pathogen_genes.gff"
       )
+
+
+      // ---
+      // Extracting the GFF annotations into a .tsv file for downstream analysis
+      // ---
+
+      //---
+      // HTSeq
+      //---
+
+      // Extract host features
+      EXTRACT_ANNOTATIONS_HOST_HTSEQ (
+                REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+                'quant',
+                'gene_id',
+                'host',
+                'htseq'
+      )
+
+      // Extract pathogen featues
+      EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
+              REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
+              'quant',
+              "locus_tag",
+              'pathogen',
+              'htseq'
+        )
     }
 
 
@@ -339,5 +366,7 @@ workflow PREPARE_REFERENCE_FILES{
       host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+      annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations // extracted_annotations_host_htseq.tsv
+      annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations // extracted_annotations_pathogen_htseq.tsv
     }
 
