@@ -7,14 +7,20 @@ include {
     UNZIPFILES as UNCOMPRESS_PATHOGEN_TRANSCRIPTOME
 } from '../../modules/nf-core/unzipfiles/main'
 
+// These replace the attributes in the 9th column on the GFF file
+// For example, locus_tag with transcript_id, transcript_id with parent
 include {
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN;
 } from '../../modules/local/replace_attribute'
 
+
+// These replace the gene feature in the 3rd column on the GFF file
 include {
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
 } from '../../modules/local/replace_gene_feature'
 
 include {
@@ -28,11 +34,14 @@ include {
 include { PREPARE_HOST_TRANSCRIPTOME      } from './prepare_host_transcriptome'
 include { PREPARE_PATHOGEN_TRANSCRIPTOME  } from './prepare_pathogen_transcriptome'
 
+
+
+// These extract files into .tsv for users to use for downstream analysis of their own
 include {
-    // EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
-    // EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
-    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
+    //EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
+    //EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
 } from '../../modules/local/extract_annotations'
 
 
@@ -110,6 +119,10 @@ workflow PREPARE_REFERENCE_FILES{
     //
 
 
+    // -------------------
+    // Salmon SA and AB
+    // -------------------
+
     // Salmon SA or Salmon AB (transcriptome-based)
     if(params.run_salmon_SA | params.run_salmon_AB) {
 
@@ -166,6 +179,8 @@ workflow PREPARE_REFERENCE_FILES{
         ch_host_fasta_transcripts_unzipped,ch_pathogen_fasta_transcripts_unzipped,'host_pathogen_transcripts.fasta'
       )
       ch_combined_fasta_transcripts = COMBINE_FILES_TRANSCRIPTOME_FILES.out
+
+
 
 
 
@@ -259,9 +274,28 @@ workflow PREPARE_REFERENCE_FILES{
         )
 
 
-
-
     } // end --> if(params.run_salmon_SA | params.run_salmon_AB) {
+
+    if(params.run_htseq) {
+
+      REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
+        COMBINE_HOST_GFF_FILES.out,
+        params.gene_feature_gff_to_quantify_host
+      )
+
+      REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN(
+        ch_gff_pathogen_unzipped,
+        params.host_gff_attribute,
+        params.pathogen_gff_attribute
+      )
+
+      COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
+        REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+        REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN.out,
+        "host_pathogen_htseq.gff"
+      )
+    }
+  
 
 
     emit:

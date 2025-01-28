@@ -1,4 +1,4 @@
-process HTSEQ {
+process HTSEQ_COUNT {
     tag "$meta.id"
     label 'process_high'
 
