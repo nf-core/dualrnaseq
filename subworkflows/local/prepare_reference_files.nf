@@ -364,8 +364,10 @@ workflow PREPARE_REFERENCE_FILES{
       pathogen_fasta_transcripts = ch_pathogen_fasta_transcripts_unzipped
       host_pathogen_genes_gff =       COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out // 'host_pathogen_genes.gff'
       host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
+      // Salmon
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+      // HTSeq
       annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations // extracted_annotations_host_htseq.tsv
       annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations // extracted_annotations_pathogen_htseq.tsv
     }
