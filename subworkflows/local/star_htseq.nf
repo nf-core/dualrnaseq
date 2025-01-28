@@ -38,15 +38,14 @@ workflow STAR_HTSEQ {
         // -------
         // Run HTSeq-count
         // -------
-        // if ( params.run_htseq ) {
+        if ( params.run_htseq ) {
 
-        //     HTSEQ_COUNT (
-        //         STAR_ALIGN.out.bam_sorted
-
-        //         ch_gtf
-        //         )
-        //     ch_versions = ch_versions.mix(HTSEQ_COUNT.out.versions.first())
-        // }
+            HTSEQ_COUNT (
+                STAR_ALIGN.out.bam_sorted,
+                ch_host_pathogen_gff
+                )
+            ch_versions = ch_versions.mix(HTSEQ_COUNT.out.versions.first())
+        }
 
 
 

@@ -7,21 +7,16 @@ process HTSEQ_COUNT {
         'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py38h7a2e8c7_0' :
         'quay.io/biocontainers/htseq:2.0.2--py38h7a2e8c7_0' }"
 
+    // Note:
+    // creating separate module here as the nf-core one asks fo a bam index, which isnt required.
+    // also the naming convensions of input and outputs could be clearer.
 
     input:
-    tuple val(meta), path(st)
+    tuple val(meta), path(bam)
     path(gff)
-	val(host_attribute)
-    val(stranded)
-    // tuple val(meta), path(gff)
-	// val(sample_name), path(st)
-	// val(host_attribute)
-	// val(stranded)
-    // val(quantifier)
 
     output:
-	//tuple val(meta), path("*_count.txt"), emit: counts
-    tuple val(meta), path("*_count.txt"), emit: results
+    tuple val(meta), path("*_counts.txt"), emit: counts
     path("versions.yml"), emit: versions
 
     when:
@@ -29,23 +24,28 @@ process HTSEQ_COUNT {
 
     script:
     def args = task.ext.args ?: ''
-	//def output_file = sample_name + "_count.txt"
-    def output_file = meta.id + "_count.txt"
+    def output_file = meta.id + "_counts.txt"
     """
-	htseq-count  \\
-        -n ${task.cpus}  \\
-        -t quant  \\
-        -f bam  \\
-        -r pos $st $gff  \\
-        -i $host_attribute  \\
-        -s $stranded  \\
-        --max-reads-in-buffer=${params.max_reads_in_buffer}  \\
-        -a ${params.minaqual}  \\
-        ${params.htseq_params}  \\
-        $args  \\
-        > $output_file
+	htseq-count \\
+        -r pos \\
+        -t quant \\
+        -i locus_tag \\
+        ${args} \\
+        ${bam} \\
+        ${gff} \\
+        > ${output_file}
 
-	sed -i '1{h;s/.*/'"$meta.id"'/;G}' "$output_file"
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        htseq-count: \$( htseq-count --help | grep -i version | tail -n 1 | cut -d' ' -f2 )
+    END_VERSIONS
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
