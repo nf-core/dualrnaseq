@@ -109,7 +109,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
-            PREPARE_REFERENCE_FILES.out.host_pathogen_gff,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
             PREPARE_REFERENCE_FILES.out.pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon
@@ -124,7 +124,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
-            PREPARE_REFERENCE_FILES.out.host_pathogen_gff,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
             PREPARE_REFERENCE_FILES.out.pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon
@@ -138,7 +138,7 @@ workflow DUALRNASEQ {
         STAR_ALIGNMENT (
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
-            PREPARE_REFERENCE_FILES.out.host_pathogen_gff
+            PREPARE_REFERENCE_FILES.out.host_pathogen_genes_gff
         )
         }
 
