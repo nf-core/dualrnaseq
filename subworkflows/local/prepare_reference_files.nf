@@ -340,7 +340,7 @@ workflow PREPARE_REFERENCE_FILES{
       EXTRACT_ANNOTATIONS_HOST_HTSEQ (
                 REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
                 'quant',
-                'gene_id',
+                params.host_gff_gene_attribute,
                 'host',
                 'htseq'
       )
@@ -349,7 +349,7 @@ workflow PREPARE_REFERENCE_FILES{
       EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
               REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
               'quant',
-              "locus_tag",
+              params.pathogen_gff_gene_attribute,
               'pathogen',
               'htseq'
         )
