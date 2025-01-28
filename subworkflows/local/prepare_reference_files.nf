@@ -297,15 +297,15 @@ workflow PREPARE_REFERENCE_FILES{
       // Replaces selected feature in 3rd colun with quant
       REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
         ch_host_gff_unzipped,
-        params.host_gff_gene_feature_to_count
+        params.hts_host_gff_gene_feature_to_count // Default: ["gene"]
       )
 
       // Replaces attribute in 9th column with the pathogen attribute
       // making the combined GFF compatable with counting tools
       REPLACE_ATTRIBUTE_GFF_HTSEQ_HOST(
         REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
-        params.host_gff_gene_attribute, // host attribute to change
-        params.pathogen_gff_gene_attribute // pathogen attribute to change to and match
+        params.hts_host_gff_gene_attribute, // host attribute to change // Default: gene_id
+        params.hts_pathogen_gff_gene_attribute // pathogen attribute to change to and match. // default: locus_tag
       )
 
       //----
@@ -315,7 +315,7 @@ workflow PREPARE_REFERENCE_FILES{
       // Replaces selected feature in 3rd colun with quant
       REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ(
         ch_pathogen_gff_unzipped,
-        params.pathogen_gff_gene_feature_to_count // pathogen feature/s to change
+        params.hts_pathogen_gff_gene_feature_to_count // pathogen feature/s to change. Default: ["gene", "sRNA", "tRNA", "rRNA"]
       )
 
       //----
@@ -339,8 +339,8 @@ workflow PREPARE_REFERENCE_FILES{
       // Extract host features
       EXTRACT_ANNOTATIONS_HOST_HTSEQ (
                 REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
-                'quant',
-                params.host_gff_gene_attribute,
+                params.hts_gene_feature, // Default: quant
+                params.hts_host_gff_gene_attribute, // Default: gene_id
                 'host',
                 'htseq'
       )
@@ -348,8 +348,8 @@ workflow PREPARE_REFERENCE_FILES{
       // Extract pathogen featues
       EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
               REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
-              'quant',
-              params.pathogen_gff_gene_attribute,
+              params.hts_gene_feature, // Default: quant
+              params.hts_pathogen_gff_gene_attribute, // default: locus_tag
               'pathogen',
               'htseq'
         )

@@ -27,9 +27,6 @@ process HTSEQ_COUNT {
     def output_file = meta.id + "_counts.txt"
     """
 	htseq-count \\
-        -r pos \\
-        -t quant \\
-        -i locus_tag \\
         ${args} \\
         ${bam} \\
         ${gff} \\
