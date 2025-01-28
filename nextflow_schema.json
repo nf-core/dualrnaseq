@@ -188,7 +188,7 @@
                 },
                 "gene_feature_gff_to_create_transcriptome_host": {
                     "type": "string",
-                    "default": ["exon", "tRNA"],
+                    "default": ["exon"],
                     "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host",
                     "fa_icon": "fas fa-sliders-h"
                 },
