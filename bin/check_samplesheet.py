@@ -145,13 +145,13 @@ def sniff_format(handle):
     peek = read_head(handle)
     handle.seek(0)
     sniffer = csv.Sniffer()
-    
+
     try:
         dialect = sniffer.sniff(peek)
     except csv.Error:
         logger.warning("Could not auto-detect delimiter, defaulting to comma")
         dialect = csv.excel  # Default to comma-separated
-    
+
     if not sniffer.has_header(peek):
         logger.critical("The given sample sheet does not appear to contain a header.")
         sys.exit(1)
@@ -185,20 +185,20 @@ def check_samplesheet(file_in, file_out):
 
     """
     required_columns = {"sample", "fastq_1", "fastq_2"}
-    
+
     # Debug input file
     logger.debug(f"Reading samplesheet: {file_in}")
-    
+
     # See https://docs.python.org/3.9/library/csv.html#id3 to read up on `newline=""`.
     with file_in.open(newline="") as in_handle:
         reader = csv.DictReader(in_handle, delimiter=',')
-        
+
         # Validate the existence of the expected header columns.
         if not required_columns.issubset(reader.fieldnames):
             req_cols = ", ".join(required_columns)
             logger.critical(f"The sample sheet **must** contain these column headers: {req_cols}.")
             sys.exit(1)
-            
+
         # Validate each row.
         checker = RowChecker()
         for i, row in enumerate(reader):
