@@ -1,0 +1,12 @@
+##gff-version 3
+#description: evidence-based annotation of the human genome (GRCh38), version 43 (Ensembl 109) - tRNAs (tRNAscan predictions)
+#provider: GENCODE
+#contact: gencode-help@ebi.ac.uk
+#format: gff3
+#date: 2022-11-29
+##sequence-region chr1 1 248956422
+chr1	ENSEMBL	tRNA	7930279	7930348	.	-	.	ID=33323;gene_id=33323;transcript_id=33323;gene_type=Pseudo_tRNA;gene_name=33323;transcript_type=Pseudo_tRNA;transcript_name=33323;level=3
+chr1	ENSEMBL	tRNA	16520585	16520658	.	-	.	ID=20658;gene_id=20658;transcript_id=20658;gene_type=Asn_tRNA;gene_name=20658;transcript_type=Asn_tRNA;transcript_name=20658;level=3
+chr1	ENSEMBL	tRNA	16532398	16532471	.	-	.	ID=20657;gene_id=20657;transcript_id=20657;gene_type=Asn_tRNA;gene_name=20657;transcript_type=Asn_tRNA;transcript_name=20657;level=3
+chr1	ENSEMBL	tRNA	16535279	16535350	.	-	.	ID=20656;gene_id=20656;transcript_id=20656;gene_type=Glu_tRNA;gene_name=20656;transcript_type=Glu_tRNA;transcript_name=20656;level=3
+chr1	ENSEMBL	tRNA	16545939	16546009	.	-	.	ID=20655;gene_id=20655;transcript_id=20655;gene_type=Gly_tRNA;gene_name=20655;transcript_type=Gly_tRNA;transcript_name=20655;level=3
