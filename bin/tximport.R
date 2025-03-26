@@ -40,16 +40,16 @@ counts <- txi$counts
 
 # rename colnames
 rename_add_TPM <- function(x) {
-  paste(x,"_TPM",sep='')
-  }
+    paste(x,"_TPM",sep='')
+    }
 
 rename_add_Length <- function(x) {
-  paste(x,"_Length",sep='')
-  }
+    paste(x,"_Length",sep='')
+    }
 
 rename_add_NumReads <- function(x) {
-  paste(x,"_NumReads",sep='')
-  }
+    paste(x,"_NumReads",sep='')
+    }
 colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
 colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
 colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))

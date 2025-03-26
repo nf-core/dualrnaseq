@@ -37,11 +37,11 @@ workflow SALMON_ALIGNMENT_BASED {
         // Run STAR align
         // -------
         STAR_ALIGN ( ch_reads, // reads
-                     STAR_GENOMEGENERATE.out.index, // index
-                     ch_host_pathogen_gff, // GTF
-                     true, //star_ignore_sjdbgtf
-                     '', // seq_platform
-                     '' // seq_centre
+                    STAR_GENOMEGENERATE.out.index, // index
+                    ch_host_pathogen_gff, // GTF
+                    true, //star_ignore_sjdbgtf
+                    '', // seq_platform
+                    '' // seq_centre
                     )
         ch_versions = ch_versions.mix(STAR_ALIGN.out.versions)
 

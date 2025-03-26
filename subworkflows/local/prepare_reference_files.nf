@@ -37,13 +37,13 @@ include {
 
 
 workflow PREPARE_REFERENCE_FILES{
-  take:
+    take:
     host_fasta_genome //fasta_host
     host_gff //gff_host
     pathogen_fasta_genome //fasta_pathogen
     pathogen_gff //gff_pathogen
 
-  main:
+    main:
     ch_transcriptome = Channel.empty()
     ch_host_transcriptome = Channel.empty()
     ch_pathogen_transcriptome = Channel.empty()
@@ -52,9 +52,6 @@ workflow PREPARE_REFERENCE_FILES{
     ch_gene_feature_pathogen = Channel
 	    .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
 	    .collect()
-
-
-
 
     // -------------------
     // uncompress fasta files and gff files
@@ -116,18 +113,18 @@ workflow PREPARE_REFERENCE_FILES{
       // HOST - Has a host transcriptome (fasta) been passed?
       if(params.host_fasta_transcripts){
 
-          // Grab the host transcriptome file
-          ch_host_fasta_transcripts  = params.host_fasta_transcripts ? Channel.value(file(params.host_fasta_transcripts, checkIfExists: true )) : Channel.empty()
+            // Grab the host transcriptome file
+            ch_host_fasta_transcripts  = params.host_fasta_transcripts ? Channel.value(file(params.host_fasta_transcripts, checkIfExists: true )) : Channel.empty()
 
-          // Uncompress if needed
-          if (params.host_fasta_transcripts.endsWith('.gz') || params.host_fasta_transcripts.endsWith('.zip')){
-                  UNCOMPRESS_HOST_TRANSCRIPTOME(ch_host_fasta_transcripts)
-                  ch_host_fasta_transcripts_unzipped = UNCOMPRESS_HOST_TRANSCRIPTOME.out.files
-          } else {
-                  ch_host_fasta_transcripts_unzipped = ch_host_fasta_transcripts
-          }
+            // Uncompress if needed
+            if (params.host_fasta_transcripts.endsWith('.gz') || params.host_fasta_transcripts.endsWith('.zip')){
+                    UNCOMPRESS_HOST_TRANSCRIPTOME(ch_host_fasta_transcripts)
+                    ch_host_fasta_transcripts_unzipped = UNCOMPRESS_HOST_TRANSCRIPTOME.out.files
+            } else {
+                    ch_host_fasta_transcripts_unzipped = ch_host_fasta_transcripts
+            }
 
-      } else {
+        } else {
       // No host transcriptome passed - prepare
       PREPARE_HOST_TRANSCRIPTOME(
         ch_host_fasta_genome_unzipped,
@@ -155,7 +152,7 @@ workflow PREPARE_REFERENCE_FILES{
           PREPARE_PATHOGEN_TRANSCRIPTOME(
             ch_pathogen_fasta_transcripts_unzipped,
             ch_pathogen_gff_unzipped
-          )
+            )
           ch_pathogen_fasta_transcripts_unzipped = PREPARE_PATHOGEN_TRANSCRIPTOME.out.transcriptome
         }
 
@@ -215,7 +212,7 @@ workflow PREPARE_REFERENCE_FILES{
       // since the input file is from replace attribute, this resulting file now has both
       // gene attribute and gene feature changed. This is useful as the host and pathogen
       // annotations may have different identifiers, such as locus_tag for bacteria and gene_id
-      // for human/mouse - and when combining these annotations we want to have common a 
+      // for human/mouse - and when combining these annotations we want to have common a
       // naming convention in the final file
       REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON(
             REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN.out,

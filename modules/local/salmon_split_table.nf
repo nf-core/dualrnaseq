@@ -11,7 +11,7 @@ process SALMON_SPLIT_TABLE {
     path transcript_fasta_host
 
     output:
-	tuple val(meta), path("host_quant.sf"),        emit: host
+    tuple val(meta), path("host_quant.sf"),        emit: host
     tuple val(meta), path("pathogen_quant.sf"),    emit: pathogen
 
     script:

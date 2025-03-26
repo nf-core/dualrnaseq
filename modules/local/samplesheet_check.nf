@@ -26,7 +26,7 @@ process SAMPLESHEET_CHECK {
     # Copy and run script
     cp "${workflow.projectDir}/bin/check_samplesheet.py" .
     chmod +x check_samplesheet.py
-    
+
     ./check_samplesheet.py \\
         $samplesheet \\
         samplesheet.valid.csv

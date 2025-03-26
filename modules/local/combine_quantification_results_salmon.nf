@@ -4,12 +4,12 @@ process COMBINE_QUANTIFICATION_RESULTS_SALMON {
         'nfcore/dualrnaseq:dev' :
         'nfcore/dualrnaseq:dev' }"
 
-    input:      
+    input:
 	    path input_quantification
         val organism
     output:
 	    path "combined_${organism}.tsv", emit: combined_quant_data
-        
+
     script:
     def args = task.ext.args ?: ''
     """

@@ -16,6 +16,6 @@ process COLLATE_PROCESSED_READS {
     script:
     """
     # Concatenate all partial result files into the master file
-     cat ${partial_results.join(' ')} > total_processed_reads.tsv
+    cat ${partial_results.join(' ')} > total_processed_reads.tsv
     """
 }

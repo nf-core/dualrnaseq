@@ -9,8 +9,8 @@ process HTSEQ {
 
     input:
     tuple val(meta), path(gff)
-	val(sample_name), path(st)
-	val(host_attribute)
+    val(sample_name), path(st)
+    val(host_attribute)
 	val(stranded)
     val(quantifier)
 
@@ -23,9 +23,9 @@ process HTSEQ {
 
     script:
     def args = task.ext.args ?: ''
-	def output_file = sample_name + "_count.txt"
+    def output_file = sample_name + "_count.txt"
     """
-	htseq-count  \\
+    htseq-count  \\
         -n ${task.cpus}  \\
         -t $quantifier  \\
         -f bam  \\
@@ -38,7 +38,7 @@ process HTSEQ {
         $args  \\
         > $output_file
 
-	sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$output_file"
+    sed -i '1{h;s/.*/'"$sample_name"'/;G}' "$output_file"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

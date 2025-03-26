@@ -6,7 +6,7 @@ process CREATE_TRANSCRIPTOME_FASTA {
 
     input:
         path(fasta)
-        path(gff) 
+        path(gff)
         tuple val(features), val(attribute)
 
     output:
