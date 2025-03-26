@@ -9,7 +9,7 @@ process REPLACE_ATTRIBUTE_GFF_STAR_SALMON {
         val(attribute_in)
         val(attribute_out)
 
-	output:
+    output:
         path "${outfile_name}"
 
     script:

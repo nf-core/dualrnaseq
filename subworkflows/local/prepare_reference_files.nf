@@ -177,9 +177,9 @@ workflow PREPARE_REFERENCE_FILES{
         // Replace selected attributes in gff to parent
         // this changes the gene identifier value such as locus_tag to parent
         REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST(
-                  ch_host_gff_unzipped,
-                  'Parent',
-                  'parent'
+            ch_host_gff_unzipped,
+            'Parent',
+            'parent'
         )
 
         // Replace selected gene features in gff - save file with extension "_quant_feature.gff3"
