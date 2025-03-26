@@ -11,11 +11,11 @@ process HTSEQ {
     tuple val(meta), path(gff)
     val(sample_name), path(st)
     val(host_attribute)
-	val(stranded)
+    val(stranded)
     val(quantifier)
 
     output:
-	tuple val(meta), path("*_count.txt"), emit: counts
+    tuple val(meta), path("*_count.txt"), emit: counts
     path("versions.yml"), emit: versions
 
     when:

@@ -55,11 +55,11 @@ workflow SALMON_ALIGNMENT_BASED {
         // Run Salmon quant for alignment-based with STAR
         // -------
         SALMON_QUANT(STAR_ALIGN.out.bam_transcript, //reads
-                     ch_dummy_file, // dummy file for the index
-                     ch_host_pathogen_gff, // GTF
-                     ch_host_pathogen_fasta_transcripts, // host / pathogen transcript fasta
-                     alignment_mode, // mode
-                     params.libtype, // lib type
+                        ch_dummy_file, // dummy file for the index
+                        ch_host_pathogen_gff, // GTF
+                        ch_host_pathogen_fasta_transcripts, // host / pathogen transcript fasta
+                        alignment_mode, // mode
+                        params.libtype, // lib type
                     )
         ch_versions = ch_versions.mix(SALMON_QUANT.out.versions)
 
