@@ -79,11 +79,12 @@ nextflow run nf-core/dualrnaseq \
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/dualrnaseq/usage) and the [parameter documentation](https://nf-co.re/dualrnaseq/parameters).
+
    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
-   ```bash
-   nextflow run nf-core/dualrnaseq --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
-   ```
+```bash
+nextflow run nf-core/dualrnaseq --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
+```
 
 ## Pipeline output
 
