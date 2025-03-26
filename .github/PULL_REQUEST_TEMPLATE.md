@@ -15,11 +15,15 @@ Learn more about contributing: [CONTRIBUTING.md](https://github.com/nf-core/dual
 
 - [ ] This comment contains a description of changes (with reason).
 - [ ] If you've fixed a bug or added code that should be tested, add tests!
-- [ ] If you've added a new tool - have you followed the pipeline conventions in the [contribution docs](https://github.com/nf-core/demultiplex/tree/master/.github/CONTRIBUTING.md)
-- [ ] If necessary, also make a PR on the nf-core/demultiplex _branch_ on the [nf-core/test-datasets](https://github.com/nf-core/test-datasets) repository.
+- [ ] If you've added a new tool - have you followed the pipeline conventions in the [contribution docs](https://github.com/{{ name }}/tree/{{ default_branch }}/.github/CONTRIBUTING.md)
+      {%- if is_nfcore %}
+- [ ] If necessary, also make a PR on the {{ name }} _branch_ on the [nf-core/test-datasets](https://github.com/nf-core/test-datasets) repository.
+      {%- endif %}
 - [ ] Make sure your code lints (`nf-core pipelines lint`).
+      {%- if test_config %}
 - [ ] Ensure the test suite passes (`nextflow run . -profile test,docker --outdir <OUTDIR>`).
 - [ ] Check for unexpected warnings in debug mode (`nextflow run . -profile debug,test,docker --outdir <OUTDIR>`).
+      {%- endif %}
 - [ ] Usage Documentation in `docs/usage.md` is updated.
 - [ ] Output Documentation in `docs/output.md` is updated.
 - [ ] `CHANGELOG.md` is updated.
