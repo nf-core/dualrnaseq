@@ -30,17 +30,17 @@ process EXTRACT_PROCESSED_READS {
     # Salmon SA
     if [ ${process} == "Salmon_SA" ]; then # for Salmon extract 'num_processed' from meta_info.json file
         processed=\$(grep "num_processed" ${json_file} | sed 's/num_processed//g'| sed 's/[^a-zA-Z0-9]//g')
-        echo -e "${prefix}\t\${processed}" > ${prefix}.txt
+	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt
 
     # Salmon AB
     elif [ ${process} == "Salmon_AB" ]; then # for Salmon alignment-based mode extract 'num_mapped' from meta_info.json file
         processed=\$(grep "num_mapped" ${json_file} | sed 's/num_mapped//g'| sed 's/[^a-zA-Z0-9]//g')
-        echo -e "${prefix}\t\${processed}" > ${prefix}.txt
+	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt
 
     # STAR
     elif [ ${process} == "STAR" ]; then  # for STAR extract "Number of input reads" from *Log.final.out file
         processed=\$(grep "Number of input reads" ${json_file} | sed 's/Number of input reads//g'| sed 's/[^a-zA-Z0-9]//g')
-        echo -e "${prefix}\t\${processed}" > ${prefix}.txt
+	    echo -e "${prefix}\t\${processed}" > ${prefix}.txt
 
     else
         echo "ERROR: Unrecognized process '${process}'" >&2

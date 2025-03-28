@@ -1,5 +1,5 @@
 include { STAR_GENOMEGENERATE                               } from '../../modules/nf-core/star/genomegenerate/main'
-include { STAR_ALIGN                                        } from '../../modules/nf-core/star/align/main'
+include { STAR_ALIGN                                        } from '../../modules/local/star_align_transcripts'
 include { SALMON_QUANT                                      } from '../../modules/nf-core/salmon/quant/main'
 include { COMBINE_QUANTIFICATION_RESULTS_SALMON             } from '../../modules/local/combine_quantification_results_salmon'
 include { SALMON_SPLIT_TABLE as SALMON_SPLIT_TABLE_EACH     } from '../../modules/local/salmon_split_table'
