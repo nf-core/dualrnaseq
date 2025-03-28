@@ -48,6 +48,32 @@ workflow STAR_HTSEQ {
         }
 
 
+        // -------
+        // Split each count table into host and pathogen reads (for each dataset)
+        // -------
+        // SALMON_SPLIT_TABLE_EACH(SALMON_QUANT.out.quant, //HTSEQ_COUNT.out.counts
+        //                         ch_pathogen_fasta_transcripts,
+        //                         ch_host_fasta_transcripts
+        //                         )
+
+        // -------
+        //  Combine count results from all samples
+        // -------
+
+        // -------
+        //  Separate out host and pathogen reads from combined counts
+        // -------
+
+        // -------
+        // Combine all meta data from each datasets
+        // -------
+
+
+
+        // -------
+        //  Capture the number of counted reads by HTSeq and save as output
+        // -------
+
 
     emit:
     versions = ch_versions  // channel: [ versions.yml ]
