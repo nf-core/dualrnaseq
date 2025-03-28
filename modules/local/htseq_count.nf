@@ -1,23 +1,19 @@
 process HTSEQ_COUNT {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
 
     conda "bioconda::htseq=2.0.2-0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py38h7a2e8c7_0' :
-        'quay.io/biocontainers/htseq:2.0.2--py38h7a2e8c7_0' }"
-
-    // Note:
-    // creating separate module here as the nf-core one asks fo a bam index, which isnt required.
-    // also the naming convensions of input and outputs could be clearer.
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/htseq:2.0.2--py38h7a2e8c7_0'
+        : 'quay.io/biocontainers/htseq:2.0.2--py38h7a2e8c7_0'}"
 
     input:
     tuple val(meta), path(bam)
-    path(gff)
+    path gff
 
     output:
     tuple val(meta), path("*_counts.txt"), emit: counts
-    path("versions.yml"), emit: versions
+    path ("versions.yml"), emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,7 +22,7 @@ process HTSEQ_COUNT {
     def args = task.ext.args ?: ''
     def output_file = meta.id + "_counts.txt"
     """
-	htseq-count \\
+    htseq-count \\
         ${args} \\
         ${bam} \\
         ${gff} \\

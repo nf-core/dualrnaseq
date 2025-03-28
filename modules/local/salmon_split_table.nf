@@ -1,9 +1,9 @@
 process SALMON_SPLIT_TABLE {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_high'
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.8.3' :
-        'nfcore/dualrnaseq:dev' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/python:3.8.3'
+        : 'nfcore/dualrnaseq:dev'}"
 
     input:
     tuple val(meta), path(quant)
@@ -11,11 +11,11 @@ process SALMON_SPLIT_TABLE {
     path transcript_fasta_host
 
     output:
-    tuple val(meta), path("host_quant.sf"),        emit: host
-    tuple val(meta), path("pathogen_quant.sf"),    emit: pathogen
+    tuple val(meta), path("host_quant.sf"), emit: host
+    tuple val(meta), path("pathogen_quant.sf"), emit: pathogen
 
     script:
-    def args = task.ext.args   ?: ''
+    def args = task.ext.args ?: ''
     """
     grep ">" ${transcript_fasta_pathogen} \
     | awk -F ">" '{ print \$2 }' \
