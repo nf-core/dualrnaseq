@@ -2,12 +2,12 @@ include { CREATE_TRANSCRIPTOME_FASTA_GFFREAD } from '../../modules/local/create_
 
 // Prepare host transcriptome
 workflow PREPARE_HOST_TRANSCRIPTOME {
-  take:
+    take:
     uncompressed_fasta_genome
     uncompressed_gff_host
 
 
-  main:
+    main:
 
         // Create host transcriptome using GFFREAD
         CREATE_TRANSCRIPTOME_FASTA_GFFREAD(
@@ -19,8 +19,8 @@ workflow PREPARE_HOST_TRANSCRIPTOME {
         ch_transcriptome = CREATE_TRANSCRIPTOME_FASTA_GFFREAD.out
 
 
-  emit:
-      transcriptome = ch_transcriptome
+    emit:
+        transcriptome = ch_transcriptome
 
 
 }

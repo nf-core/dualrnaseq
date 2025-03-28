@@ -7,11 +7,11 @@ process TXIMPORT {
         'nfcore/dualrnaseq:dev' }"
 
     input:
-	tuple val(meta), file(host_quant) 
-	file(annotations) 
+    tuple val(meta), file(host_quant)
+    file(annotations)
 
     output:
-	tuple val(meta), file ("${meta.id}_host_quant_gene_level.sf"), emit: salmon_gene_level
+    tuple val(meta), file ("${meta.id}_host_quant_gene_level.sf"), emit: salmon_gene_level
     path "versions.yml"           , emit: versions
 
     when:
@@ -20,6 +20,6 @@ process TXIMPORT {
     script:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-	template 'tximport.R'
+    template 'tximport.R'
 
 }

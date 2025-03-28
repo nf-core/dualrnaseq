@@ -3,11 +3,12 @@ process COMBINE_FILES {
     label 'process_high'
 
     input:
-        path(file1)
-        path(file2)
-        val(output_file)
+    path file1
+    path file2
+    val output_file
+
     output:
-        path output_file
+    path output_file
 
     script:
     def args = task.ext.args ?: ''

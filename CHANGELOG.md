@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Description:** Initial release of nf-core/dualrnaseq, created with the [nf-core](https://nf-co.re/) template.
 
-
 ## v2.0dev
 
 ### `Added`
