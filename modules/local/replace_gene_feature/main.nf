@@ -1,4 +1,4 @@
-	process REPLACE_GENE_FEATURE_GFF_SALMON {
+	process REPLACE_GENE_FEATURE_GFF {
 	    tag "repl_gene_feature_gff"
 	    label 'process_high'
 
