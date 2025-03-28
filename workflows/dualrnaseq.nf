@@ -15,6 +15,7 @@ include { INPUT_CHECK                       } from '../subworkflows/local/input_
 include { PREPARE_REFERENCE_FILES           } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT        } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASED            } from '../subworkflows/local/salmon_alignment_based'
+include { STAR_HTSEQ as STAR_ALIGNMENT      } from '../subworkflows/local/star_htseq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +57,7 @@ workflow DUALRNASEQ {
     ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
-    
+
 
 
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -77,7 +78,7 @@ workflow DUALRNASEQ {
 
     // if skip_tools passed, but not contain cutadapt
     if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
-        CUTADAPT(ch_reads) 
+        CUTADAPT(ch_reads)
         ch_reads = CUTADAPT.out.reads
         ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
@@ -92,7 +93,7 @@ workflow DUALRNASEQ {
     // ---------------
     // Prepare reference files
     // ---------------
-    // uncompress files, merge host and pathogen files together, 
+    // uncompress files, merge host and pathogen files together,
     // update features in reference files to be compatable with software
     PREPARE_REFERENCE_FILES(
         params.host_fasta_genome,
@@ -108,7 +109,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
-            PREPARE_REFERENCE_FILES.out.host_pathogen_gff,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
             PREPARE_REFERENCE_FILES.out.pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon
@@ -123,7 +124,7 @@ workflow DUALRNASEQ {
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
-            PREPARE_REFERENCE_FILES.out.host_pathogen_gff,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
             PREPARE_REFERENCE_FILES.out.pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon
@@ -132,6 +133,14 @@ workflow DUALRNASEQ {
         salmon_ab_out = SALMON_ALIGNMENT_BASED.out
     }
 
+    // Run if STAR genome alignment
+    if ( params.run_star ) {
+        STAR_ALIGNMENT (
+            ch_reads,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
+            PREPARE_REFERENCE_FILES.out.host_pathogen_genes_gff
+        )
+        }
 
     //Capture software versions
     CUSTOM_DUMPSOFTWAREVERSIONS (

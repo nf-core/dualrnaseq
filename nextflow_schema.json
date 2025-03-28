@@ -188,7 +188,7 @@
                 },
                 "gene_feature_gff_to_create_transcriptome_host": {
                     "type": "string",
-                    "default": ["exon", "tRNA"],
+                    "default": ["exon"],
                     "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host",
                     "fa_icon": "fas fa-sliders-h"
                 },
@@ -336,38 +336,68 @@
                     "description": "To run HTSeq count on a aligned genome file",
                     "fa_icon": "fas fa-running"
                 },
-                "htseq_quantifier": {
+                "hts_gene_feature": {
                     "type": "string",
                     "default": "quant",
                     "description": "3rd value of GFF to quantify",
                     "fa_icon": "fas fa-sliders-h"
                 },
-                "gene_feature_gff_to_quantify_host": {
-                    "type": "string",
-                    "default": ["exon", "tRNA"],
-                    "description": "Host - gene feature to quantify",
-                    "fa_icon": "fas fa-sliders-h"
-                },
-                "host_gff_attribute": {
-                    "type": "string",
-                    "default": "gene_id",
-                    "description": "Host - GFF attribute",
-                    "fa_icon": "fas fa-sliders-h"
-                },
-                "gene_feature_gff_to_quantify_pathogen": {
-                    "type": "string",
-                    "default": ["gene", "sRNA", "tRNA", "rRNA"],
-                    "description": "Pathogen - gene feature to quantify (will likely need to be modified)",
-                    "fa_icon": "fas fa-sliders-h"
-                },
-                "pathogen_gff_attribute": {
+                "hts_gene_attribute": {
                     "type": "string",
                     "default": "locus_tag",
-                    "description": "Pathogen - GFF attribute (Will likely need to be modified)",
+                    "description": "Gene attributes from the 9th column in GFF to use",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_mode": {
+                    "type": "string",
+                    "default": "union",
+                    "description": "Counting mode: Options of 'union', 'intersection-strict', 'intersection-nonempty'",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_nonUnique": {
+                    "type": "string",
+                    "default": "none",
+                    "description": "For counting non-unique reads. Options of 'none', 'all', 'fraction', 'random'",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_stranded": {
+                    "type": "string",
+                    "default": "yes",
+                    "description": "Read strand orientation. Options of 'yes', 'no', 'reverse'",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_bam_sort": {
+                    "type": "string",
+                    "default": "pos",
+                    "description": "by default the bam file is sorted by position - Important for PE reads",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_host_gff_gene_feature_to_count": {
+                    "type": "string",
+                    "default": ["gene"],
+                    "description": "Features from 3rd column in GFF to use",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_host_gff_gene_attribute": {
+                    "type": "string",
+                    "default": "gene_id",
+                    "description": "Gene attributes from the 9th column in GFF to use",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_pathogen_gff_gene_feature_to_count": {
+                    "type": "string",
+                    "default": ["gene", "sRNA", "tRNA", "rRNA"],
+                    "description": "Features from 3rd column in GFF to use",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hts_pathogen_gff_gene_attribute": {
+                    "type": "string",
+                    "default": "locus_tag",
+                    "description": "Gene attributes from the 9th column in GFF to use",
                     "fa_icon": "fas fa-sliders-h"
                 }
             },
-            "help_text": "The four parameters below are used to extract gene features from both the host and pathogen. These values may need to be changed, especially for the pathogen, as many different names exist, such as `ID`, `Gene`, `Name`, `locus_tag` etc\n\nA good idea is to view the accompanying annotative file and examine the fields within.\n\nNote: If a host `tRNA.gff` file is included, it is assumed that it has the same gene attribute as the annotative (gff) file, i.e. `gene_id`",
+            "help_text": "These parameters are used to extract gene features from both the host and pathogen, using the combined GFF.\n\n See the manual for more info: https://htseq.readthedocs.io/en/master/htseqcount.html",
             "fa_icon": "fas fa-star"
         },
         "institutional_config_options": {

@@ -7,32 +7,43 @@ include {
     UNZIPFILES as UNCOMPRESS_PATHOGEN_TRANSCRIPTOME
 } from '../../modules/nf-core/unzipfiles/main'
 
+// These replace the attributes in the 9th column on the GFF file
+// For example, locus_tag with transcript_id, transcript_id with parent
 include {
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
-    REPLACE_ATTRIBUTE_GFF_STAR_SALMON as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_HOST;
+    REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN;
 } from '../../modules/local/replace_attribute'
 
+
+// These replace the gene feature in the 3rd column on the GFF file
 include {
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
-    REPLACE_GENE_FEATURE_GFF_SALMON as REPLACE_GENE_FEATURE_GFF_HOST_SALMON
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_SALMON;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ;
+    REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ;
 } from '../../modules/local/replace_gene_feature'
 
 include {
-    // COMBINE_FILES as COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ;
     COMBINE_FILES as COMBINE_FILES_PATHOGEN_HOST_GFF;
     COMBINE_FILES as COMBINE_FILES_FASTA;
     COMBINE_FILES as COMBINE_FILES_TRANSCRIPTOME_FILES;
+    COMBINE_FILES as COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ;
 }  from '../../modules/local/combine_files'
 
 
 include { PREPARE_HOST_TRANSCRIPTOME      } from './prepare_host_transcriptome'
 include { PREPARE_PATHOGEN_TRANSCRIPTOME  } from './prepare_pathogen_transcriptome'
 
+
+
+// These extract files into .tsv for users to use for downstream analysis of their own
 include {
-    // EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_SALMON;
-    // EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
-    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ;
+    EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ;
 } from '../../modules/local/extract_annotations'
 
 
@@ -110,6 +121,10 @@ workflow PREPARE_REFERENCE_FILES{
     //
 
 
+    // -------------------
+    // Salmon SA and AB
+    // -------------------
+
     // Salmon SA or Salmon AB (transcriptome-based)
     if(params.run_salmon_SA | params.run_salmon_AB) {
 
@@ -163,9 +178,11 @@ workflow PREPARE_REFERENCE_FILES{
 
       // combine host and pathogen transcriptome
       COMBINE_FILES_TRANSCRIPTOME_FILES(
-        ch_host_fasta_transcripts_unzipped,ch_pathogen_fasta_transcripts_unzipped,'host_pathogen_transcripts.fasta'
+        ch_host_fasta_transcripts_unzipped,ch_pathogen_fasta_transcripts_unzipped,'host_pathogen_transcriptome.fasta'
       )
       ch_combined_fasta_transcripts = COMBINE_FILES_TRANSCRIPTOME_FILES.out
+
+
 
 
 
@@ -190,7 +207,7 @@ workflow PREPARE_REFERENCE_FILES{
       // since the input file is from replace attribute, this resulting file now has both
       // gene attribute and gene feature changed. This is useful as the host and pathogen
       // annotations may have different identifiers, such as locus_tag for bacteria and gene_id
-      // for human/mouse - and when combining these annotations we want to have common a
+      // for human/mouse - and when combining these annotations we want to have a common
       // naming convention in the final file
       ch_host_genome_gff_salmon_sa = REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST.out
       REPLACE_GENE_FEATURE_GFF_HOST_SALMON(
@@ -215,7 +232,7 @@ workflow PREPARE_REFERENCE_FILES{
       // since the input file is from replace attribute, this resulting file now has both
       // gene attribute and gene feature changed. This is useful as the host and pathogen
       // annotations may have different identifiers, such as locus_tag for bacteria and gene_id
-      // for human/mouse - and when combining these annotations we want to have common a 
+      // for human/mouse - and when combining these annotations we want to have a common
       // naming convention in the final file
       REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON(
             REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN.out,
@@ -232,7 +249,7 @@ workflow PREPARE_REFERENCE_FILES{
       COMBINE_FILES_PATHOGEN_HOST_GFF(
             REPLACE_GENE_FEATURE_GFF_PATHOGEN_SALMON.out,
             REPLACE_GENE_FEATURE_GFF_HOST_SALMON.out,
-            "host_pathogen.gff"
+            "host_pathogen_transcripts.gff"
       )
 
 
@@ -240,12 +257,16 @@ workflow PREPARE_REFERENCE_FILES{
       // Extracting the GFF annotations into a .tsv file for downstream analysis
       // ---
 
+      //---
+      // Salmon
+      //---
+
       // Extract host features
       EXTRACT_ANNOTATIONS_HOST_SALMON (
                 REPLACE_GENE_FEATURE_GFF_HOST_SALMON.out,
                 'quant',
                 'parent',
-                params.host_organism,
+                'host',
                 'salmon'
       )
 
@@ -254,23 +275,100 @@ workflow PREPARE_REFERENCE_FILES{
               REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN.out,
               ch_gene_feature_pathogen,
               "parent",
-              params.pathogen_organism,
+              'pathogen',
               'salmon'
         )
-
-
 
 
     } // end --> if(params.run_salmon_SA | params.run_salmon_AB) {
 
 
+
+
+
+
+
+    if(params.run_htseq) {
+
+      //----
+      // Prepare the host files
+      //----
+
+      // Replaces selected feature in 3rd colun with quant
+      REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
+        ch_host_gff_unzipped,
+        params.hts_host_gff_gene_feature_to_count // Default: ["gene"]
+      )
+
+      // Replaces attribute in 9th column with the pathogen attribute
+      // making the combined GFF compatable with counting tools
+      REPLACE_ATTRIBUTE_GFF_HTSEQ_HOST(
+        REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+        params.hts_host_gff_gene_attribute, // host attribute to change // Default: gene_id
+        params.hts_pathogen_gff_gene_attribute // pathogen attribute to change to and match. // default: locus_tag
+      )
+
+      //----
+      // Prepare the pathogen files
+      //----
+
+      // Replaces selected feature in 3rd colun with quant
+      REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ(
+        ch_pathogen_gff_unzipped,
+        params.hts_pathogen_gff_gene_feature_to_count // pathogen feature/s to change. Default: ["gene", "sRNA", "tRNA", "rRNA"]
+      )
+
+      //----
+      // Combine the pathogen files
+      //----
+      COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ(
+        REPLACE_ATTRIBUTE_GFF_HTSEQ_HOST.out,
+        REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
+        "host_pathogen_genes.gff"
+      )
+
+
+      // ---
+      // Extracting the GFF annotations into a .tsv file for downstream analysis
+      // ---
+
+      //---
+      // HTSeq
+      //---
+
+      // Extract host features
+      EXTRACT_ANNOTATIONS_HOST_HTSEQ (
+                REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ.out,
+                params.hts_gene_feature, // Default: quant
+                params.hts_host_gff_gene_attribute, // Default: gene_id
+                'host',
+                'htseq'
+      )
+
+      // Extract pathogen featues
+      EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ (
+              REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
+              params.hts_gene_feature, // Default: quant
+              params.hts_pathogen_gff_gene_attribute, // default: locus_tag
+              'pathogen',
+              'htseq'
+        )
+    }
+
+
+
     emit:
       host_pathogen_fasta_genome = COMBINE_FILES_FASTA.out // 'host_pathogen_genome.fasta'
-      host_pathogen_fasta_transcripts = ch_combined_fasta_transcripts // 'host_pathogen_transcripts.fasta'
+      host_pathogen_fasta_transcripts = ch_combined_fasta_transcripts // 'host_pathogen_transcriptome'
       host_fasta_transcripts = ch_host_fasta_transcripts_unzipped
       pathogen_fasta_transcripts = ch_pathogen_fasta_transcripts_unzipped
-      host_pathogen_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen.gff'
+      host_pathogen_genes_gff =       COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out // 'host_pathogen_genes.gff'
+      host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
+      // Salmon
       annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
       annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+      // HTSeq
+      annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations // extracted_annotations_host_htseq.tsv
+      annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations // extracted_annotations_pathogen_htseq.tsv
     }
 

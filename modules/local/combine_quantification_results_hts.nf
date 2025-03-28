@@ -4,7 +4,7 @@ process COMBINE_QUANTIFICATION_RESULTS_HTS {
         'nfcore/dualrnaseq:dev' :
         'nfcore/dualrnaseq:dev' }"
 
-    input: 
+    input:
 	    path input_quantification
 	    val gene_attribute
         val organism

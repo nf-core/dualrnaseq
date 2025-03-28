@@ -1,5 +1,5 @@
 // ONE FOR HOST_GENOME
-process REPLACE_ATTRIBUTE_GFF_STAR_SALMON {
+process REPLACE_ATTRIBUTE_GFF {
 	tag "repl_GFF_attributes"
 
 	label 'process_high'
