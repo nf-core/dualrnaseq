@@ -330,6 +330,12 @@
                     "description": "Option to limit RAM when sorting BAM file. If 0, will be set to the genome index size, which can be quite large when running on a desktop or laptop",
                     "default": "0",
                     "fa_icon": "fas fa-sliders-h"
+                },
+                "star_args": {
+                    "type": "string",
+                    "description": "Additional args to pass to STAR",
+                    "default": null,
+                    "fa_icon": "fas fa-sliders-h"
                 }
             },
             "fa_icon": "fas fa-star"
@@ -404,6 +410,12 @@
                     "type": "string",
                     "default": "locus_tag",
                     "description": "Gene attributes from the 9th column in GFF to use",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "htseq_args": {
+                    "type": "string",
+                    "description": "Additional args to pass to HTSeq-count",
+                    "default": null,
                     "fa_icon": "fas fa-sliders-h"
                 }
             },
