@@ -2,13 +2,13 @@
 
 #-------------------------
 #
-# Description: 
+# Description:
 # Script to calculate gene-level estimates of host quantification results of Salmon using tximport
 #
 # Created by B. Mika-Gospodorz
 # Date: 29th May 2020
 #
-# Input args:   
+# Input args:
 #			    [1] = tsv annotation file created with extract_annotations_from_gff.py script
 #				[2] = sample name
 # Output files: "*_host_quant_gene_level.sf"
@@ -33,23 +33,23 @@ names(files) = names
 # run tximport
 txi = tximport(files, type = "salmon",tx2gene = tx2gene, dropInfReps=TRUE)
 
-# extract TPM, length and counts 
+# extract TPM, length and counts
 TPMs <- txi$abundance
 length <- txi$length
 counts <- txi$counts
 
-# rename colnames 
+# rename colnames
 rename_add_TPM <- function(x) {
-  paste(x,"_TPM",sep='')
-}
+    paste(x,"_TPM",sep='')
+    }
 
 rename_add_Length <- function(x) {
-  paste(x,"_Length",sep='')
-}
+    paste(x,"_Length",sep='')
+    }
 
 rename_add_NumReads <- function(x) {
-  paste(x,"_NumReads",sep='')
-}
+    paste(x,"_NumReads",sep='')
+    }
 colnames(TPMs) <-sapply(colnames(TPMs),function(x) rename_add_TPM(x))
 colnames(length) <-sapply(colnames(length),function(x) rename_add_Length(x))
 colnames(counts) <-sapply(colnames(counts),function(x) rename_add_NumReads(x))

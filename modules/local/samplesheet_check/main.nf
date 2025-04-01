@@ -1,12 +1,12 @@
 process SAMPLESHEET_CHECK {
-    tag "$samplesheet"
+    tag "${samplesheet}"
     label 'process_single'
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
     conda "python=3.8.3"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'nfcore/dualrnaseq:dev' :
-        'nfcore/dualrnaseq:dev' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'nfcore/dualrnaseq:dev'
+        : 'nfcore/dualrnaseq:dev'}"
 
     input:
     path samplesheet
@@ -26,9 +26,9 @@ process SAMPLESHEET_CHECK {
     # Copy and run script
     cp "${workflow.projectDir}/bin/check_samplesheet.py" .
     chmod +x check_samplesheet.py
-    
+
     ./check_samplesheet.py \\
-        $samplesheet \\
+        ${samplesheet} \\
         samplesheet.valid.csv
 
     cat <<-END_VERSIONS > versions.yml
