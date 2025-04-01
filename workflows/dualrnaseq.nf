@@ -24,11 +24,11 @@ include { STAR_HTSEQ as STAR_ALIGNMENT    } from '../subworkflows/local/star_hts
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                          } from '../modules/nf-core/fastqc/main'
-include { FASTQC as FASTQC_AFTER_TRIMMING } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                        } from '../modules/nf-core/cutadapt/main'
-include { MULTIQC                         } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { FASTQC                          } from '../modules/nf-core/fastqc'
+include { FASTQC as FASTQC_AFTER_TRIMMING } from '../modules/nf-core/fastqc'
+include { CUTADAPT                        } from '../modules/nf-core/cutadapt'
+include { MULTIQC                         } from '../modules/nf-core/multiqc'
+include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
