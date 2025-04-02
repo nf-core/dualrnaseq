@@ -100,18 +100,6 @@ workflow DUALRNASEQ {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    //
-    // Collate and save software versions
-    //
-    softwareVersionsToYAML(ch_versions)
-        .collectFile(
-            storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_' + 'dualrnaseq_software_' + 'mqc_' + 'versions.yml',
-            sort: true,
-            newLine: true,
-        )
-        .set { ch_collated_versions }
-
 
     // Run Salmon selective alighment
     if (params.run_salmon_SA) {
