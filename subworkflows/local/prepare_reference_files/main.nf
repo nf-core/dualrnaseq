@@ -14,7 +14,7 @@ include {
     REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_STAR_SALMON_PATHOGEN ;
     REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_HOST ;
     REPLACE_ATTRIBUTE_GFF as REPLACE_ATTRIBUTE_GFF_HTSEQ_PATHOGEN
-} from '../../../modules/local/replace_attribute'
+} from '../../../modules/local/replace_attribute/main'
 
 
 // These replace the gene feature in the 3rd column on the GFF file
@@ -23,7 +23,7 @@ include {
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_SALMON ;
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ ;
     REPLACE_GENE_FEATURE_GFF as REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ
-} from '../../../modules/local/replace_gene_feature'
+} from '../../../modules/local/replace_gene_feature/main'
 
 include {
     COMBINE_FILES as COMBINE_FILES_PATHOGEN_HOST_GFF ;
@@ -33,8 +33,8 @@ include {
 } from '../../../modules/local/combine_files'
 
 
-include { PREPARE_HOST_TRANSCRIPTOME } from '../prepare_host_transcriptome'
-include { PREPARE_PATHOGEN_TRANSCRIPTOME } from '../prepare_pathogen_transcriptome'
+include { PREPARE_HOST_TRANSCRIPTOME } from '../prepare_host_transcriptome/main'
+include { PREPARE_PATHOGEN_TRANSCRIPTOME } from '../prepare_pathogen_transcriptome/main'
 
 
 // These extract files into .tsv for users to use for downstream analysis of their own
@@ -43,7 +43,7 @@ include {
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_SALMON ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_HOST_HTSEQ ;
     EXTRACT_ANNOTATIONS as EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ
-} from '../../../modules/local/extract_annotations'
+} from '../../../modules/local/extract_annotations/main'
 
 
 workflow PREPARE_REFERENCE_FILES {
@@ -54,10 +54,14 @@ workflow PREPARE_REFERENCE_FILES {
     pathogen_gff //gff_pathogen
 
     main:
+    // set empty channels for conditional outputs
     ch_transcriptome = Channel.empty()
     ch_host_transcriptome = Channel.empty()
     ch_pathogen_transcriptome = Channel.empty()
     ch_host_pathogen_gff = Channel.empty()
+    ch_combined_pathogen_host_gff_htseq = Channel.empty()
+    ch_extracted_annotations_host_htseq = Channel.empty()
+    ch_extract_annotations_pathogen_htseq = Channel.empty()
 
     ch_gene_feature_pathogen = Channel
         .value(params.gene_feature_gff_to_create_transcriptome_pathogen)
@@ -322,6 +326,7 @@ workflow PREPARE_REFERENCE_FILES {
             REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ.out,
             "host_pathogen_genes.gff",
         )
+        ch_combined_pathogen_host_gff_htseq = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out
 
 
         // ---
@@ -340,6 +345,7 @@ workflow PREPARE_REFERENCE_FILES {
             'host',
             'htseq',
         )
+        ch_extracted_annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations
 
         // Extract pathogen featues
         EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ(
@@ -349,6 +355,7 @@ workflow PREPARE_REFERENCE_FILES {
             'pathogen',
             'htseq',
         )
+        ch_extract_annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations
     }
 
     emit:
@@ -356,10 +363,10 @@ workflow PREPARE_REFERENCE_FILES {
     host_pathogen_fasta_transcripts = ch_combined_fasta_transcripts // 'host_pathogen_transcriptome'
     host_fasta_transcripts = ch_host_fasta_transcripts_unzipped
     pathogen_fasta_transcripts = ch_pathogen_fasta_transcripts_unzipped
-    host_pathogen_genes_gff = COMBINE_PATHOGEN_HOST_GFF_FILES_HTSEQ.out // 'host_pathogen_genes.gff'
+    host_pathogen_genes_gff = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
     host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
     annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
     annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
-    annotations_host_htseq = EXTRACT_ANNOTATIONS_HOST_HTSEQ.out.annotations // extracted_annotations_host_htseq.tsv
-    annotations_pathogen_htseq = EXTRACT_ANNOTATIONS_PATHOGEN_HTSEQ.out.annotations // extracted_annotations_pathogen_htseq.tsv
+    annotations_host_htseq = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
+    annotations_pathogen_htseq = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
 }

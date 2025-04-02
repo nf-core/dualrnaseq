@@ -92,7 +92,7 @@ workflow SALMON_ALIGNMENT_BASED {
         .map {it ->
             def meta = [:] // create empty map: meta
             meta.id  = "combined" // sets id with combined
-            path_res = it  // assign input (the combined quant path) to path_res
+            def path_res = it  // assign input (the combined quant path) to path_res
             return [ meta, [ it ] ] // return a tuple containing meta: the metadata map { id: "combined" } and [it]: a list containing the combined quantification file path.
         }.set{ combined_salmon_quant } // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
 
