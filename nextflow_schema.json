@@ -77,14 +77,6 @@
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
                 },
-                "igenomes_base": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
-                },
                 "igenomes_ignore": {
                     "type": "boolean",
                     "description": "Do not load the iGenomes reference config.",
@@ -197,13 +189,13 @@
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_feature_gff_to_create_transcriptome_host": {
-                    "type": "string",
+                    "type": "array",
                     "default": ["exon"],
                     "description": "The pipeline uses gene features from the 3rd column of the host annotative file (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline useanscriptome_hosts exon from the --gff_host",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "gene_feature_gff_to_create_transcriptome_pathogen": {
-                    "type": "string",
+                    "type": "array",
                     "default": ["gene", "sRNA", "tRNA", "rRNA"],
                     "description": "The pipeline uses gene features from the 3rd column of the pathogen annotative fikle (gff3) to extract the coordinates of transcripts to be quantified.  By default, the pipeline uses features as gene, sRNA, tRNA and rRNA from the --gff_pathogen file.",
                     "fa_icon": "fas fa-sliders-h"
@@ -389,7 +381,7 @@
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "hts_host_gff_gene_feature_to_count": {
-                    "type": "string",
+                    "type": "array",
                     "default": ["gene"],
                     "description": "Features from 3rd column in GFF to use",
                     "fa_icon": "fas fa-sliders-h"
@@ -401,7 +393,7 @@
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "hts_pathogen_gff_gene_feature_to_count": {
-                    "type": "string",
+                    "type": "array",
                     "default": ["gene", "sRNA", "tRNA", "rRNA"],
                     "description": "Features from 3rd column in GFF to use",
                     "fa_icon": "fas fa-sliders-h"
