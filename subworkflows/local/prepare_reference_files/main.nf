@@ -80,14 +80,14 @@ workflow PREPARE_REFERENCE_FILES {
         .value(pathogenFeaturesList)
         .collect()
 
-    ch_gene_feature_pathogen.view {"pathogen features: $it"}
+    // ch_gene_feature_pathogen.view {"pathogen features: $it"}
 
     def hostFeaturesList = params.gene_feature_gff_to_create_transcriptome_host.split(',')
     ch_gene_feature_host = Channel
         .value(hostFeaturesList)
         .collect()
 
-    ch_gene_feature_host.view {"host features: $it"}
+    // ch_gene_feature_host.view {"host features: $it"}
 
     // -------------------
     // uncompress fasta files and gff files
