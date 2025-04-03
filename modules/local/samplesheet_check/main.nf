@@ -4,9 +4,10 @@ process SAMPLESHEET_CHECK {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
     conda "python=3.8.3"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'nfcore/dualrnaseq:dev'
-        : 'nfcore/dualrnaseq:dev'}"
+    container "nfcore/dualrnaseq:dev"
+    // container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    //     ? 'nfcore/dualrnaseq:dev'
+    //     : 'nfcore/dualrnaseq:dev'}"
 
     input:
     path samplesheet

@@ -21,9 +21,8 @@ process SALMON_INDEX {
     script:
     def args = task.ext.args ?: ''
 
-    // set additional args to to additional_params 
+    // set additional args to to additional_params
     def additional_params = params.salmon_sa_index_args ?: ''
-    
 
 
     def get_decoy_ids = "grep '^>' $genome_fasta | cut -d ' ' -f 1 | cut -d \$'\\t' -f 1 > decoys.txt"
@@ -32,8 +31,6 @@ process SALMON_INDEX {
         get_decoy_ids = "grep '^>' <(gunzip -c $genome_fasta) | cut -d ' ' -f 1 | cut -d \$'\\t' -f 1 > decoys.txt"
         gentrome      = "gentrome.fa.gz"
     }
-
-   
 
     """
     $get_decoy_ids
