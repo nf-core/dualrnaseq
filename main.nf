@@ -58,8 +58,8 @@ workflow NFCORE_DUALRNASEQ {
     emit:
     multiqc_report = DUALRNASEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
     versions = DUALRNASEQ.out.versions
-    salmon_sa = DUALRNASEQ.out.salmon_sa
-    salmon_ab = DUALRNASEQ.out.salmon_ab
+    //salmon_sa = DUALRNASEQ.out.salmon_sa
+    //salmon_ab = DUALRNASEQ.out.salmon_ab
 }
 
 /*

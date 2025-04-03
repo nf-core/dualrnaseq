@@ -44,7 +44,7 @@ workflow DUALRNASEQ {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    salmon_sa_out = Channel.empty()
+    //salmon_sa_out = Channel.empty()
     salmon_ab_out = Channel.empty()
 
     // Initialize required channels
@@ -113,7 +113,7 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon,
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
-        salmon_sa_out = SALMON_SELECTIVE_ALIGNMENT.out
+        //salmon_sa_out = SALMON_SELECTIVE_ALIGNMENT.out
     }
 
     // Run Salmon alignment based
