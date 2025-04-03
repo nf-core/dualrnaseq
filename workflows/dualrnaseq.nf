@@ -9,7 +9,6 @@
 //
 
 //subworkflow and module inclusion
-include { INPUT_CHECK                     } from '../subworkflows/local/input_check'
 include { PREPARE_REFERENCE_FILES         } from '../subworkflows/local/prepare_reference_files'
 include { SALMON_SELECTIVE_ALIGNMENT      } from '../subworkflows/local/salmon_selective_alignment'
 include { SALMON_ALIGNMENT_BASED          } from '../subworkflows/local/salmon_alignment_based'
@@ -48,27 +47,22 @@ workflow DUALRNASEQ {
     salmon_ab_out = Channel.empty()
 
     // Initialize required channels
-    ch_workflow_summary = Channel.empty()
-    ch_methods_description = Channel.empty()
+    //ch_workflow_summary = Channel.empty()
+    //ch_methods_description = Channel.empty()
     ch_multiqc_config = Channel.fromPath("${projectDir}/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
 
 
-
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    INPUT_CHECK(ch_samplesheet)
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    // Store input reads
-    ch_reads = INPUT_CHECK.out.reads.map { meta, reads -> tuple(meta, reads) }
-
+    // Removed validate samplesheet as had constant issues and errors
+    // If you want to spend the time trying - go ahead
+    ch_reads = ch_samplesheet
 
 
     // if skip_tools passed, but not contain fastqc
     if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-        FASTQC(INPUT_CHECK.out.reads)
+        FASTQC(ch_reads)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
