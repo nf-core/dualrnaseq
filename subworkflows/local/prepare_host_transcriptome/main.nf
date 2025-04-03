@@ -1,4 +1,4 @@
-include { CREATE_TRANSCRIPTOME_FASTA_GFFREAD } from '../../../modules/local/create_transcriptome_fasta_gffread'
+include { CREATE_TRANSCRIPTOME_FASTA_GFFREAD } from '../../../modules/local/create_transcriptome_fasta_gffread/main'
 
 // Prepare host transcriptome
 workflow PREPARE_HOST_TRANSCRIPTOME {
