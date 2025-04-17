@@ -9,10 +9,10 @@
 //
 
 //subworkflow and module inclusion
-include { PREPARE_REFERENCE_FILES         } from '../subworkflows/local/prepare_reference_files'
-include { SALMON_SELECTIVE_ALIGNMENT      } from '../subworkflows/local/salmon_selective_alignment'
-include { SALMON_ALIGNMENT_BASED          } from '../subworkflows/local/salmon_alignment_based'
-include { STAR_HTSEQ as STAR_ALIGNMENT    } from '../subworkflows/local/star_htseq'
+include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
+include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
+include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_based'
+include { STAR_HTSEQ as STAR_ALIGNMENT } from '../subworkflows/local/star_htseq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,11 +23,11 @@ include { STAR_HTSEQ as STAR_ALIGNMENT    } from '../subworkflows/local/star_hts
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                          } from '../modules/nf-core/fastqc'
+include { FASTQC } from '../modules/nf-core/fastqc'
 include { FASTQC as FASTQC_AFTER_TRIMMING } from '../modules/nf-core/fastqc'
-include { CUTADAPT                        } from '../modules/nf-core/cutadapt'
-include { MULTIQC                         } from '../modules/nf-core/multiqc'
-include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions'
+include { CUTADAPT } from '../modules/nf-core/cutadapt'
+include { MULTIQC } from '../modules/nf-core/multiqc'
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,28 +54,22 @@ workflow DUALRNASEQ {
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
 
-
-    // Removed validate samplesheet as had constant issues and errors
-    // If you want to spend the time trying - go ahead
-    ch_reads = ch_samplesheet
-
-
     // if skip_tools passed, but not contain fastqc
     if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-        FASTQC(ch_reads)
+        FASTQC(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
     // if skip_tools passed, but not contain cutadapt
     if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
-        CUTADAPT(ch_reads)
-        ch_reads = CUTADAPT.out.reads
+        CUTADAPT(ch_samplesheet)
+        ch_samplesheet = CUTADAPT.out.reads
         ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
     // if skip_tools passed, but not contain fastqc and cutadapt - so should run fastqc after trimming
     if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
-        FASTQC_AFTER_TRIMMING(ch_reads)
+        FASTQC_AFTER_TRIMMING(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
 
@@ -91,14 +85,14 @@ workflow DUALRNASEQ {
         params.pathogen_fasta_genome,
         params.pathogen_gff,
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect {  -> it[1] })
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
     // Run Salmon selective alighment
     if (params.run_salmon_SA) {
         SALMON_SELECTIVE_ALIGNMENT(
-            ch_reads,
+            ch_samplesheet,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
@@ -107,13 +101,12 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon,
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
-        //salmon_sa_out = SALMON_SELECTIVE_ALIGNMENT.out
     }
 
     // Run Salmon alignment based
     if (params.run_salmon_AB) {
         SALMON_ALIGNMENT_BASED(
-            ch_reads,
+            ch_samplesheet,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
@@ -128,7 +121,7 @@ workflow DUALRNASEQ {
     // Run if STAR genome alignment
     if (params.run_star) {
         STAR_ALIGNMENT(
-            ch_reads,
+            ch_samplesheet,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_genes_gff,
         )
@@ -150,5 +143,5 @@ workflow DUALRNASEQ {
 
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions // channel: [ path(versions.yml) ]
+    versions = ch_versions // channel: [ path(versions.yml) ]
 }
