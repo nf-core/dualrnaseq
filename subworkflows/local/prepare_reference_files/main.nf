@@ -90,13 +90,13 @@ workflow PREPARE_REFERENCE_FILES {
     // -------------------
 
     // Capture files
-    ch_host_fasta_genome = Channel.value(file(params.host_fasta_genome, checkIfExists: true))
-    ch_host_gff = Channel.value(file(params.host_gff, checkIfExists: true))
-    ch_pathogen_gff = Channel.value(file(params.pathogen_gff, checkIfExists: true))
-    ch_pathogen_fasta_genome = Channel.value(file(params.pathogen_fasta_genome, checkIfExists: true))
+    ch_host_fasta_genome = Channel.value(file(host_fasta_genome, checkIfExists: true))
+    ch_host_gff = Channel.value(file(host_gff, checkIfExists: true))
+    ch_pathogen_gff = Channel.value(file(pathogen_gff, checkIfExists: true))
+    ch_pathogen_fasta_genome = Channel.value(file(pathogen_fasta_genome, checkIfExists: true))
 
     // Uncompress pathogen (genome) fasta if needed
-    if (params.pathogen_fasta_genome.endsWith('.gz') || params.pathogen_fasta_genome.endsWith('.zip')) {
+    if (pathogen_fasta_genome.endsWith('.gz') || pathogen_fasta_genome.endsWith('.zip')) {
         ch_pathogen_fasta_genome_unzipped = UNCOMPRESS_PATHOGEN_FASTA_GENOME(ch_pathogen_fasta_genome)
     }
     else {
@@ -104,7 +104,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress pathogen gff if needed
-    if (params.pathogen_gff.endsWith('.gz') || params.pathogen_gff.endsWith('.zip')) {
+    if (pathogen_gff.endsWith('.gz') || pathogen_gff.endsWith('.zip')) {
         ch_pathogen_gff_unzipped = UNCOMPRESS_PATHOGEN_GFF(ch_pathogen_gff)
     }
     else {
@@ -112,7 +112,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress host fasta if needed
-    if (params.host_fasta_genome.endsWith('.gz') || params.host_fasta_genome.endsWith('.zip')) {
+    if (host_fasta_genome.endsWith('.gz') || host_fasta_genome.endsWith('.zip')) {
         ch_host_fasta_genome_unzipped = UNCOMPRESS_HOST_FASTA_GENOME(ch_host_fasta_genome)
     }
     else {
@@ -120,7 +120,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress host gff if needed
-    if (params.host_gff.endsWith('.gz') || params.host_gff.endsWith('.zip')) {
+    if (host_gff.endsWith('.gz') || host_gff.endsWith('.zip')) {
         ch_host_gff_unzipped = UNCOMPRESS_HOST_GFF(ch_host_gff)
     }
     else {
