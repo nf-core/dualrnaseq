@@ -55,10 +55,6 @@ workflow PREPARE_REFERENCE_FILES {
 
     main:
     // set empty channels for conditional outputs
-    ch_transcriptome = Channel.empty()
-    ch_host_transcriptome = Channel.empty()
-    ch_pathogen_transcriptome = Channel.empty()
-    ch_host_pathogen_gff = Channel.empty()
     ch_combined_pathogen_host_gff_htseq = Channel.empty()
     ch_extracted_annotations_host_htseq = Channel.empty()
     ch_extract_annotations_pathogen_htseq = Channel.empty()
