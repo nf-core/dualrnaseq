@@ -43,8 +43,6 @@ workflow DUALRNASEQ {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    //salmon_sa_out = Channel.empty()
-    salmon_ab_out = Channel.empty()
 
     // Initialize required channels
     //ch_workflow_summary = Channel.empty()
@@ -108,7 +106,6 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon,
         )
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
-        salmon_ab_out = SALMON_ALIGNMENT_BASED.out
     }
 
     // Run if STAR genome alignment
