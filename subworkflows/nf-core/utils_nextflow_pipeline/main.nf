@@ -110,8 +110,9 @@ def checkCondaChannels() {
     // Check that they are in the right order
     def channel_priority_violation = required_channels_in_order != channels.findAll { ch -> ch in required_channels_in_order }
 
-    if (channels_missing | channel_priority_violation) {
-        log.warn """\
+    if (channels_missing || channel_priority_violation) {
+        log.warn(
+"""\
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             There is a problem with your Conda configuration!
             You will need to set-up the conda-forge and bioconda channels correctly.
@@ -122,5 +123,6 @@ def checkCondaChannels() {
             ${required_channels_in_order}
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         """.stripIndent(true)
+)
     }
 }
