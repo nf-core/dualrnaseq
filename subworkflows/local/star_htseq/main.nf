@@ -1,4 +1,4 @@
-include { STAR_GENOMEGENERATE } from '../../../modules/nf-core/star/genomegenerate/main'
+include { STAR_GENOMEGENERATE } from '../../../modules/nf-core/star/genomegenerate'
 include { STAR_ALIGN } from '../../../modules/local/star_align_genome'
 include { HTSEQ_COUNT } from '../../../modules/local/htseq_count'
 

@@ -59,7 +59,6 @@ workflow PREPARE_REFERENCE_FILES {
     ch_extracted_annotations_host_htseq = Channel.empty()
     ch_extract_annotations_pathogen_htseq = Channel.empty()
 
-
     // NOTE:
     // Formatting the params this way as had issues with linting
     // The issue was the format, ie ["a","b","c"], which is an array,
@@ -72,15 +71,13 @@ workflow PREPARE_REFERENCE_FILES {
     // params.hts_host_gff_gene_feature_to_count
 
     def pathogenFeaturesList = params.gene_feature_gff_to_create_transcriptome_pathogen.split(',')
-    ch_gene_feature_pathogen = Channel
-        .value(pathogenFeaturesList)
+    ch_gene_feature_pathogen = Channel.value(pathogenFeaturesList)
         .collect()
 
     // ch_gene_feature_pathogen.view {"pathogen features: $it"}
 
     def hostFeaturesList = params.gene_feature_gff_to_create_transcriptome_host.split(',')
-    ch_gene_feature_host = Channel
-        .value(hostFeaturesList)
+    ch_gene_feature_host = Channel.value(hostFeaturesList)
         .collect()
 
     // ch_gene_feature_host.view {"host features: $it"}
@@ -236,8 +233,7 @@ workflow PREPARE_REFERENCE_FILES {
         ch_host_genome_gff_salmon_sa = REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST.out
         REPLACE_GENE_FEATURE_GFF_HOST_SALMON(
             ch_host_genome_gff_salmon_sa,
-            //params.gene_feature_gff_to_create_transcriptome_host,
-            ch_gene_feature_host
+            ch_gene_feature_host,
         )
 
         // ---
@@ -304,7 +300,6 @@ workflow PREPARE_REFERENCE_FILES {
             'salmon',
         )
     }
-    // end --> if(params.run_salmon_SA | params.run_salmon_AB) {
 
 
     if (params.htseq) {
@@ -316,7 +311,7 @@ workflow PREPARE_REFERENCE_FILES {
         // Replaces selected feature in 3rd colun with quant
         REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
             ch_host_gff_unzipped,
-            params.hts_host_gff_gene_feature_to_count, // needs to be updated
+            params.hts_host_gff_gene_feature_to_count,
         )
 
         // Replaces attribute in 9th column with the pathogen attribute
@@ -334,7 +329,7 @@ workflow PREPARE_REFERENCE_FILES {
         // Replaces selected feature in 3rd colun with quant
         REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ(
             ch_pathogen_gff_unzipped,
-            params.hts_pathogen_gff_gene_feature_to_count, // needs to be updated
+            params.hts_pathogen_gff_gene_feature_to_count,
         )
 
         //----
