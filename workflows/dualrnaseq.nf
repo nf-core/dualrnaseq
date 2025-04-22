@@ -53,23 +53,19 @@ workflow DUALRNASEQ {
     ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
-
-    // if skip_tools passed, but not contain fastqc
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
+    if (params.fastqc) {
         FASTQC(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
-    // if skip_tools passed, but not contain cutadapt
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
+    if (params.cutadapt) {
         CUTADAPT(ch_samplesheet)
-        ch_samplesheet = CUTADAPT.out.reads
+        ch_reads = CUTADAPT.out.reads
         ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
-    // if skip_tools passed, but not contain fastqc and cutadapt - so should run fastqc after trimming
-    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
-        FASTQC_AFTER_TRIMMING(ch_samplesheet)
+    if (params.fastqc && params.cutadapt) {
+        FASTQC_AFTER_TRIMMING(ch_reads)
         ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
 
@@ -89,10 +85,9 @@ workflow DUALRNASEQ {
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
-    // Run Salmon selective alighment
-    if (params.run_salmon_SA) {
+    if (params.salmon_sa) {
         SALMON_SELECTIVE_ALIGNMENT(
-            ch_samplesheet,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
@@ -102,11 +97,9 @@ workflow DUALRNASEQ {
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
     }
-
-    // Run Salmon alignment based
-    if (params.run_salmon_AB) {
+    if (params.salmon_ab) {
         SALMON_ALIGNMENT_BASED(
-            ch_samplesheet,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_transcripts,
             PREPARE_REFERENCE_FILES.out.host_pathogen_transcripts_gff,
@@ -119,9 +112,9 @@ workflow DUALRNASEQ {
     }
 
     // Run if STAR genome alignment
-    if (params.run_star) {
+    if (params.star) {
         STAR_ALIGNMENT(
-            ch_samplesheet,
+            ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
             PREPARE_REFERENCE_FILES.out.host_pathogen_genes_gff,
         )

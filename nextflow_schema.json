@@ -82,7 +82,8 @@
                     "description": "Do not load the iGenomes reference config.",
                     "fa_icon": "fas fa-ban",
                     "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`.",
+                    "default": true
                 },
                 "igenomes_base": {
                     "type": "string",
@@ -107,12 +108,14 @@
                 "host_organism": {
                     "type": "string",
                     "description": "Change to custom name if desired, ie Human_hela_cells",
-                    "fa_icon": "far fa-file"
+                    "fa_icon": "far fa-file",
+                    "default": "host"
                 },
                 "pathogen_organism": {
                     "type": "string",
                     "description": "Change to custom name if desired, ie Salmonella_SL1344",
-                    "fa_icon": "far fa-file"
+                    "fa_icon": "far fa-file",
+                    "default": "pathogen"
                 },
                 "host_fasta_genome": {
                     "type": "string",
@@ -233,10 +236,10 @@
             "description": "Parameters listed below are available only for Salmon with Selective Alignment.",
             "default": "",
             "properties": {
-                "run_salmon_SA": {
+                "salmon_sa": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Run Salmon selective alignment. Does not need a value, just run --run_salmon_SA",
+                    "description": "Run Salmon selective alignment. Does not need a value, just run --salmon_sa",
                     "fa_icon": "fas fa-running"
                 },
                 "salmon_sa_index_args": {
@@ -260,7 +263,7 @@
             "description": "Options for Alignment-based mode",
             "default": "",
             "properties": {
-                "run_salmon_AB": {
+                "salmon_ab": {
                     "type": "boolean",
                     "default": false,
                     "description": "To run Salmon alignment-based mode",
@@ -292,7 +295,7 @@
             "description": "Options for STAR genome alignment",
             "default": "",
             "properties": {
-                "run_star": {
+                "star": {
                     "type": "boolean",
                     "default": false,
                     "description": "To run STAR genome alignment",
@@ -320,7 +323,7 @@
                 "limitBAMsortRAM": {
                     "type": "integer",
                     "description": "Option to limit RAM when sorting BAM file. If 0, will be set to the genome index size, which can be quite large when running on a desktop or laptop",
-                    "default": "0",
+                    "default": 0,
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "star_args": {
@@ -338,7 +341,7 @@
             "description": "Options for HTSeq count",
             "default": "",
             "properties": {
-                "run_htseq": {
+                "htseq": {
                     "type": "boolean",
                     "default": false,
                     "description": "To run HTSeq count on a aligned genome file",
@@ -569,13 +572,6 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
-                },
-                "skip_tools": {
-                    "type": "string",
-                    "fa_icon": "fas fa-forward",
-                    "description": "Disable specified tools.",
-                    "help_text": "Multiple tools can be specified, separated by commas.",
-                    "pattern": "^((baserecalibrator|baserecalibrator_report|bcftools|documentation|fastqc|markduplicates|markduplicates_report|mosdepth|multiqc|samtools|vcftools|versions)?,?)*[^,]+$"
                 }
             }
         }
@@ -617,5 +613,15 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "fastqc": {
+            "type": "boolean",
+            "default": true
+        },
+        "cutadapt": {
+            "type": "boolean",
+            "default": true
+        }
+    }
 }

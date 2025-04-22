@@ -39,8 +39,7 @@ workflow STAR_HTSEQ {
     // -------
     // Run HTSeq-count
     // -------
-    if (params.run_htseq) {
-
+    if (params.htseq) {
         HTSEQ_COUNT(
             STAR_ALIGN.out.bam_sorted,
             ch_host_pathogen_gff,

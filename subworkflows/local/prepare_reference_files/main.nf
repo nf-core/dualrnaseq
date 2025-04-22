@@ -152,7 +152,7 @@ workflow PREPARE_REFERENCE_FILES {
     // -------------------
 
     // Salmon SA or Salmon AB (transcriptome-based)
-    if (params.run_salmon_SA | params.run_salmon_AB) {
+    if (params.salmon_sa || params.salmon_ab) {
 
         // HOST - Has a host transcriptome (fasta) been passed?
         if (params.host_fasta_transcripts) {
@@ -311,7 +311,7 @@ workflow PREPARE_REFERENCE_FILES {
     // end --> if(params.run_salmon_SA | params.run_salmon_AB) {
 
 
-    if (params.run_htseq) {
+    if (params.htseq) {
 
         //----
         // Prepare the host files
