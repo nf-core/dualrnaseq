@@ -62,7 +62,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
     //  Combine all quant results
     // -------
     // get input file paths (list) of all quant output
-    input_files = SALMON_QUANT.out.results.map { it -> it[1] }.collect()
+    input_files = SALMON_QUANT.out.results.map { it[1] }.collect()
 
     // Combines all quant results into a file
     COMBINE_QUANTIFICATION_RESULTS_SALMON(
@@ -75,15 +75,7 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
     // Combine all meta data from each datasets
     // -------
     COMBINE_QUANTIFICATION_RESULTS_SALMON.out.combined_quant_data
-        .map { it ->
-            def meta = [:]
-            // create empty map: meta
-            meta.id = "combined"
-            // sets id with combined
-            def path_res = it
-            // assign input (the combined quant path) to path_res
-            return [meta, [it]]
-        }
+        .map { [[id: "combined"], [it]] }
         .set { combined_salmon_quant }
     // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
 
