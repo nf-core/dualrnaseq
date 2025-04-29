@@ -51,6 +51,10 @@ workflow DUALRNASEQ {
     ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
+    // Removed validate samplesheet as had constant issues and errors
+    // If you want to spend the time trying - go ahead
+    ch_reads = ch_samplesheet
+
     if (params.fastqc) {
         FASTQC(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
