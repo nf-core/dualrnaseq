@@ -7,7 +7,6 @@ include { EXTRACT_PROCESSED_READS } from '../../../modules/local/extract_process
 include { COLLATE_PROCESSED_READS } from '../../../modules/local/collate_processed_reads'
 include { TXIMPORT } from '../../../modules/local/tximport/main'
 
-
 workflow SALMON_SELECTIVE_ALIGNMENT {
     take:
     ch_reads // channel: [ val(meta), [ reads ] ]
@@ -74,10 +73,10 @@ workflow SALMON_SELECTIVE_ALIGNMENT {
     // -------
     // Combine all meta data from each datasets
     // -------
+    // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
     COMBINE_QUANTIFICATION_RESULTS_SALMON.out.combined_quant_data
         .map { [[id: "combined"], [it]] }
         .set { combined_salmon_quant }
-    // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
 
 
     // -------

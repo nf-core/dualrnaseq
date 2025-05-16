@@ -91,10 +91,10 @@ workflow SALMON_ALIGNMENT_BASED {
     // -------
     // Combine all meta data from each datasets
     // -------
+    // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
     COMBINE_QUANTIFICATION_RESULTS_SALMON.out.combined_quant_data
         .map { [[id: "combined"], [it]] }
         .set { combined_salmon_quant }
-    // set the resulting channel to combined_salmon_quant - containing a tuple [meta, [combined_file_path]]
 
 
     // -------
