@@ -9,10 +9,10 @@
 //
 
 //subworkflow and module inclusion
-include { PREPARE_REFERENCE_FILES } from '../subworkflows/local/prepare_reference_files'
-include { SALMON_SELECTIVE_ALIGNMENT } from '../subworkflows/local/salmon_selective_alignment'
-include { SALMON_ALIGNMENT_BASED } from '../subworkflows/local/salmon_alignment_based'
-include { STAR_HTSEQ as STAR_ALIGNMENT } from '../subworkflows/local/star_htseq'
+include { PREPARE_REFERENCE_FILES         } from '../subworkflows/local/prepare_reference_files'
+include { SALMON_SELECTIVE_ALIGNMENT      } from '../subworkflows/local/salmon_selective_alignment'
+include { SALMON_ALIGNMENT_BASED          } from '../subworkflows/local/salmon_alignment_based'
+include { STAR_HTSEQ as STAR_ALIGNMENT    } from '../subworkflows/local/star_htseq'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,11 +23,11 @@ include { STAR_HTSEQ as STAR_ALIGNMENT } from '../subworkflows/local/star_htseq'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC } from '../modules/nf-core/fastqc'
+include { FASTQC                          } from '../modules/nf-core/fastqc'
 include { FASTQC as FASTQC_AFTER_TRIMMING } from '../modules/nf-core/fastqc'
-include { CUTADAPT } from '../modules/nf-core/cutadapt'
-include { MULTIQC } from '../modules/nf-core/multiqc'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions'
+include { CUTADAPT                        } from '../modules/nf-core/cutadapt'
+include { MULTIQC                         } from '../modules/nf-core/multiqc'
+include { CUSTOM_DUMPSOFTWAREVERSIONS     } from '../modules/nf-core/custom/dumpsoftwareversions'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,5 +137,5 @@ workflow DUALRNASEQ {
 
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    versions = ch_versions // channel: [ path(versions.yml) ]
+    versions       = ch_versions // channel: [ path(versions.yml) ]
 }

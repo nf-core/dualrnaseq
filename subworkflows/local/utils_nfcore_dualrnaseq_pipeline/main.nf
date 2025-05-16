@@ -8,13 +8,13 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN } from '../../nf-core/utils_nfschema_plugin'
-include { paramsSummaryMap } from 'plugin/nf-schema'
-include { samplesheetToList } from 'plugin/nf-schema'
-include { completionEmail } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN   } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap        } from 'plugin/nf-schema'
+include { samplesheetToList       } from 'plugin/nf-schema'
+include { completionEmail         } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary       } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification          } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE   } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
 
 /*
@@ -25,12 +25,12 @@ include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
 
 workflow PIPELINE_INITIALISATION {
     take:
-    version // boolean: Display version and exit
-    validate_params // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs // boolean: Do not use coloured log outputs
+    version           // boolean: Display version and exit
+    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir //  string: The output directory where the results will be saved
-    input //  string: Path to input samplesheet
+    outdir            //  string: The output directory where the results will be saved
+    input             //  string: Path to input samplesheet
 
     main:
 
@@ -91,7 +91,7 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     samplesheet = ch_samplesheet
-    versions = ch_versions
+    versions    = ch_versions
 }
 
 /*
@@ -102,13 +102,13 @@ workflow PIPELINE_INITIALISATION {
 
 workflow PIPELINE_COMPLETION {
     take:
-    email //  string: email address
-    email_on_fail //  string: email address sent on pipeline failure
+    email           //  string: email address
+    email_on_fail   //  string: email address sent on pipeline failure
     plaintext_email // boolean: Send plain-text email instead of HTML
-    outdir //    path: Path to output directory where results will be published
+    outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url //  string: hook URL for notifications
-    multiqc_report //  string: Path to MultiQC report
+    hook_url        //  string: hook URL for notifications
+    multiqc_report  //  string: Path to MultiQC report
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")

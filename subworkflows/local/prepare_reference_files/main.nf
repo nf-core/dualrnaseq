@@ -33,8 +33,8 @@ include {
 } from '../../../modules/local/combine_files'
 
 
-include { PREPARE_HOST_TRANSCRIPTOME } from '../prepare_host_transcriptome/main'
-include { PREPARE_PATHOGEN_TRANSCRIPTOME } from '../prepare_pathogen_transcriptome/main'
+include { PREPARE_HOST_TRANSCRIPTOME                                           } from '../prepare_host_transcriptome/main'
+include { PREPARE_PATHOGEN_TRANSCRIPTOME                                       } from '../prepare_pathogen_transcriptome/main'
 
 
 // These extract files into .tsv for users to use for downstream analysis of their own
@@ -48,10 +48,10 @@ include {
 
 workflow PREPARE_REFERENCE_FILES {
     take:
-    host_fasta_genome //fasta_host
-    host_gff //gff_host
+    host_fasta_genome     //fasta_host
+    host_gff              //gff_host
     pathogen_fasta_genome //fasta_pathogen
-    pathogen_gff //gff_pathogen
+    pathogen_gff          //gff_pathogen
 
     main:
     // set empty channels for conditional outputs
@@ -373,14 +373,14 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     emit:
-    host_pathogen_fasta_genome = COMBINE_FILES_FASTA.out // 'host_pathogen_genome.fasta'
+    host_pathogen_fasta_genome      = COMBINE_FILES_FASTA.out // 'host_pathogen_genome.fasta'
     host_pathogen_fasta_transcripts = ch_combined_fasta_transcripts // 'host_pathogen_transcriptome'
-    host_fasta_transcripts = ch_host_fasta_transcripts_unzipped
-    pathogen_fasta_transcripts = ch_pathogen_fasta_transcripts_unzipped
-    host_pathogen_genes_gff = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
-    host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
-    annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
-    annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
-    annotations_host_htseq = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
-    annotations_pathogen_htseq = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
+    host_fasta_transcripts          = ch_host_fasta_transcripts_unzipped
+    pathogen_fasta_transcripts      = ch_pathogen_fasta_transcripts_unzipped
+    host_pathogen_genes_gff         = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
+    host_pathogen_transcripts_gff   = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
+    annotations_host_salmon         = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
+    annotations_pathogen_salmon     = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+    annotations_host_htseq          = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
+    annotations_pathogen_htseq      = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
 }

@@ -16,9 +16,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { DUALRNASEQ } from './workflows/dualrnaseq'
+include { DUALRNASEQ              } from './workflows/dualrnaseq'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
-include { PIPELINE_COMPLETION } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
 // include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
 
 
@@ -57,7 +57,7 @@ workflow NFCORE_DUALRNASEQ {
 
     emit:
     multiqc_report = DUALRNASEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
-    versions = DUALRNASEQ.out.versions
+    versions       = DUALRNASEQ.out.versions
     //salmon_sa = DUALRNASEQ.out.salmon_sa
     //salmon_ab = DUALRNASEQ.out.salmon_ab
 }

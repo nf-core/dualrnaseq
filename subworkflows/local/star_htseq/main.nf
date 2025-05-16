@@ -1,10 +1,10 @@
 include { STAR_GENOMEGENERATE } from '../../../modules/nf-core/star/genomegenerate'
-include { STAR_ALIGN } from '../../../modules/local/star_align_genome'
-include { HTSEQ_COUNT } from '../../../modules/local/htseq_count'
+include { STAR_ALIGN          } from '../../../modules/local/star_align_genome'
+include { HTSEQ_COUNT         } from '../../../modules/local/htseq_count'
 
 workflow STAR_HTSEQ {
     take:
-    ch_reads // channel: [ val(meta), [ reads ] ]
+    ch_reads                      // channel: [ val(meta), [ reads ] ]
     ch_host_pathogen_fasta_genome
     ch_host_pathogen_gff
 

@@ -1,5 +1,5 @@
 include { CREATE_TRANSCRIPTOME_FASTA } from '../../../modules/local/create_transcriptome_fasta'
-include { COMBINE_FILES } from '../../../modules/local/combine_files'
+include { COMBINE_FILES              } from '../../../modules/local/combine_files'
 
 
 workflow PREPARE_PATHOGEN_TRANSCRIPTOME {
