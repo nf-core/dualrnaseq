@@ -22,19 +22,19 @@ process STAR_ALIGN {
     // In future releases there is probably a more elegant way of doing this
 
     output:
-    tuple val(meta), path('*d.out.bam'), emit: bam
-    tuple val(meta), path('*Log.final.out'), emit: log_final
-    tuple val(meta), path('*Log.out'), emit: log_out
+    tuple val(meta), path('*d.out.bam'),        emit: bam
+    tuple val(meta), path('*Log.final.out'),    emit: log_final
+    tuple val(meta), path('*Log.out'),          emit: log_out
     tuple val(meta), path('*Log.progress.out'), emit: log_progress
-    path "versions.yml", emit: versions
+    path "versions.yml",                        emit: versions
 
-    tuple val(meta), path('*sortedByCoord.out.bam'), optional: true, emit: bam_sorted
-    // tuple val(meta), path('*toTranscriptome.out.bam'), optional:true, emit: bam_transcript
-    tuple val(meta), path('*Aligned.unsort.out.bam'), optional: true, emit: bam_unsorted
-    tuple val(meta), path('*fastq.gz'), optional: true, emit: fastq
-    tuple val(meta), path('*.tab'), optional: true, emit: tab
-    tuple val(meta), path('*.out.junction'), optional: true, emit: junction
-    tuple val(meta), path('*.out.sam'), optional: true, emit: sam
+    tuple val(meta),    path('*sortedByCoord.out.bam'),   optional: true, emit: bam_sorted
+    // tuple val(meta), path('*toTranscriptome.out.bam'), optional:true,  emit: bam_transcript
+    tuple val(meta),    path('*Aligned.unsort.out.bam'),  optional: true, emit: bam_unsorted
+    tuple val(meta),    path('*fastq.gz'),                optional: true, emit: fastq
+    tuple val(meta),    path('*.tab'),                    optional: true, emit: tab
+    tuple val(meta),    path('*.out.junction'),           optional: true, emit: junction
+    tuple val(meta),    path('*.out.sam'),                optional: true, emit: sam
 
     when:
     task.ext.when == null || task.ext.when
