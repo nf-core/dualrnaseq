@@ -10,9 +10,9 @@
 
 workflow UTILS_NEXTFLOW_PIPELINE {
     take:
-    print_version // boolean: print version
-    dump_parameters // boolean: dump parameters
-    outdir //    path: base directory used to publish pipeline results
+    print_version        // boolean: print version
+    dump_parameters      // boolean: dump parameters
+    outdir               // path: base directory used to publish pipeline results
     check_conda_channels // boolean: check conda channels
 
     main:
