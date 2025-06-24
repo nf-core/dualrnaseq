@@ -58,6 +58,7 @@ workflow DUALRNASEQ {
     if (params.fastqc) {
         FASTQC(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
     }
 
     if (params.cutadapt) {
@@ -83,8 +84,6 @@ workflow DUALRNASEQ {
         params.pathogen_fasta_genome,
         params.pathogen_gff,
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect { it[1] })
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
     if (params.salmon_sa) {

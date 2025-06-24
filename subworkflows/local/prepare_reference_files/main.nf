@@ -58,6 +58,9 @@ workflow PREPARE_REFERENCE_FILES {
     ch_combined_pathogen_host_gff_htseq = Channel.empty()
     ch_extracted_annotations_host_htseq = Channel.empty()
     ch_extract_annotations_pathogen_htseq = Channel.empty()
+    ch_combined_fasta_transcripts = Channel.empty()
+    ch_host_fasta_transcripts_unzipped = Channel.empty()
+    ch_pathogen_fasta_transcripts_unzipped = Channel.empty()
 
     // NOTE:
     // Formatting the params this way as had issues with linting
@@ -204,7 +207,6 @@ workflow PREPARE_REFERENCE_FILES {
             'host_pathogen_transcripts.fasta',
         )
         ch_combined_fasta_transcripts = COMBINE_FILES_TRANSCRIPTOME_FILES.out
-
 
 
         // --------------
@@ -378,9 +380,9 @@ workflow PREPARE_REFERENCE_FILES {
     host_fasta_transcripts          = ch_host_fasta_transcripts_unzipped
     pathogen_fasta_transcripts      = ch_pathogen_fasta_transcripts_unzipped
     host_pathogen_genes_gff         = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
-    host_pathogen_transcripts_gff   = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
-    annotations_host_salmon         = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
-    annotations_pathogen_salmon     = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+    host_pathogen_transcripts_gff   = params.salmon_sa || params.salmon_ab ? COMBINE_FILES_PATHOGEN_HOST_GFF.out : Channel.empty() // 'host_pathogen_transcripts.gff'
+    annotations_host_salmon         = params.salmon_sa || params.salmon_ab ? EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations : Channel.empty() // extracted_annotations_host_salmon.tsv
+    annotations_pathogen_salmon     = params.salmon_sa || params.salmon_ab ? EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations : Channel.empty() // extracted_annotations_pathogen_salmon.tsv
     annotations_host_htseq          = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
     annotations_pathogen_htseq      = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
 }
