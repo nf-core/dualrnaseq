@@ -43,8 +43,6 @@ workflow DUALRNASEQ {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    //salmon_sa_out = Channel.empty()
-    salmon_ab_out = Channel.empty()
 
     // Initialize required channels
     //ch_workflow_summary = Channel.empty()
@@ -53,28 +51,22 @@ workflow DUALRNASEQ {
     ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     ch_multiqc_logo = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo) : Channel.empty()
 
-
-
     // Removed validate samplesheet as had constant issues and errors
     // If you want to spend the time trying - go ahead
     ch_reads = ch_samplesheet
 
-
-    // if skip_tools passed, but not contain fastqc
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('fastqc'))) {
-        FASTQC(ch_reads)
+    if (params.fastqc) {
+        FASTQC(ch_samplesheet)
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
 
-    // if skip_tools passed, but not contain cutadapt
-    if (!(params.skip_tools && params.skip_tools.split(',').contains('cutadapt'))) {
-        CUTADAPT(ch_reads)
+    if (params.cutadapt) {
+        CUTADAPT(ch_samplesheet)
         ch_reads = CUTADAPT.out.reads
         ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
     }
 
-    // if skip_tools passed, but not contain fastqc and cutadapt - so should run fastqc after trimming
-    if (!(params.skip_tools && (params.skip_tools.split(',').contains('fastqc') || params.skip_tools.split(',').contains('cutadapt')))) {
+    if (params.fastqc && params.cutadapt) {
         FASTQC_AFTER_TRIMMING(ch_reads)
         ch_versions = ch_versions.mix(FASTQC_AFTER_TRIMMING.out.versions.first())
     }
@@ -95,8 +87,7 @@ workflow DUALRNASEQ {
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
-    // Run Salmon selective alighment
-    if (params.run_salmon_SA) {
+    if (params.salmon_sa) {
         SALMON_SELECTIVE_ALIGNMENT(
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
@@ -107,11 +98,8 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon,
         )
         ch_versions = ch_versions.mix(SALMON_SELECTIVE_ALIGNMENT.out.versions)
-        //salmon_sa_out = SALMON_SELECTIVE_ALIGNMENT.out
     }
-
-    // Run Salmon alignment based
-    if (params.run_salmon_AB) {
+    if (params.salmon_ab) {
         SALMON_ALIGNMENT_BASED(
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,
@@ -122,11 +110,10 @@ workflow DUALRNASEQ {
             PREPARE_REFERENCE_FILES.out.annotations_host_salmon,
         )
         ch_versions = ch_versions.mix(SALMON_ALIGNMENT_BASED.out.versions)
-        salmon_ab_out = SALMON_ALIGNMENT_BASED.out
     }
 
     // Run if STAR genome alignment
-    if (params.run_star) {
+    if (params.star) {
         STAR_ALIGNMENT(
             ch_reads,
             PREPARE_REFERENCE_FILES.out.host_pathogen_fasta_genome,

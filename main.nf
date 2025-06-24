@@ -16,7 +16,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { DUALRNASEQ  } from './workflows/dualrnaseq'
+include { DUALRNASEQ              } from './workflows/dualrnaseq'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
 // include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_dualrnaseq_pipeline'
@@ -53,11 +53,11 @@ workflow NFCORE_DUALRNASEQ {
     //
     // WORKFLOW: Run pipeline
     //
-    DUALRNASEQ (samplesheet)
+    DUALRNASEQ(samplesheet)
 
     emit:
     multiqc_report = DUALRNASEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
-    versions = DUALRNASEQ.out.versions
+    versions       = DUALRNASEQ.out.versions
     //salmon_sa = DUALRNASEQ.out.salmon_sa
     //salmon_ab = DUALRNASEQ.out.salmon_ab
 }
@@ -68,42 +68,34 @@ workflow NFCORE_DUALRNASEQ {
 */
 
 workflow {
-
-    main:
     //
     // SUBWORKFLOW: Run initialisation tasks
     //
-    PIPELINE_INITIALISATION (
+    PIPELINE_INITIALISATION(
         params.version,
         params.validate_params,
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
     )
 
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORE_DUALRNASEQ (
+    NFCORE_DUALRNASEQ(
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
     // SUBWORKFLOW: Run completion tasks
     //
-    PIPELINE_COMPLETION (
+    PIPELINE_COMPLETION(
         params.email,
         params.email_on_fail,
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
         params.hook_url,
-        NFCORE_DUALRNASEQ.out.multiqc_report
+        NFCORE_DUALRNASEQ.out.multiqc_report,
     )
 }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/

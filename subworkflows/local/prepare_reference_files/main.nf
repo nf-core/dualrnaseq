@@ -33,8 +33,8 @@ include {
 } from '../../../modules/local/combine_files'
 
 
-include { PREPARE_HOST_TRANSCRIPTOME } from '../prepare_host_transcriptome/main'
-include { PREPARE_PATHOGEN_TRANSCRIPTOME } from '../prepare_pathogen_transcriptome/main'
+include { PREPARE_HOST_TRANSCRIPTOME                                           } from '../prepare_host_transcriptome/main'
+include { PREPARE_PATHOGEN_TRANSCRIPTOME                                       } from '../prepare_pathogen_transcriptome/main'
 
 
 // These extract files into .tsv for users to use for downstream analysis of their own
@@ -48,21 +48,16 @@ include {
 
 workflow PREPARE_REFERENCE_FILES {
     take:
-    host_fasta_genome //fasta_host
-    host_gff //gff_host
+    host_fasta_genome     //fasta_host
+    host_gff              //gff_host
     pathogen_fasta_genome //fasta_pathogen
-    pathogen_gff //gff_pathogen
+    pathogen_gff          //gff_pathogen
 
     main:
     // set empty channels for conditional outputs
-    ch_transcriptome = Channel.empty()
-    ch_host_transcriptome = Channel.empty()
-    ch_pathogen_transcriptome = Channel.empty()
-    ch_host_pathogen_gff = Channel.empty()
     ch_combined_pathogen_host_gff_htseq = Channel.empty()
     ch_extracted_annotations_host_htseq = Channel.empty()
     ch_extract_annotations_pathogen_htseq = Channel.empty()
-
 
     // NOTE:
     // Formatting the params this way as had issues with linting
@@ -76,15 +71,13 @@ workflow PREPARE_REFERENCE_FILES {
     // params.hts_host_gff_gene_feature_to_count
 
     def pathogenFeaturesList = params.gene_feature_gff_to_create_transcriptome_pathogen.split(',')
-    ch_gene_feature_pathogen = Channel
-        .value(pathogenFeaturesList)
+    ch_gene_feature_pathogen = Channel.value(pathogenFeaturesList)
         .collect()
 
     // ch_gene_feature_pathogen.view {"pathogen features: $it"}
 
     def hostFeaturesList = params.gene_feature_gff_to_create_transcriptome_host.split(',')
-    ch_gene_feature_host = Channel
-        .value(hostFeaturesList)
+    ch_gene_feature_host = Channel.value(hostFeaturesList)
         .collect()
 
     // ch_gene_feature_host.view {"host features: $it"}
@@ -94,13 +87,13 @@ workflow PREPARE_REFERENCE_FILES {
     // -------------------
 
     // Capture files
-    ch_host_fasta_genome = Channel.value(file(params.host_fasta_genome, checkIfExists: true))
-    ch_host_gff = Channel.value(file(params.host_gff, checkIfExists: true))
-    ch_pathogen_gff = Channel.value(file(params.pathogen_gff, checkIfExists: true))
-    ch_pathogen_fasta_genome = Channel.value(file(params.pathogen_fasta_genome, checkIfExists: true))
+    ch_host_fasta_genome = Channel.value(file(host_fasta_genome, checkIfExists: true))
+    ch_host_gff = Channel.value(file(host_gff, checkIfExists: true))
+    ch_pathogen_gff = Channel.value(file(pathogen_gff, checkIfExists: true))
+    ch_pathogen_fasta_genome = Channel.value(file(pathogen_fasta_genome, checkIfExists: true))
 
     // Uncompress pathogen (genome) fasta if needed
-    if (params.pathogen_fasta_genome.endsWith('.gz') || params.pathogen_fasta_genome.endsWith('.zip')) {
+    if (pathogen_fasta_genome.endsWith('.gz') || pathogen_fasta_genome.endsWith('.zip')) {
         ch_pathogen_fasta_genome_unzipped = UNCOMPRESS_PATHOGEN_FASTA_GENOME(ch_pathogen_fasta_genome)
     }
     else {
@@ -108,7 +101,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress pathogen gff if needed
-    if (params.pathogen_gff.endsWith('.gz') || params.pathogen_gff.endsWith('.zip')) {
+    if (pathogen_gff.endsWith('.gz') || pathogen_gff.endsWith('.zip')) {
         ch_pathogen_gff_unzipped = UNCOMPRESS_PATHOGEN_GFF(ch_pathogen_gff)
     }
     else {
@@ -116,7 +109,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress host fasta if needed
-    if (params.host_fasta_genome.endsWith('.gz') || params.host_fasta_genome.endsWith('.zip')) {
+    if (host_fasta_genome.endsWith('.gz') || host_fasta_genome.endsWith('.zip')) {
         ch_host_fasta_genome_unzipped = UNCOMPRESS_HOST_FASTA_GENOME(ch_host_fasta_genome)
     }
     else {
@@ -124,7 +117,7 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     // Uncompress host gff if needed
-    if (params.host_gff.endsWith('.gz') || params.host_gff.endsWith('.zip')) {
+    if (host_gff.endsWith('.gz') || host_gff.endsWith('.zip')) {
         ch_host_gff_unzipped = UNCOMPRESS_HOST_GFF(ch_host_gff)
     }
     else {
@@ -152,7 +145,7 @@ workflow PREPARE_REFERENCE_FILES {
     // -------------------
 
     // Salmon SA or Salmon AB (transcriptome-based)
-    if (params.run_salmon_SA | params.run_salmon_AB) {
+    if (params.salmon_sa || params.salmon_ab) {
 
         // HOST - Has a host transcriptome (fasta) been passed?
         if (params.host_fasta_transcripts) {
@@ -240,8 +233,7 @@ workflow PREPARE_REFERENCE_FILES {
         ch_host_genome_gff_salmon_sa = REPLACE_ATTRIBUTE_GFF_STAR_SALMON_HOST.out
         REPLACE_GENE_FEATURE_GFF_HOST_SALMON(
             ch_host_genome_gff_salmon_sa,
-            //params.gene_feature_gff_to_create_transcriptome_host,
-            ch_gene_feature_host
+            ch_gene_feature_host,
         )
 
         // ---
@@ -308,10 +300,9 @@ workflow PREPARE_REFERENCE_FILES {
             'salmon',
         )
     }
-    // end --> if(params.run_salmon_SA | params.run_salmon_AB) {
 
 
-    if (params.run_htseq) {
+    if (params.htseq) {
 
         //----
         // Prepare the host files
@@ -320,7 +311,7 @@ workflow PREPARE_REFERENCE_FILES {
         // Replaces selected feature in 3rd colun with quant
         REPLACE_GENE_FEATURE_GFF_HOST_HTSEQ(
             ch_host_gff_unzipped,
-            params.hts_host_gff_gene_feature_to_count, // needs to be updated
+            params.hts_host_gff_gene_feature_to_count,
         )
 
         // Replaces attribute in 9th column with the pathogen attribute
@@ -338,7 +329,7 @@ workflow PREPARE_REFERENCE_FILES {
         // Replaces selected feature in 3rd colun with quant
         REPLACE_GENE_FEATURE_GFF_PATHOGEN_HTSEQ(
             ch_pathogen_gff_unzipped,
-            params.hts_pathogen_gff_gene_feature_to_count, // needs to be updated
+            params.hts_pathogen_gff_gene_feature_to_count,
         )
 
         //----
@@ -382,14 +373,14 @@ workflow PREPARE_REFERENCE_FILES {
     }
 
     emit:
-    host_pathogen_fasta_genome = COMBINE_FILES_FASTA.out // 'host_pathogen_genome.fasta'
+    host_pathogen_fasta_genome      = COMBINE_FILES_FASTA.out // 'host_pathogen_genome.fasta'
     host_pathogen_fasta_transcripts = ch_combined_fasta_transcripts // 'host_pathogen_transcriptome'
-    host_fasta_transcripts = ch_host_fasta_transcripts_unzipped
-    pathogen_fasta_transcripts = ch_pathogen_fasta_transcripts_unzipped
-    host_pathogen_genes_gff = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
-    host_pathogen_transcripts_gff = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
-    annotations_host_salmon = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
-    annotations_pathogen_salmon = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
-    annotations_host_htseq = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
-    annotations_pathogen_htseq = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
+    host_fasta_transcripts          = ch_host_fasta_transcripts_unzipped
+    pathogen_fasta_transcripts      = ch_pathogen_fasta_transcripts_unzipped
+    host_pathogen_genes_gff         = ch_combined_pathogen_host_gff_htseq // 'host_pathogen_genes.gff'
+    host_pathogen_transcripts_gff   = COMBINE_FILES_PATHOGEN_HOST_GFF.out // 'host_pathogen_transcripts.gff'
+    annotations_host_salmon         = EXTRACT_ANNOTATIONS_HOST_SALMON.out.annotations // extracted_annotations_host_salmon.tsv
+    annotations_pathogen_salmon     = EXTRACT_ANNOTATIONS_PATHOGEN_SALMON.out.annotations // extracted_annotations_pathogen_salmon.tsv
+    annotations_host_htseq          = ch_extracted_annotations_host_htseq // extracted_annotations_host_htseq.tsv
+    annotations_pathogen_htseq      = ch_extract_annotations_pathogen_htseq // extracted_annotations_pathogen_htseq.tsv
 }
