@@ -1,0 +1,51 @@
+name: nf-core CI
+# This workflow runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: "Run all test configs"
+    # Only run on push if this is the nf-core dev branch (merged PRs)
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/dualrnaseq') }}"
+    runs-on: ubuntu-latest
+    strategy:
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: "${{ matrix.NXF_VER }}"
+
+      - name: Clean up Disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+
+      - name: "Run test"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile docker,test --outdir ./results
+
+      - name: "Run Salmon AB test"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile docker,test_ab --outdir ./results
+
+      - name: "Run Salmon SA test"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile docker,test_sa --outdir ./results
+
+      - name: "Run star/htseq test"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile docker,test_star_htseq --outdir ./results
+
+      - name: "Run all test"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile docker,test_all --outdir ./results
