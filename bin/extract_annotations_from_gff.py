@@ -117,9 +117,8 @@ if args.organism == 'pathogen':
     # check if data frame returns any values
     if gene_annotations_pathogen_df.empty:
         print('No features matched the input criteria of: ', gene_features, ' and ', args.gene_attribute)
-    else:
-        # save results
-        gene_annotations_pathogen_df.to_csv(args.output + '_' + args.gene_attribute + '_' + args.quantifier + ".tsv", index=False, sep='\t')
+    # save results
+    gene_annotations_pathogen_df.to_csv(args.output + '_' + args.gene_attribute + '_' + args.quantifier + ".tsv", index=False, sep='\t')
 
 elif args.organism == 'host':
     # dictionary of annotations for gff entries with desired gene feature
