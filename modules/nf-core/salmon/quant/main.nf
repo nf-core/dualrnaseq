@@ -85,4 +85,17 @@ process SALMON_QUANT {
         salmon: \$(echo \$(salmon --version) | sed -e "s/salmon //g")
     END_VERSIONS
     """
+
+    stub:
+    prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    mkdir -p ${prefix}/aux_info
+    touch ${prefix}/quant.sf
+    touch ${prefix}/aux_info/meta_info.json
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        salmon: \$(echo \$(salmon --version) | sed -e "s/salmon //g")
+    END_VERSIONS
+    """
 }
