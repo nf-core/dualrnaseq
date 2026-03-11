@@ -19,4 +19,9 @@ process COMBINE_QUANTIFICATION_RESULTS_HTS {
         -a ${gene_attribute} \
         -org ${organism}
     """
+
+    stub:
+    """
+    touch combined_${organism.tsv}
+    """
 }

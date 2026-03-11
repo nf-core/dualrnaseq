@@ -42,4 +42,23 @@ process EXTRACT_ANNOTATIONS {
         python: \$(python3 --version | awk '{ print \$2 }')
     END_VERSIONS
     """
+
+    stub:  
+    // TODO: determine the output of extracted annotations
+    // TODO: figure out the details for topic versions
+    /* extract annotations produces uses organism=pathogen: ${prefix}_${gene_attribute}_${quantifier}.tsv 
+                                                  host: ${prefix}_annotations_${quantifier}.tsv */
+    def prefix = task.ext.prefix ?: "extracted_annotations_${organism}_${quantifier}"  
+    """
+    if [ ${organism} == 'host' ]; then
+        touch ${prefix}_annotations_${quantifier}.tsv
+    elif [ ${organism} == 'pathogen' ]; then
+        touch ${prefix}_${gene_attribute}_${quantifier}.tsv
+    fi 
+
+     cat <<-END_VERSIONS > versions.yml 
+    "${task.process}":
+        python: \$(python3 --version | awk '{ print \$2 }')
+    END_VERSIONS
+    """
 }

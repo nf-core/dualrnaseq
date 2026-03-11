@@ -19,4 +19,9 @@ process COMBINE_QUANTIFICATION_RESULTS_SALMON {
         -a ${params.gene_attribute_gff_to_create_transcriptome_host} \
         -org ${organism}
     """
+
+    stub:
+    """
+    touch combined_${organism}.tsv
+    """
 }

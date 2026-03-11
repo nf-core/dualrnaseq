@@ -14,4 +14,10 @@ process REPLACE_GENE_FEATURE_GFF {
     """
     ${workflow.projectDir}/bin/replace_feature_gff.sh ${gff} ${outfile_name} ${features}
     """
+
+    stub:
+    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/, "_quant_feature.gff3")
+    """
+    touch ${outfile_name}
+    """
 }

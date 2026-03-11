@@ -17,4 +17,10 @@ process REPLACE_ATTRIBUTE_GFF {
     """
     ${workflow.projectDir}/bin/replace_attribute_gff.sh ${gff} ${outfile_name} ${attribute_out} ${attribute_in}
     """
+
+    stub:
+    outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/, "_${attribute_out}_attribute.gff3")
+    """
+    touch ${outfile_name}
+    """
 }

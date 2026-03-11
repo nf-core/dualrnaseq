@@ -46,4 +46,10 @@ process EXTRACT_PROCESSED_READS {
         exit 1
     fi
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.txt
+    """
 }

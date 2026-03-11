@@ -18,4 +18,9 @@ process CREATE_TRANSCRIPTOME_FASTA_GFFREAD {
     """
     gffread -w ${outfile_name} -g ${fasta} ${gff}
     """
+
+    stub:
+    """
+    touch ${outfile_name}
+    """
 }

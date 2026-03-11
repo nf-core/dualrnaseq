@@ -17,4 +17,9 @@ process CREATE_TRANSCRIPTOME_FASTA {
     """
         python ${workflow.projectDir}/bin/gff_to_fasta_transcriptome.py -fasta ${fasta} -gff ${gff}  -f ${features} -a ${attribute} -o ${outfile_name}
         """
+    
+    stub:
+    """
+    touch ${outfile_name}
+    """
 }
