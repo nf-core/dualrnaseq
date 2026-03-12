@@ -21,4 +21,20 @@ process TXIMPORT {
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
     template('tximport.R')
+
+    stub:
+    """
+    touch ${meta.id}_host_quant_gene_level.sf
+
+    Rscript -e "r.version <- strsplit(version[['version.string']], ' ')[[1]][3];
+                tximport.version <- as.character(packageVersion('tximport'));
+                writeLines(
+                    c(
+                        '"${task.process}":',
+                        paste('    r-base:', r.version),
+                        paste('    tximport:', tximport.version)
+                    ),
+                'versions.yml')"
+
+    """
 }

@@ -38,7 +38,7 @@ process HTSEQ_COUNT {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.txt
+    touch ${prefix}_counts.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -18,4 +18,9 @@ process COLLATE_PROCESSED_READS {
     # Concatenate all partial result files into the master file
     cat ${partial_results.join(' ')} > total_processed_reads.tsv
     """
+
+    stub:
+    """
+    touch total_processed_reads.tsv
+    """
 }

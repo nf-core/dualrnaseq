@@ -36,4 +36,13 @@ process SALMON_SPLIT_TABLE {
     | cat - host_quant \
     > host_quant.sf
     """
+
+    stub: // does this work?
+    """
+    touch host_quant.sf
+    touch pathogen_quant.sf
+
+    touch host_quant
+    touch pathogen_quant
+    """
 }

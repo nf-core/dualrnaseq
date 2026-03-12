@@ -15,4 +15,9 @@ process COMBINE_FILES {
     """
     cat ${file1} ${file2} > ${output_file}
     """
+
+    stub:
+    """
+    touch ${output_file}
+    """
 }
