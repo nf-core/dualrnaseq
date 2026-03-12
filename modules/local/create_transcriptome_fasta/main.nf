@@ -15,9 +15,9 @@ process CREATE_TRANSCRIPTOME_FASTA {
     script:
     outfile_name = gff[0].toString().replaceAll(/.gff3|.gff/, "_transcriptome.fasta")
     """
-        python ${workflow.projectDir}/bin/gff_to_fasta_transcriptome.py -fasta ${fasta} -gff ${gff}  -f ${features} -a ${attribute} -o ${outfile_name}
-        """
-    
+    python ${workflow.projectDir}/bin/gff_to_fasta_transcriptome.py -fasta ${fasta} -gff ${gff}  -f ${features} -a ${attribute} -o ${outfile_name}
+    """
+
     stub:
     """
     touch ${outfile_name}
